@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,7 +15,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     static final String EXTENSION = ".json";
 
+    public LinearLayout container;
     public TextView responseView;
     public Button scanButton;
     public CheckBox dairyCheckBox;
@@ -113,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         //set the main content layout of the Activity
         setContentView(R.layout.activity_main);
 
+        container = (LinearLayout) findViewById(R.id.container);
         responseView = (TextView) findViewById(R.id.responseView);
         scanButton = (Button) findViewById(R.id.scanButton);
         dairyCheckBox = (CheckBox) findViewById(R.id.dairyCheckBox);
@@ -177,30 +183,52 @@ public class MainActivity extends AppCompatActivity {
             JSONObject object = new JSONObject(response);
             JSONObject product = object.getJSONObject("product");
             String ingredients = product.getString("ingredients_text");
-            SetResponseTextBox(ingredients);
-            SetAllergenFreeCheckBoxes(IsDairyFree(StringToList(ingredients)));
+
+            List<String> editedIngredients = StringToList(ingredients);
+            boolean dairy = IsDairyFree(editedIngredients);
+            //SetResponseTextBox(editedIngredients);
+            SetAllergenIcons(dairy, false, false, false);
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
         }
     }
 
     public List<String> StringToList(String s) {
-        return new ArrayList<String>(Arrays.asList(s.split(", ")));
+        ArrayList<String> ingredients = new ArrayList<String>(Arrays.asList(s.split(", ")));
+        for (int i = 0; i < ingredients.size(); i++) {
+            ingredients.set(i, RemoveUnwantedCharacters(ingredients.get(i)));
+            Log.i("INFO", ingredients.get(i));
+        }
+        return ingredients;
+    }
+
+    public String RemoveUnwantedCharacters(String ingredient) {
+        String i = ingredient.replaceAll("[_%()]|(?<=\\().*?(?=\\))", "");
+        // replace any whitespace with nothing
+        return i.replaceAll("\\s+$", "");
     }
 
     public boolean IsDairyFree(List<String> list) {
         for (String ingredient : list) {
-            String i = ingredient.replaceAll("[_%()]|(?<=\\().*?(?=\\))", "");
-            Log.i("INFO", i);
-            if (dairy.contains(i)) {
+            if (dairy.contains(ingredient)) {
                 return true;
             }
         }
         return false;
     }
 
-    public void SetAllergenFreeCheckBoxes(boolean dairy) {
-        dairyCheckBox.setChecked(dairy);
+    public void SetAllergenIcons(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        RelativeLayout iconLayout = new RelativeLayout(this);
+        iconLayout.setLayoutParams(params);
+        container.addView(iconLayout);
+
+        if (dairy) {
+            ImageView dairyView = new ImageView(this);
+            dairyView.setScaleType(ImageView.ScaleType.MATRIX);
+            dairyView.setImageResource(R.drawable.dairy_free_icon);
+            iconLayout.addView(dairyView);
+        }
     }
 
     public void SetResponseTextBox(String response) {

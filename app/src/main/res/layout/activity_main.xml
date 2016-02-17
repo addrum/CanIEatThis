@@ -9,14 +9,48 @@
               android:weightSum="1"
               android:gravity="center">
 
-    <CheckBox
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Diary Free"
-        android:id="@+id/dairyCheckBox"
-        android:layout_gravity="center"
-        android:clickable="false"
-        android:gravity="center"/>
+        android:id="@+id/checkBoxLayout">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Diary Free"
+            android:id="@+id/dairyCheckBox"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:gravity="center"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vegetarian"
+            android:id="@+id/vegetarianCheckBox"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:gravity="center"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vegan"
+            android:id="@+id/veganCheckBox"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:gravity="center"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gluten Free"
+            android:id="@+id/glutenCheckBox"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:gravity="center"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/scanButton"
