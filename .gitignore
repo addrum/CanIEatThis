@@ -31,4 +31,5 @@ proguard/
 # Android Studio captures folder
 captures/
 
+# IntelliJ Generated Folder (Layout Preferences  etc)
 .idea
