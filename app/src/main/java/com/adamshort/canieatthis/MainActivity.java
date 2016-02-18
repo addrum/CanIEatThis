@@ -5,8 +5,6 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +16,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,9 +38,20 @@ public class MainActivity extends AppCompatActivity {
     static final String EXTENSION = ".json";
 
     public LinearLayout container;
+    public LinearLayout ingredientsLinearLayout;
+
     public TextView responseView;
     public Button scanButton;
+
     public CheckBox dairyCheckBox;
+    public CheckBox vegetarianCheckBox;
+    public CheckBox veganCheckBox;
+    public CheckBox glutenCheckBox;
+
+    public Switch dairyFreeSwitch;
+    public Switch vegetarianSwitch;
+    public Switch veganSwitch;
+    public Switch glutenFreeSwitch;
 
     public List<String> dairy = Arrays.asList("Acidophilus Milk",
             "Ammonium Caseinate",
@@ -119,9 +129,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         container = (LinearLayout) findViewById(R.id.container);
+        ingredientsLinearLayout = (LinearLayout) findViewById(R.id.ingredientsLinearLayout);
+
         responseView = (TextView) findViewById(R.id.responseView);
         scanButton = (Button) findViewById(R.id.scanButton);
+
         dairyCheckBox = (CheckBox) findViewById(R.id.dairyCheckBox);
+        vegetarianCheckBox = (CheckBox) findViewById(R.id.vegetarianCheckBox);
+        veganCheckBox = (CheckBox) findViewById(R.id.veganCheckBox);
+        glutenCheckBox = (CheckBox) findViewById(R.id.glutenCheckBox);
+
+        dairyFreeSwitch = (Switch) findViewById(R.id.dairyFreeSwitch);
+        vegetarianSwitch = (Switch) findViewById(R.id.vegetarianSwitch);
+        veganSwitch = (Switch) findViewById(R.id.veganSwitch);
+        glutenFreeSwitch = (Switch) findViewById(R.id.glutenFreeSwitch);
     }
 
     //product barcode mode
@@ -185,9 +206,27 @@ public class MainActivity extends AppCompatActivity {
             String ingredients = product.getString("ingredients_text");
 
             List<String> editedIngredients = StringToList(ingredients);
-            boolean dairy = IsDairyFree(editedIngredients);
-            //SetResponseTextBox(editedIngredients);
-            SetAllergenIcons(dairy, false, false, false);
+
+            boolean dairy = false;
+            boolean vegetarian = false;
+            boolean vegan = false;
+            boolean gluten = false;
+
+            if (dairyFreeSwitch.isChecked()) {
+                dairy = IsDairyFree(editedIngredients);
+            }
+            if (vegetarianSwitch.isChecked()) {
+                vegetarian = IsVegetarian(editedIngredients);
+            }
+            if (veganSwitch.isChecked()) {
+                vegan = IsVegan(editedIngredients);
+            }
+            if (glutenFreeSwitch.isChecked()) {
+                gluten = IsGlutenFree(editedIngredients);
+            }
+
+            SetResponseTextBox(editedIngredients.toString());
+            SetAllergenIcons(dairy, vegetarian, vegan, gluten);
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
         }
@@ -217,23 +256,26 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    public void SetAllergenIcons(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        RelativeLayout iconLayout = new RelativeLayout(this);
-        iconLayout.setLayoutParams(params);
-        container.addView(iconLayout);
+    public boolean IsVegetarian(List<String> list) {
+        return false;
+    }
 
-        if (dairy) {
-            ImageView dairyView = new ImageView(this);
-            dairyView.setScaleType(ImageView.ScaleType.MATRIX);
-            dairyView.setImageResource(R.drawable.dairy_free_icon);
-            iconLayout.addView(dairyView);
-        }
+    public boolean IsVegan(List<String> list) {
+        return false;
+    }
+
+    public boolean IsGlutenFree(List<String> list) {
+        return false;
+    }
+
+    public void SetAllergenIcons(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
+        dairyCheckBox.setChecked(dairy);
+
     }
 
     public void SetResponseTextBox(String response) {
         responseView.setText(response);
-        responseView.setVisibility(View.VISIBLE);
+        ingredientsLinearLayout.setVisibility(View.VISIBLE);
     }
 
     public class RequestHandler extends AsyncTask<String, Void, String> {

@@ -1,76 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:id="@+id/container"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="#ffffff"
-              android:orientation="vertical"
-              android:weightSum="1"
-              android:gravity="center">
+<LinearLayout
+    android:id="@+id/container"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    android:weightSum="1"
+    >
 
-    <LinearLayout
+    <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/checkBoxLayout">
+        android:layout_margin="10dp"
+        android:stretchColumns="0,1"
+        android:id="@+id/checkboxTableLayout">
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Diary Free"
-            android:id="@+id/dairyCheckBox"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:gravity="center"/>
+        <TableRow>
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Vegetarian"
-            android:id="@+id/vegetarianCheckBox"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:gravity="center"/>
+            <CheckBox
+                android:id="@+id/dairyCheckBox"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:text="Diary Free"/>
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Vegan"
-            android:id="@+id/veganCheckBox"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:gravity="center"/>
+            <CheckBox
+                android:id="@+id/veganCheckBox"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:text="Vegan"/>
+        </TableRow>
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gluten Free"
-            android:id="@+id/glutenCheckBox"
-            android:layout_gravity="center"
-            android:clickable="false"
-            android:gravity="center"/>
+        <TableRow>
 
-    </LinearLayout>
+            <CheckBox
+                android:id="@+id/vegetarianCheckBox"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:text="Vegetarian"/>
+
+            <CheckBox
+                android:id="@+id/glutenCheckBox"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:text="Gluten Free"/>
+        </TableRow>
+
+
+    </TableLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:stretchColumns="0,1"
+        android:id="@+id/switchesTableLayout">
+
+        <TableRow>
+
+            <Switch
+                android:id="@+id/dairyFreeSwitch"
+                android:checked="false"
+                android:text="Dairy Free"/>
+
+            <Switch
+                android:id="@+id/vegetarianSwitch"
+                android:checked="false"
+                android:text="Vegetarian"/>
+
+        </TableRow>
+
+        <TableRow>
+
+            <Switch
+                android:id="@+id/veganSwitch"
+                android:checked="false"
+                android:text="Vegan"/>
+
+            <Switch
+                android:id="@+id/glutenFreeSwitch"
+                android:checked="false"
+                android:text="Gluten Free"/>
+
+        </TableRow>
+    </TableLayout>
 
     <Button
         android:id="@+id/scanButton"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        android:layout_gravity="center"
         android:layout_margin="10dp"
+        android:background="#00a400"
+        android:gravity="center"
         android:onClick="scanBar"
         android:text="Bar Code"
-        android:textSize="18dp"
-        android:gravity="center"
-        android:background="#00a400"
-        android:textColor="#ffffff">
+        android:textColor="#ffffff"
+        android:textSize="18dp">
     </Button>
 
-    <TextView
-        android:id="@+id/responseView"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/ingredientsLinearLayout"
+        android:layout_margin="10dp"
         android:gravity="center"
-        android:visibility="invisible"
-        android:freezesText="true"/>
+        android:visibility="invisible">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Ingredients"
+            android:id="@+id/ingredientsTitleText"
+            android:layout_gravity="center"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/responseView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:freezesText="true"
+            />
+
+    </LinearLayout>
 
 </LinearLayout>
