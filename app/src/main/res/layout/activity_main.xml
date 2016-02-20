@@ -17,31 +17,42 @@
         android:stretchColumns="0,1"
         android:id="@+id/switchesTableLayout">
 
-        <TableRow>
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
 
             <Switch
                 android:id="@+id/dairyFreeSwitch"
                 android:checked="false"
-                android:text="Dairy Free"/>
+                android:text="Dairy Free"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
             <Switch
                 android:id="@+id/vegetarianSwitch"
                 android:checked="false"
-                android:text="Vegetarian"/>
+                android:text="Vegetarian"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
         </TableRow>
 
-        <TableRow>
+        <TableRow android:layout_marginRight="10dp"
+                  android:layout_marginLeft="10dp">
 
             <Switch
                 android:id="@+id/veganSwitch"
                 android:checked="false"
-                android:text="Vegan"/>
+                android:text="Vegan"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
             <Switch
                 android:id="@+id/glutenFreeSwitch"
                 android:checked="false"
-                android:text="Gluten Free"/>
+                android:text="Gluten Free"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
         </TableRow>
     </TableLayout>
