@@ -12,8 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
@@ -36,91 +34,470 @@ public class MainActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     static final String EXTENSION = ".json";
+    static boolean DEBUG;
 
     public LinearLayout container;
-    public LinearLayout ingredientsLinearLayout;
+    public RelativeLayout ingredientsLinearLayout;
 
     public TextView responseView;
     public Button scanButton;
-
-    public CheckBox dairyCheckBox;
-    public CheckBox vegetarianCheckBox;
-    public CheckBox veganCheckBox;
-    public CheckBox glutenCheckBox;
 
     public Switch dairyFreeSwitch;
     public Switch vegetarianSwitch;
     public Switch veganSwitch;
     public Switch glutenFreeSwitch;
 
-    public List<String> dairy = Arrays.asList("Acidophilus Milk",
-            "Ammonium Caseinate",
-            "Butter",
-            "Butter Fat",
-            "Butter Oil",
-            "Butter Solids",
-            "Buttermilk",
-            "Buttermilk Powder",
-            "Calcium Caseinate",
-            "Casein",
-            "Caseinate (in general)",
-            "Cheese (All animal-based)",
-            "Condensed Milk",
-            "Cottage Cheese",
-            "Cream",
-            "Curds",
-            "Custard",
-            "Delactosed Whey",
-            "Demineralized Whey",
-            "Dry Milk Powder",
-            "Dry Milk Solids",
-            "Evaporated Milk",
-            "Ghee (see page 109 in Go Dairy Free)",
-            "Goat Cheese",
-            "Goat Milk",
-            "Half & Half",
-            "Hydrolyzed Casein",
-            "Hydrolyzed Milk Protein",
-            "Iron Caseinate",
-            "Lactalbumin",
-            "Lactoferrin",
-            "Lactoglobulin",
-            "Lactose",
-            "Lactulose",
-            "Low-Fat Milk",
-            "Magnesium Caseinate",
-            "Malted Milk",
-            "Milk",
-            "Milk Derivative",
-            "Milk Fat",
-            "Milk Powder",
-            "Milk Protein",
-            "Milk Solids",
-            "Natural Butter Flavor",
-            "Nonfat Milk",
-            "Nougat",
-            "Paneer",
-            "Potassium Caseinate",
-            "Pudding",
-            "Recaldent",
-            "Rennet Casein",
-            "Sheep Milk",
-            "Sheep Milk Cheese",
-            "Skim Milk",
-            "Sodium Caseinate",
-            "Sour Cream",
-            "Sour Milk Solids",
-            "Sweetened Condensed Milk",
-            "Sweet Whey",
-            "Whey",
-            "Whey Powder",
-            "Whey Protein Concentrate",
-            "Whey Protein Hydrolysate",
-            "Whipped Cream",
-            "Whipped Topping",
-            "Whole Milk",
-            "Yogurt",
-            "Zinc Caseinate");
+    //http://www.godairyfree.org/dairy-free-grocery-shopping-guide/dairy-ingredient-list-2
+    public List<String> dairy = Arrays.asList("acidophilus milk",
+            "ammonium caseinate",
+            "butter",
+            "butter fat",
+            "butter oil",
+            "butter solids",
+            "buttermilk",
+            "buttermilk powder",
+            "calcium caseinate",
+            "casein",
+            "caseinate (in general)",
+            "cheese (all animal-based)",
+            "condensed milk",
+            "cottage cheese",
+            "cream",
+            "curds",
+            "custard",
+            "delactosed whey",
+            "demineralized whey",
+            "dry milk powder",
+            "dry milk solids",
+            "evaporated milk",
+            "ghee",
+            "goat cheese",
+            "goat milk",
+            "half & half",
+            "hydrolyzed casein",
+            "hydrolyzed milk protein",
+            "iron caseinate",
+            "lactalbumin",
+            "lactoferrin",
+            "lactoglobulin",
+            "lactose",
+            "lactulose",
+            "low-fat milk",
+            "magnesium caseinate",
+            "malted milk",
+            "milk",
+            "milk derivative",
+            "milk fat",
+            "milk powder",
+            "milk protein",
+            "milk solids",
+            "natural butter flavor",
+            "nonfat milk",
+            "nougat",
+            "paneer",
+            "potassium caseinate",
+            "pudding",
+            "recaldent",
+            "rennet casein",
+            "sheep milk",
+            "sheep milk cheese",
+            "skim milk",
+            "sodium caseinate",
+            "sour cream",
+            "sour milk solids",
+            "sweetened condensed milk",
+            "sweet whey",
+            "whey",
+            "whey powder",
+            "whey protein concentrate",
+            "whey protein hydrolysate",
+            "whipped cream",
+            "whipped topping",
+            "whole milk",
+            "yogurt",
+            "zinc caseinate");
+
+    public List<String> vegetarian = Arrays.asList();
+
+    //http://www.peta.org/living/beauty/animal-ingredients-list/
+    public List<String> vegan = Arrays.asList("adrenaline",
+            "alanine",
+            "albumen",
+            "albumin",
+            "alcloxa",
+            "aldioxa",
+            "aliphatic alcohol",
+            "allantoin",
+            "alligator skin",
+            "alpha-hydroxy acids",
+            "ambergris",
+            "amino acids",
+            "aminosuccinate acid",
+            "angora",
+            "animal fats and oils",
+            "animal hair",
+            "arachidonic acid",
+            "arachidyl proprionate",
+            "bee pollen",
+            "bee products",
+            "beeswax. honeycomb",
+            "biotin. vitamin h. vitamin b factor",
+            "blood",
+            "boar bristles",
+            "bone char",
+            "bone meal",
+            "calciferol",
+            "calfskin",
+            "caprylamine oxide",
+            "capryl betaine",
+            "caprylic acid",
+            "caprylic triglyceride",
+            "carbamide",
+            "carmine.",
+            "cochineal.",
+            "carminic acid",
+            "carminic acid",
+            "carotene.",
+            "provitamin a.",
+            "beta carotene",
+            "casein.",
+            "caseinate.",
+            "sodium caseinate",
+            "caseinate",
+            "cashmere",
+            "castor. castoreum",
+            "castoreum",
+            "catgut",
+            "cera flava",
+            "cerebrosides",
+            "cetyl alcohol",
+            "cetyl palmitate",
+            "chitosan",
+            "cholesterin",
+            "cholesterol",
+            "choline bitartrate",
+            "civet",
+            "cochineal",
+            "cod liver oil",
+            "collagen",
+            "colors. dyes",
+            "corticosteroid",
+            "cortisone",
+            "corticosteroid",
+            "cysteine, l-form",
+            "cystine",
+            "dexpanthenol",
+            "diglycerides",
+            "dimethyl stearamine",
+            "down",
+            "duodenum substances",
+            "dyes",
+            "egg protein",
+            "elastin",
+            "emu oil",
+            "ergocalciferol",
+            "ergosterol",
+            "estradiol",
+            "estrogen.",
+            "estradiol",
+            "fats",
+            "fatty acids",
+            "fd&c colors",
+            "feathers",
+            "fish liver oil",
+            "fish oil",
+            "fish scales",
+            "fur",
+            "gel",
+            "gelatin. gel",
+            "glucose tyrosinase",
+            "glycerides",
+            "glycerin. glycerol",
+            "glycerol",
+            "glyceryls",
+            "glycreth-26",
+            "guanine. pearl essence",
+            "hide glue",
+            "honey",
+            "honeycomb",
+            "horsehair",
+            "hyaluronic acid",
+            "hydrocortisone",
+            "hydrolyzed animal protein",
+            "imidazolidinyl urea",
+            "insulin",
+            "isinglass",
+            "isopropyl lanolate",
+            "isopropyl myristate",
+            "isopropyl palmitate",
+            "keratin",
+            "lactic acid",
+            "lactose",
+            "laneth",
+            "lanogene",
+            "lanolin.",
+            "lanolin acids.",
+            "wool fat.",
+            "wool wax",
+            "lanolin alcohol",
+            "lanosterols",
+            "lard",
+            "leather.",
+            "suede.",
+            "calfskin.",
+            "sheepskin.",
+            "alligator skin",
+            "lecithin.",
+            "choline bitartrate",
+            "linoleic acid",
+            "lipase",
+            "lipids",
+            "lipoids.",
+            "lipids",
+            "marine oil",
+            "methionine",
+            "milk protein",
+            "mink oil",
+            "monoglycerides.",
+            "glycerides",
+            "musk (oil)",
+            "myristal ether sulfate",
+            "myristic acid",
+            "myristyls",
+            "“natural sources.",
+            "nucleic acids",
+            "ocenol",
+            "octyl dodecanol",
+            "oleic acid",
+            "oils",
+            "oleths",
+            "oleyl alcohol.",
+            "ocenol",
+            "oleyl arachidate",
+            "oleyl imidazoline",
+            "oleyl myristate",
+            "oleyl oleate",
+            "oleyl stearate",
+            "palmitamide",
+            "palmitamine",
+            "palmitate",
+            "palmitic acid",
+            "panthenol.",
+            "dexpanthenol.",
+            "vitamin b-complex factor.",
+            "provitamin b-5",
+            "panthenyl",
+            "pepsin",
+            "placenta.",
+            "placenta polypeptides protein.",
+            "afterbirth",
+            "polyglycerol",
+            "polypeptides",
+            "polysorbates",
+            "pristane",
+            "progesterone",
+            "propolis",
+            "provitamin a",
+            "provitamin b-5",
+            "provitamin d-2",
+            "rennet. rennin",
+            "rennin",
+            "resinous glaze",
+            "retinol",
+            "ribonucleic acid",
+            "rna. ribonucleic acid",
+            "royal jelly",
+            "sable brushes",
+            "sea turtle oil",
+            "shark liver oil",
+            "sheepskin",
+            "shellac. resinous glaze",
+            "silk. silk powder",
+            "snails",
+            "sodium caseinate",
+            "sodium steroyl lactylate",
+            "sodium tallowate",
+            "spermaceti. cetyl palmitate.",
+            "sperm oil",
+            "sponge (luna and sea)",
+            "squalane",
+            "squalene",
+            "stearamide",
+            "stearamine",
+            "stearamine oxide",
+            "stearates",
+            "stearic acid",
+            "stearic hydrazide",
+            "stearone",
+            "stearoxytrimethylsilane",
+            "stearoyl lactylic acid",
+            "stearyl acetate",
+            "stearyl alcohol. sterols",
+            "stearyl betaine",
+            "stearyl caprylate",
+            "stearyl citrate",
+            "stearyldimethyl amine",
+            "stearyl glycyrrhetinate",
+            "stearyl heptanoate",
+            "stearyl imidazoline",
+            "stearyl octanoate",
+            "stearyl stearate",
+            "steroids. sterols",
+            "sterols",
+            "suede",
+            "tallow. tallow fatty alcohol.",
+            "stearic acid",
+            "tallow acid",
+            "tallow amide",
+            "tallow amine",
+            "talloweth-6",
+            "tallow glycerides",
+            "tallow imidazoline",
+            "triterpene alcohols",
+            "turtle oil. sea turtle oil",
+            "tyrosine",
+            "urea. carbamide",
+            "uric acid",
+            "vitamin a",
+            "vitamin b-complex factor",
+            "vitamin b factor",
+            "vitamin b",
+            "vitamin d.",
+            "ergocalciferol.",
+            "vitamin d.",
+            "ergosterol.",
+            "provitamin d.",
+            "calciferol.",
+            "vitamin d",
+            "vitamin h",
+            "wax",
+            "whey",
+            "wool",
+            "wool fat",
+            "wool wax");
+
+    public List<String> gluten = Arrays.asList("abyssinian hard (wheat triticum durum)",
+            "alcohol (spirits - specific types)",
+            "atta flour",
+            "barley grass (can contain seeds)",
+            "barley hordeum vulgare",
+            "barley malt",
+            "beer (most contain barley or wheat)",
+            "bleached flour ",
+            "bran",
+            "bread flour",
+            "brewer's yeast",
+            "brown flour",
+            "bulgur (bulgar wheat/nuts) ",
+            "bulgur wheat",
+            "cereal binding",
+            "chilton",
+            "club wheat (triticum aestivum subspecies compactum) ",
+            "common wheat (triticum aestivum)",
+            "cookie crumbs",
+            "cookie dough",
+            "cookie dough pieces",
+            "couscous",
+            "criped rice",
+            "dinkle (spelt)",
+            "disodium wheatgermamido peg-2 sulfosuccinate ",
+            "durum wheat (triticum durum)",
+            "edible coatings",
+            "edible films",
+            "edible starch",
+            "einkorn (triticum monococcum)",
+            "emmer (triticum dicoccon) ",
+            "enriched bleached flour",
+            "enriched bleached wheat flour",
+            "enriched flour",
+            "farina ",
+            "farina graham ",
+            "farro",
+            "filler",
+            "flour (normally this is wheat)",
+            "fu (dried wheat gluten)",
+            "germ ",
+            "graham flour",
+            "granary flour",
+            "groats (barley, wheat) ",
+            "hard wheat",
+            "heeng",
+            "hing",
+            "hordeum vulgare extract",
+            "hydroxypropyltrimonium hydrolyzed wheat protein ",
+            "kamut (pasta wheat) ",
+            "kecap manis (soy sauce)",
+            "ketjap manis (soy sauce)",
+            "kluski pasta",
+            "maida (indian wheat flour)",
+            "malt",
+            "malted barley flour",
+            "malted milk",
+            "malt extract",
+            "malt syrup",
+            "malt flavoring",
+            "malt vinegar ",
+            "macha wheat (triticum aestivum) ",
+            "matza",
+            "matzah",
+            "matzo",
+            "matzo semolina ",
+            "meripro 711",
+            "mir ",
+            "nishasta",
+            "oriental wheat (triticum turanicum) ",
+            "orzo pasta",
+            "pasta",
+            "pearl barley",
+            "persian wheat (triticum carthlicum) ",
+            "perungayam",
+            "poulard wheat (triticum turgidum)",
+            "polish wheat (triticum polonicum) ",
+            "rice malt (if barley or koji are used)",
+            "roux",
+            "rusk",
+            "rye",
+            "seitan",
+            "semolina",
+            "semolina triticum",
+            "shot wheat (triticum aestivum) ",
+            "small spelt",
+            "spirits (specific types)",
+            "spelt (triticum spelta)",
+            "sprouted wheat or barley",
+            "stearyldimoniumhydroxypropyl hydrolyzed wheat protein ",
+            "strong flour",
+            "suet in packets",
+            "tabbouleh ",
+            "tabouli",
+            "teriyaki sauce",
+            "timopheevi wheat (triticum timopheevii) ",
+            "triticale x triticosecale",
+            "triticum vulgare (wheat) flour lipids",
+            "triticum vulgare (wheat) germ extract",
+            "triticum vulgare (wheat) germ oil",
+            "udon (wheat noodles)",
+            "unbleached flour ",
+            "vavilovi wheat (triticum aestivum) ",
+            "vital wheat gluten",
+            "wheat, abyssinian hard triticum durum",
+            "wheat amino acids",
+            "wheat bran extract",
+            "wheat, bulgur ",
+            "wheat durum triticum ",
+            "wheat germ extract",
+            "wheat germ glycerides",
+            "wheat germ oil",
+            "wheat germamidopropyldimonium hydroxypropyl hydrolyzed wheat protein",
+            "wheat grass (can contain seeds) ",
+            "wheat nuts",
+            "wheat protein",
+            "wheat triticum aestivum ",
+            "wheat triticum monococcum",
+            "wheat (triticum vulgare) bran extract",
+            "whole-meal flour",
+            "wild einkorn (triticum boeotictim) ",
+            "wild emmer (triticum dicoccoides)");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,20 +506,22 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         container = (LinearLayout) findViewById(R.id.container);
-        ingredientsLinearLayout = (LinearLayout) findViewById(R.id.ingredientsLinearLayout);
+        ingredientsLinearLayout = (RelativeLayout) findViewById(R.id.ingredientsLinearLayout);
 
         responseView = (TextView) findViewById(R.id.responseView);
         scanButton = (Button) findViewById(R.id.scanButton);
-
-        dairyCheckBox = (CheckBox) findViewById(R.id.dairyCheckBox);
-        vegetarianCheckBox = (CheckBox) findViewById(R.id.vegetarianCheckBox);
-        veganCheckBox = (CheckBox) findViewById(R.id.veganCheckBox);
-        glutenCheckBox = (CheckBox) findViewById(R.id.glutenCheckBox);
 
         dairyFreeSwitch = (Switch) findViewById(R.id.dairyFreeSwitch);
         vegetarianSwitch = (Switch) findViewById(R.id.vegetarianSwitch);
         veganSwitch = (Switch) findViewById(R.id.veganSwitch);
         glutenFreeSwitch = (Switch) findViewById(R.id.glutenFreeSwitch);
+
+        dairyFreeSwitch.setClickable(false);
+        vegetarianSwitch.setClickable(false);
+        veganSwitch.setClickable(false);
+        glutenFreeSwitch.setClickable(false);
+
+        DEBUG = android.os.Debug.isDebuggerConnected();
     }
 
     //product barcode mode
@@ -151,7 +530,11 @@ public class MainActivity extends AppCompatActivity {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            startActivityForResult(intent, 0);
+            if (DEBUG) {
+                GetBarcodeInformation("5000295008069");
+            } else {
+                startActivityForResult(intent, 0);
+            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
@@ -207,23 +590,10 @@ public class MainActivity extends AppCompatActivity {
 
             List<String> editedIngredients = StringToList(ingredients);
 
-            boolean dairy = false;
-            boolean vegetarian = false;
-            boolean vegan = false;
-            boolean gluten = false;
-
-            if (dairyFreeSwitch.isChecked()) {
-                dairy = IsDairyFree(editedIngredients);
-            }
-            if (vegetarianSwitch.isChecked()) {
-                vegetarian = IsVegetarian(editedIngredients);
-            }
-            if (veganSwitch.isChecked()) {
-                vegan = IsVegan(editedIngredients);
-            }
-            if (glutenFreeSwitch.isChecked()) {
-                gluten = IsGlutenFree(editedIngredients);
-            }
+            boolean dairy = IsDairyFree(editedIngredients);
+            boolean vegetarian = IsVegetarian(editedIngredients);
+            boolean vegan = IsVegan(editedIngredients);
+            boolean gluten = IsGlutenFree(editedIngredients);
 
             SetResponseTextBox(editedIngredients.toString());
             SetAllergenIcons(dairy, vegetarian, vegan, gluten);
@@ -242,35 +612,59 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String RemoveUnwantedCharacters(String ingredient) {
-        String i = ingredient.replaceAll("[_%()]|(?<=\\().*?(?=\\))", "");
         // replace any whitespace with nothing
-        return i.replaceAll("\\s+$", "");
+        return ingredient.replaceAll("[_]|\\s+$\"", "");
     }
 
     public boolean IsDairyFree(List<String> list) {
         for (String ingredient : list) {
-            if (dairy.contains(ingredient)) {
-                return true;
+            for (String dairyIngredient : dairy) {
+                if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase())) {
+                    return false;
+                }
             }
         }
-        return false;
+        return true;
     }
 
     public boolean IsVegetarian(List<String> list) {
-        return false;
+        for (String ingredient : list) {
+            for (String vegetarianIngredient : vegetarian) {
+                if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean IsVegan(List<String> list) {
-        return false;
+        for (String ingredient : list) {
+            for (String veganIngredient : vegan) {
+                if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public boolean IsGlutenFree(List<String> list) {
-        return false;
+        for (String ingredient : list) {
+            for (String glutenIngredient : gluten) {
+                if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void SetAllergenIcons(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
-        dairyCheckBox.setChecked(dairy);
-
+        dairyFreeSwitch.setChecked(dairy);
+        vegetarianSwitch.setChecked(vegetarian);
+        veganSwitch.setChecked(vegan);
+        glutenFreeSwitch.setChecked(gluten);
     }
 
     public void SetResponseTextBox(String response) {

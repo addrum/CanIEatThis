@@ -15,46 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:stretchColumns="0,1"
-        android:id="@+id/checkboxTableLayout">
-
-        <TableRow>
-
-            <CheckBox
-                android:id="@+id/dairyCheckBox"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:text="Diary Free"/>
-
-            <CheckBox
-                android:id="@+id/veganCheckBox"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:text="Vegan"/>
-        </TableRow>
-
-        <TableRow>
-
-            <CheckBox
-                android:id="@+id/vegetarianCheckBox"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:text="Vegetarian"/>
-
-            <CheckBox
-                android:id="@+id/glutenCheckBox"
-                android:layout_gravity="center"
-                android:clickable="false"
-                android:text="Gluten Free"/>
-        </TableRow>
-
-
-    </TableLayout>
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:stretchColumns="0,1"
         android:id="@+id/switchesTableLayout">
 
         <TableRow>
@@ -86,21 +46,7 @@
         </TableRow>
     </TableLayout>
 
-    <Button
-        android:id="@+id/scanButton"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:background="#00a400"
-        android:gravity="center"
-        android:onClick="scanBar"
-        android:text="Bar Code"
-        android:textColor="#ffffff"
-        android:textSize="18dp">
-    </Button>
-
-    <LinearLayout
+    <RelativeLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -108,7 +54,7 @@
         android:id="@+id/ingredientsLinearLayout"
         android:layout_margin="10dp"
         android:gravity="center"
-        android:visibility="invisible">
+        android:minHeight="100dp">
 
         <TextView
             android:layout_width="fill_parent"
@@ -116,16 +62,45 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Ingredients"
             android:id="@+id/ingredientsTitleText"
-            android:layout_gravity="center"
-            android:gravity="center"/>
+            android:layout_gravity="top"
+            android:gravity="center"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"/>
 
         <TextView
             android:id="@+id/responseView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:freezesText="true"
-            />
+            android:text="Ingredients will be appear here"
+            android:layout_below="@+id/ingredientsTitleText"
+            android:layout_alignStart="@+id/ingredientsTitleText"
+            android:layout_margin="10dp"/>
 
-    </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:id="@+id/buttonRelativeLayout">
+
+        <Button
+            android:id="@+id/scanButton"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="#00a400"
+            android:onClick="scanBar"
+            android:text="Bar Code"
+            android:textColor="#ffffff"
+            android:textSize="18dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true">
+        </Button>
+    </RelativeLayout>
 
 </LinearLayout>
