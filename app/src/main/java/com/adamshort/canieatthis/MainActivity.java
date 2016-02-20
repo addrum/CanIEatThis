@@ -16,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     static final String EXTENSION = ".json";
+    static final int    DOWNLOAD = 0;
+    static final int    PRODUCT = 1;
     static boolean DEBUG;
 
     public LinearLayout container;
@@ -99,30 +100,44 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
-            showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
+            showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No", DOWNLOAD).show();
         }
     }
 
     //alert dialog for downloadDialog
-    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
+    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo, int dialog) {
         AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
         downloadDialog.setTitle(title);
         downloadDialog.setMessage(message);
-        downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                try {
-                    act.startActivity(intent);
-                } catch (ActivityNotFoundException anfe) {
+        if (dialog == 0) {
+            downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    try {
+                        act.startActivity(intent);
+                    } catch (ActivityNotFoundException anfe) {
 
+                    }
                 }
-            }
-        });
-        downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
-        });
+            });
+            downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+        }
+
+        if (dialog == 1) {
+            downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+            downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                }
+            });
+        }
+
         return downloadDialog.show();
     }
 
@@ -133,8 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                toast.show();
+
                 GetBarcodeInformation(contents);
             }
         }
@@ -161,6 +175,8 @@ public class MainActivity extends AppCompatActivity {
             SetAllergenIcons(dairy, vegetarian, vegan, gluten);
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
+
+            showDialog(MainActivity.this, "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
         }
     }
 
