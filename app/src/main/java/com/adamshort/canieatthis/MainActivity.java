@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     SetAllergenIcons(dairy, vegetarian, vegan, gluten);
                     actionMenu.findItem(R.id.action_search).collapseActionView();
                     responseLinearLayout.setVisibility(View.INVISIBLE);
-                    itemTextView.setText("Ingredient: " + query);
+                    itemTextView.setText(String.format(getString(R.string.ingredient), query));
                 }
                 return true;
             }
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void SetItemTitleText(String item) {
-        itemTextView.setText("Product: " + item);
+        itemTextView.setText(String.format(getString(R.string.product), item));
         itemTextView.setVisibility(View.VISIBLE);
     }
 
