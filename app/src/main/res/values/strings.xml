@@ -5,4 +5,13 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="dairySwitchText">Dairy Free</string>
+    <string name="vegetarianSwitchText">Vegetarian</string>
+    <string name="veganSwitchText">Vegan</string>
+    <string name="glutenFreeSwitchText">Gluten Free</string>
+    <string name="ingredientsTitleText">Ingredients</string>
+    <string name="ingredientsTextViewText">Ingredients will be appear here</string>
+    <string name="tracesTitleText">Traces</string>
+    <string name="tracesTextViewText">Traces will be appear here</string>
+    <string name="bottomButtonText">Bar Code</string>
 </resources>

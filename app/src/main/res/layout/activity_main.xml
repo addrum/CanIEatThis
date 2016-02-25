@@ -2,7 +2,6 @@
 <LinearLayout
     android:id="@+id/container"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
@@ -24,16 +23,16 @@
             <Switch
                 android:id="@+id/dairyFreeSwitch"
                 android:checked="false"
-                android:text="Dairy Free"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="10dp"/>
+                android:text="@string/dairySwitchText"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"/>
 
             <Switch
                 android:id="@+id/vegetarianSwitch"
                 android:checked="false"
-                android:text="Vegetarian"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="20dp"/>
+                android:text="@string/vegetarianSwitchText"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"/>
 
         </TableRow>
 
@@ -43,16 +42,16 @@
             <Switch
                 android:id="@+id/veganSwitch"
                 android:checked="false"
-                android:text="Vegan"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="10dp"/>
+                android:text="@string/veganSwitchText"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="10dp"/>
 
             <Switch
                 android:id="@+id/glutenFreeSwitch"
                 android:checked="false"
-                android:text="Gluten Free"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="20dp"/>
+                android:text="@string/glutenFreeSwitchText"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"/>
 
         </TableRow>
     </TableLayout>
@@ -71,7 +70,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Ingredients"
+            android:text="@string/ingredientsTitleText"
             android:id="@+id/ingredientsTitleText"
             android:layout_gravity="top"
             android:gravity="center"
@@ -84,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:freezesText="true"
-            android:text="Ingredients will be appear here"
+            android:text="@string/ingredientsTextViewText"
             android:layout_below="@+id/ingredientsTitleText"
             android:layout_margin="10dp"/>
 
@@ -92,7 +91,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Traces"
+            android:text="@string/tracesTitleText"
             android:id="@+id/tracesTitleText"
             android:layout_gravity="top"
             android:gravity="center"
@@ -106,7 +105,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:freezesText="true"
-            android:text="Traces will be appear here"
+            android:text="@string/tracesTextViewText"
             android:layout_below="@+id/tracesTitleText"
             android:layout_margin="10dp"/>
 
@@ -124,9 +123,9 @@
             android:layout_height="80dp"
             android:background="#00a400"
             android:onClick="scanBar"
-            android:text="Bar Code"
+            android:text="@string/bottomButtonText"
             android:textColor="#ffffff"
-            android:textSize="18dp"
+            android:textSize="18sp"
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
