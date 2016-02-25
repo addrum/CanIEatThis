@@ -64,7 +64,8 @@
         android:id="@+id/responseLinearLayout"
         android:layout_margin="10dp"
         android:gravity="center"
-        android:minHeight="100dp">
+        android:minHeight="100dp"
+        android:visibility="invisible">
 
         <TextView
             android:layout_width="fill_parent"

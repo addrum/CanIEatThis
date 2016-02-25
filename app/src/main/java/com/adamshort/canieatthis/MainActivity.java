@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     public List<String> vegan;
     public List<String> gluten;
 
+    private Menu menu;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,16 +92,39 @@ public class MainActivity extends AppCompatActivity {
 
         SetDatabasesFromFiles();
 
+        container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.findItem(R.id.action_search).collapseActionView();
+            }
+        });
+
         DEBUG = android.os.Debug.isDebuggerConnected();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        final Menu actionMenu = menu;
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.main, actionMenu);
+
+        // Define the listener
+        MenuItemCompat.OnActionExpandListener expandListener = new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                // Do something when action item collapses
+                return true;  // Return true to collapse action view
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                responseLinearLayout.setVisibility(View.INVISIBLE);
+                return true;  // Return true to expand action view
+            }
+        };
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search)
-                .getActionView();
+        final SearchView searchView = (SearchView) actionMenu.findItem(R.id.action_search).getActionView();
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             searchView.setIconifiedByDefault(false);
@@ -111,16 +137,35 @@ public class MainActivity extends AppCompatActivity {
             }
 
             public boolean onQueryTextSubmit(String query) {
-                // query is the value entered into the search bar
-                boolean dairy = IsDairyFree(query);
-                boolean vegetarian = IsVegetarian(query);
-                boolean vegan = IsVegan(query);
-                boolean gluten = IsGlutenFree(query);
-                SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                if (!TextUtils.isEmpty(query)) {
+                    // query is the value entered into the search bar
+                    boolean dairy = IsDairyFree(query);
+                    boolean vegetarian = IsVegetarian(query);
+                    boolean vegan = IsVegan(query);
+                    boolean gluten = IsGlutenFree(query);
+                    SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                }
                 return true;
             }
         };
-        searchView.setOnQueryTextListener(queryTextListener);
+
+        if (searchView != null) {
+            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean queryTextFocused) {
+                    if (!queryTextFocused) {
+                        actionMenu.findItem(R.id.action_search).collapseActionView();
+                        searchView.setQuery("", false);
+                    }
+                }
+            });
+
+            searchView.setOnQueryTextListener(queryTextListener);
+        }
+
+
+        // Assign the listener to that action item
+        MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.action_search), expandListener);
 
         return super.onCreateOptionsMenu(menu);
     }
