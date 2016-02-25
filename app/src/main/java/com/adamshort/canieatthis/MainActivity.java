@@ -2,14 +2,20 @@ package com.adamshort.canieatthis;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -35,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     static final String EXTENSION = ".json";
-    static final int    DOWNLOAD = 0;
-    static final int    PRODUCT = 1;
+    static final int DOWNLOAD = 0;
+    static final int PRODUCT = 1;
     static boolean DEBUG;
 
     public LinearLayout container;
@@ -84,6 +90,39 @@ public class MainActivity extends AppCompatActivity {
         SetDatabasesFromFiles();
 
         DEBUG = android.os.Debug.isDebuggerConnected();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search)
+                .getActionView();
+        if (null != searchView) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setIconifiedByDefault(false);
+        }
+
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                // this is your adapter that will be filtered
+                return true;
+            }
+
+            public boolean onQueryTextSubmit(String query) {
+                // query is the value entered into the search bar
+                boolean dairy = IsDairyFree(query);
+                boolean vegetarian = IsVegetarian(query);
+                boolean vegan = IsVegan(query);
+                boolean gluten = IsGlutenFree(query);
+                SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                return true;
+            }
+        };
+        searchView.setOnQueryTextListener(queryTextListener);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     //product barcode mode
@@ -208,12 +247,30 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public boolean IsDairyFree(String ingredient) {
+        for (String dairyIngredient : dairy) {
+            if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean IsVegetarian(List<String> list) {
         for (String ingredient : list) {
             for (String vegetarianIngredient : vegetarian) {
                 if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase())) {
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    public boolean IsVegetarian(String ingredient) {
+        for (String vegetarianIngredient : vegetarian) {
+            if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase())) {
+                return false;
             }
         }
         return true;
@@ -230,12 +287,30 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public boolean IsVegan(String ingredient) {
+        for (String veganIngredient : vegan) {
+            if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean IsGlutenFree(List<String> list) {
         for (String ingredient : list) {
             for (String glutenIngredient : gluten) {
                 if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase())) {
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    public boolean IsGlutenFree(String ingredient) {
+        for (String glutenIngredient : gluten) {
+            if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase())) {
+                return false;
             }
         }
         return true;

@@ -14,4 +14,6 @@
     <string name="tracesTitleText">Traces</string>
     <string name="tracesTextViewText">Traces will be appear here</string>
     <string name="bottomButtonText">Bar Code</string>
+    <string name="action_search">Search Ingredient</string>
+    <string name="search_hint">Search for an ingredient</string>
 </resources>
