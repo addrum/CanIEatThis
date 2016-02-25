@@ -9,6 +9,17 @@
     android:weightSum="1"
     >
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/itemTitlteText"
+        android:id="@+id/itemTitleText"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        android:visibility="invisible"
+        android:gravity="center"/>
+
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

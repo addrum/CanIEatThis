@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public LinearLayout container;
     public RelativeLayout responseLinearLayout;
 
+    public TextView itemTextView;
     public TextView ingredientResponseView;
     public TextView tracesResponseView;
     public Button scanButton;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         container = (LinearLayout) findViewById(R.id.container);
         responseLinearLayout = (RelativeLayout) findViewById(R.id.responseLinearLayout);
 
+        itemTextView = (TextView) findViewById(R.id.itemTitleText);
         ingredientResponseView = (TextView) findViewById(R.id.ingredientsResponseView);
         tracesResponseView = (TextView) findViewById(R.id.tracesResponseView);
         scanButton = (Button) findViewById(R.id.scanButton);
@@ -118,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                responseLinearLayout.setVisibility(View.INVISIBLE);
                 return true;  // Return true to expand action view
             }
         };
@@ -144,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
                     boolean vegan = IsVegan(query);
                     boolean gluten = IsGlutenFree(query);
                     SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                    actionMenu.findItem(R.id.action_search).collapseActionView();
+                    responseLinearLayout.setVisibility(View.INVISIBLE);
+                    itemTextView.setText("Ingredient: " + query);
                 }
                 return true;
             }
@@ -200,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         act.startActivity(intent);
                     } catch (ActivityNotFoundException anfe) {
-
+                        Log.d("ERROR", anfe.toString());
                     }
                 }
             });
@@ -230,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
-                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 
                 GetBarcodeInformation(contents);
             }
@@ -241,34 +245,48 @@ public class MainActivity extends AppCompatActivity {
         new RequestHandler().execute(BASE_URL + barcode + EXTENSION);
     }
 
-    public void ParseIntoJSON(String response) {
+    public void ProcessResponse(String response) {
+        JSONObject product = ParseIntoJSON(response);
+
+        try {
+            if (product != null) {
+                String item = product.getString("product_name");
+                String ingredients = product.getString("ingredients_text");
+                String traces = product.getString("traces");
+
+                List<String> editedIngredients = StringToList(ingredients);
+                List<String> editedTraces = StringToList(traces);
+
+                boolean dairy = IsDairyFree(editedIngredients);
+                boolean vegetarian = IsVegetarian(editedIngredients);
+                boolean vegan = IsVegan(editedIngredients);
+                boolean gluten = IsGlutenFree(editedIngredients);
+
+                SetItemTitleText(item);
+                SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                SetIngredientsResponseTextBox(editedIngredients.toString());
+                SetTracesResponseTextBox(editedTraces.toString());
+                responseLinearLayout.setVisibility(View.VISIBLE);
+            }
+        } catch (JSONException e) {
+            Log.d("ERROR", "Issue ParseIntoJSON(response)");
+        }
+    }
+
+    public JSONObject ParseIntoJSON(String response) {
         try {
             JSONObject object = new JSONObject(response);
-            JSONObject product = object.getJSONObject("product");
-            String ingredients = product.getString("ingredients_text");
-            String traces = product.getString("traces");
-
-            List<String> editedIngredients = StringToList(ingredients);
-            List<String> editedTraces = StringToList(traces);
-
-            boolean dairy = IsDairyFree(editedIngredients);
-            boolean vegetarian = IsVegetarian(editedIngredients);
-            boolean vegan = IsVegan(editedIngredients);
-            boolean gluten = IsGlutenFree(editedIngredients);
-
-            SetIngredientsResponseTextBox(editedIngredients.toString());
-            SetTracesResponseTextBox(editedTraces.toString());
-            SetAllergenIcons(dairy, vegetarian, vegan, gluten);
-            responseLinearLayout.setVisibility(View.VISIBLE);
+            return object.getJSONObject("product");
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
 
             showDialog(MainActivity.this, "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
         }
+        return null;
     }
 
     public List<String> StringToList(String s) {
-        ArrayList<String> ingredients = new ArrayList<String>(Arrays.asList(s.split(", ")));
+        ArrayList<String> ingredients = new ArrayList<>(Arrays.asList(s.split(", ")));
         for (int i = 0; i < ingredients.size(); i++) {
             ingredients.set(i, RemoveUnwantedCharacters(ingredients.get(i)));
             Log.i("INFO", ingredients.get(i));
@@ -430,6 +448,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void SetItemTitleText(String item) {
+        itemTextView.setText("Product: " + item);
+        itemTextView.setVisibility(View.VISIBLE);
+    }
+
     public void SetAllergenIcons(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
         dairyFreeSwitch.setChecked(dairy);
         vegetarianSwitch.setChecked(vegetarian);
@@ -479,7 +502,7 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.i("INFO", response);
 
-            ParseIntoJSON(response);
+            ProcessResponse(response);
         }
     }
 }

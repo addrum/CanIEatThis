@@ -16,4 +16,5 @@
     <string name="bottomButtonText">Bar Code</string>
     <string name="action_search">Search Ingredient</string>
     <string name="search_hint">Search for an ingredient</string>
+    <string name="itemTitlteText">Item</string>
 </resources>
