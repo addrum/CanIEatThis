@@ -40,9 +40,10 @@ public class MainActivity extends AppCompatActivity {
     static boolean DEBUG;
 
     public LinearLayout container;
-    public RelativeLayout ingredientsLinearLayout;
+    public RelativeLayout responseLinearLayout;
 
-    public TextView responseView;
+    public TextView ingredientResponseView;
+    public TextView tracesResponseView;
     public Button scanButton;
 
     public Switch dairyFreeSwitch;
@@ -52,12 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
     //http://www.godairyfree.org/dairy-free-grocery-shopping-guide/dairy-ingredient-list-2
     public List<String> dairy;
-
     public List<String> vegetarian;
-
     //http://www.peta.org/living/beauty/animal-ingredients-list/
     public List<String> vegan;
-
     public List<String> gluten;
 
     @Override
@@ -67,9 +65,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         container = (LinearLayout) findViewById(R.id.container);
-        ingredientsLinearLayout = (RelativeLayout) findViewById(R.id.ingredientsLinearLayout);
+        responseLinearLayout = (RelativeLayout) findViewById(R.id.responseLinearLayout);
 
-        responseView = (TextView) findViewById(R.id.responseView);
+        ingredientResponseView = (TextView) findViewById(R.id.ingredientsResponseView);
+        tracesResponseView = (TextView) findViewById(R.id.tracesResponseView);
         scanButton = (Button) findViewById(R.id.scanButton);
 
         dairyFreeSwitch = (Switch) findViewById(R.id.dairyFreeSwitch);
@@ -163,16 +162,20 @@ public class MainActivity extends AppCompatActivity {
             JSONObject object = new JSONObject(response);
             JSONObject product = object.getJSONObject("product");
             String ingredients = product.getString("ingredients_text");
+            String traces = product.getString("traces");
 
             List<String> editedIngredients = StringToList(ingredients);
+            List<String> editedTraces = StringToList(traces);
 
             boolean dairy = IsDairyFree(editedIngredients);
             boolean vegetarian = IsVegetarian(editedIngredients);
             boolean vegan = IsVegan(editedIngredients);
             boolean gluten = IsGlutenFree(editedIngredients);
 
-            SetResponseTextBox(editedIngredients.toString());
+            SetIngredientsResponseTextBox(editedIngredients.toString());
+            SetTracesResponseTextBox(editedTraces.toString());
             SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+            responseLinearLayout.setVisibility(View.VISIBLE);
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
 
@@ -314,9 +317,12 @@ public class MainActivity extends AppCompatActivity {
         glutenFreeSwitch.setChecked(gluten);
     }
 
-    public void SetResponseTextBox(String response) {
-        responseView.setText(response);
-        ingredientsLinearLayout.setVisibility(View.VISIBLE);
+    public void SetIngredientsResponseTextBox(String response) {
+        ingredientResponseView.setText(response);
+    }
+
+    public void SetTracesResponseTextBox(String response) {
+        tracesResponseView.setText(response);
     }
 
     public class RequestHandler extends AsyncTask<String, Void, String> {

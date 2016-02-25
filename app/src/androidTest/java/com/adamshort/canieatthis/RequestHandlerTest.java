@@ -19,7 +19,7 @@ public class RequestHandlerTest extends ActivityUnitTestCase<MainActivity> {
         MainActivity mainActivity = new MainActivity();
         String barcode = "5054267003378";
         mainActivity.GetBarcodeInformation(barcode);
-        Assert.assertEquals(mainActivity.responseView.getText(), "");
+        Assert.assertEquals(mainActivity.ingredientResponseView.getText(), "");
     }
 
 }

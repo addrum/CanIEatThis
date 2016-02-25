@@ -25,7 +25,7 @@
                 android:id="@+id/dairyFreeSwitch"
                 android:checked="false"
                 android:text="Dairy Free"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginRight="10dp"/>
 
             <Switch
@@ -33,7 +33,7 @@
                 android:checked="false"
                 android:text="Vegetarian"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="20dp"/>
 
         </TableRow>
 
@@ -44,7 +44,7 @@
                 android:id="@+id/veganSwitch"
                 android:checked="false"
                 android:text="Vegan"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginRight="10dp"/>
 
             <Switch
@@ -52,7 +52,7 @@
                 android:checked="false"
                 android:text="Gluten Free"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="20dp"/>
 
         </TableRow>
     </TableLayout>
@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:id="@+id/ingredientsLinearLayout"
+        android:id="@+id/responseLinearLayout"
         android:layout_margin="10dp"
         android:gravity="center"
         android:minHeight="100dp">
@@ -80,13 +80,34 @@
             android:layout_margin="10dp"/>
 
         <TextView
-            android:id="@+id/responseView"
+            android:id="@+id/ingredientsResponseView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:freezesText="true"
             android:text="Ingredients will be appear here"
             android:layout_below="@+id/ingredientsTitleText"
-            android:layout_alignStart="@+id/ingredientsTitleText"
+            android:layout_margin="10dp"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Traces"
+            android:id="@+id/tracesTitleText"
+            android:layout_gravity="top"
+            android:gravity="center"
+            android:layout_alignParentTop="false"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="10dp"
+            android:layout_below="@+id/ingredientsResponseView"/>
+
+        <TextView
+            android:id="@+id/tracesResponseView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:freezesText="true"
+            android:text="Traces will be appear here"
+            android:layout_below="@+id/tracesTitleText"
             android:layout_margin="10dp"/>
 
     </RelativeLayout>
