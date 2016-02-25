@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                     boolean vegetarian = IsVegetarian(query);
                     boolean vegan = IsVegan(query);
                     boolean gluten = IsGlutenFree(query);
-                    SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                    SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
                     actionMenu.findItem(R.id.action_search).collapseActionView();
                     itemTextView.setText(String.format(getString(R.string.ingredient), query));
                     introTextView.setVisibility(View.INVISIBLE);
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean gluten = IsGlutenFree(editedIngredients);
 
                 SetItemTitleText(item);
-                SetAllergenIcons(dairy, vegetarian, vegan, gluten);
+                SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
                 SetIngredientsResponseTextBox(editedIngredients.toString());
                 SetTracesResponseTextBox(editedTraces.toString());
                 SetSwitchesVisibility(View.VISIBLE);
@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
         itemTextView.setVisibility(View.VISIBLE);
     }
 
-    public void SetAllergenIcons(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
+    public void SetAllergenSwitches(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
         dairyFreeSwitch.setChecked(dairy);
         vegetarianSwitch.setChecked(vegetarian);
         veganSwitch.setChecked(vegan);
