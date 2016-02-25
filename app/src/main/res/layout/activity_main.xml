@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:stretchColumns="0,1"
-        android:id="@+id/switchesTableLayout">
+        android:id="@+id/switchesTableLayout"
+        android:visibility="invisible">
 
         <TableRow
             android:layout_marginLeft="10dp"
@@ -76,7 +77,7 @@
         android:layout_margin="10dp"
         android:gravity="center"
         android:minHeight="100dp"
-        android:visibility="invisible">
+        >
 
         <TextView
             android:layout_width="fill_parent"
@@ -88,7 +89,8 @@
             android:gravity="center"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/ingredientsResponseView"
@@ -97,7 +99,8 @@
             android:freezesText="true"
             android:text="@string/ingredientsTextViewText"
             android:layout_below="@+id/ingredientsTitleText"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:visibility="invisible"/>
 
         <TextView
             android:layout_width="fill_parent"
@@ -110,7 +113,8 @@
             android:layout_alignParentTop="false"
             android:layout_centerHorizontal="true"
             android:layout_margin="10dp"
-            android:layout_below="@+id/ingredientsResponseView"/>
+            android:layout_below="@+id/ingredientsResponseView"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/tracesResponseView"
@@ -119,7 +123,19 @@
             android:freezesText="true"
             android:text="@string/tracesTextViewText"
             android:layout_below="@+id/tracesTitleText"
-            android:layout_margin="10dp"/>
+            android:layout_margin="10dp"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find it&apos;s information."
+            android:id="@+id/introTextView"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:layout_gravity="center"/>
 
     </RelativeLayout>
 

@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -47,11 +48,18 @@ public class MainActivity extends AppCompatActivity {
     static boolean DEBUG;
 
     public LinearLayout container;
+
     public RelativeLayout responseLinearLayout;
 
+    public TableLayout switchesTableLayout;
+
+    public TextView introTextView;
     public TextView itemTextView;
+    public TextView ingredientsTitleText;
     public TextView ingredientResponseView;
+    public TextView tracesTitleText;
     public TextView tracesResponseView;
+
     public Button scanButton;
 
     public Switch dairyFreeSwitch;
@@ -75,11 +83,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         container = (LinearLayout) findViewById(R.id.container);
+
         responseLinearLayout = (RelativeLayout) findViewById(R.id.responseLinearLayout);
 
+        switchesTableLayout = (TableLayout) findViewById(R.id.switchesTableLayout);
+
+        introTextView = (TextView) findViewById(R.id.introTextView);
         itemTextView = (TextView) findViewById(R.id.itemTitleText);
+        ingredientsTitleText = (TextView) findViewById(R.id.ingredientsTitleText);
         ingredientResponseView = (TextView) findViewById(R.id.ingredientsResponseView);
+        tracesTitleText = (TextView) findViewById(R.id.tracesTitleText);
         tracesResponseView = (TextView) findViewById(R.id.tracesResponseView);
+
         scanButton = (Button) findViewById(R.id.scanButton);
 
         dairyFreeSwitch = (Switch) findViewById(R.id.dairyFreeSwitch);
@@ -146,8 +161,11 @@ public class MainActivity extends AppCompatActivity {
                     boolean gluten = IsGlutenFree(query);
                     SetAllergenIcons(dairy, vegetarian, vegan, gluten);
                     actionMenu.findItem(R.id.action_search).collapseActionView();
-                    responseLinearLayout.setVisibility(View.INVISIBLE);
                     itemTextView.setText(String.format(getString(R.string.ingredient), query));
+                    introTextView.setVisibility(View.INVISIBLE);
+                    itemTextView.setVisibility(View.VISIBLE);
+                    SetSwitchesVisibility(View.VISIBLE);
+                    SetResponseItemsVisibility(View.INVISIBLE);
                 }
                 return true;
             }
@@ -266,7 +284,9 @@ public class MainActivity extends AppCompatActivity {
                 SetAllergenIcons(dairy, vegetarian, vegan, gluten);
                 SetIngredientsResponseTextBox(editedIngredients.toString());
                 SetTracesResponseTextBox(editedTraces.toString());
-                responseLinearLayout.setVisibility(View.VISIBLE);
+                SetSwitchesVisibility(View.VISIBLE);
+                introTextView.setVisibility(View.INVISIBLE);
+                SetResponseItemsVisibility(View.VISIBLE);
             }
         } catch (JSONException e) {
             Log.d("ERROR", "Issue ParseIntoJSON(response)");
@@ -379,6 +399,22 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    public void SetSwitchesVisibility(int visibility) {
+        switchesTableLayout.setVisibility(visibility);
+        dairyFreeSwitch.setVisibility(visibility);
+        vegetarianSwitch.setVisibility(visibility);
+        veganSwitch.setVisibility(visibility);
+        glutenFreeSwitch.setVisibility(visibility);
+    }
+
+    public void SetResponseItemsVisibility(int visibility)
+    {
+        ingredientsTitleText.setVisibility(visibility);
+        ingredientResponseView.setVisibility(visibility);
+        tracesTitleText.setVisibility(visibility);
+        tracesResponseView.setVisibility(visibility);
+    }
+
     public void SetDatabasesFromFiles() {
         dairy = new ArrayList<>();
         vegetarian = new ArrayList<>();
@@ -462,10 +498,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void SetIngredientsResponseTextBox(String response) {
         ingredientResponseView.setText(response);
+        ingredientResponseView.setVisibility(View.VISIBLE);
     }
 
     public void SetTracesResponseTextBox(String response) {
         tracesResponseView.setText(response);
+        tracesResponseView.setVisibility(View.VISIBLE);
     }
 
     public class RequestHandler extends AsyncTask<String, Void, String> {
