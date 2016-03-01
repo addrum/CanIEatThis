@@ -58,7 +58,6 @@ public class ResponseQuerier {
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
-                Log.d("Dairy", line);
                 line = reader.readLine();
                 if (line != null) {
                     dairy.add(line);
@@ -73,7 +72,6 @@ public class ResponseQuerier {
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
-                Log.d("Vegetarian", line);
                 line = reader.readLine();
                 if (line != null) {
                     vegetarian.add(line);
@@ -88,7 +86,6 @@ public class ResponseQuerier {
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
-                Log.d("Vegan", line);
                 line = reader.readLine();
                 if (line != null) {
                     vegan.add(line);
@@ -103,7 +100,6 @@ public class ResponseQuerier {
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
-                Log.d("Gluten", line);
                 line = reader.readLine();
                 if (line != null) {
                     gluten.add(line);

@@ -1,37 +1,38 @@
 package com.adamshort.canieatthis;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-public class FragmentPageAdapter extends FragmentPagerAdapter {
-    final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[] { "Scan", "Tab2" };
-    private Context context;
+import java.util.List;
 
-    public FragmentPageAdapter(FragmentManager fm, Context context) {
+public class FragmentPageAdapter extends FragmentPagerAdapter {
+    private String tabTitles[] = new String[] { "Scan", "Tab2" };
+    private List<Fragment> fragments;
+
+    public FragmentPageAdapter(FragmentManager fm, List<Fragment> fragments) {
         super(fm);
-        this.context = context;
+        this.fragments = fragments;
     }
 
     @Override
     public int getCount() {
-        return PAGE_COUNT;
+        return this.fragments.size();
     }
 
     @Override
     public Fragment getItem(int position) {
-        switch (position) {
-            case 0:
-                return new ScanFragment();
-        }
-        return PageFragment.newInstance(position + 1);
+        return this.fragments.get(position);
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
         return tabTitles[position];
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 }

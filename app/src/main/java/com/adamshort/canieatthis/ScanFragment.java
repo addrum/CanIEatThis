@@ -3,6 +3,7 @@ package com.adamshort.canieatthis;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -38,6 +39,7 @@ public class ScanFragment extends Fragment {
     static final int DOWNLOAD = 0;
     static final int PRODUCT = 1;
     static boolean DEBUG;
+    static boolean onCreate = false;
 
     public RelativeLayout responseLinearLayout;
 
@@ -52,13 +54,40 @@ public class ScanFragment extends Fragment {
 
     public Button scanButton;
 
-    public Switch dairyFreeSwitch;
-    public Switch vegetarianSwitch;
-    public Switch veganSwitch;
-    public Switch glutenFreeSwitch;
+    public static Switch dairyFreeSwitch;
+    public static Switch vegetarianSwitch;
+    public static Switch veganSwitch;
+    public static Switch glutenFreeSwitch;
 
-    private ResponseQuerier responseQuerier;
+    public void SetItemsFromDataPasser() {
+        SetAllergenSwitches(DataPasser.getInstance().isDairy(), DataPasser.getInstance().isVegetarian(), DataPasser.getInstance().isVegan(), DataPasser.getInstance().isGluten());
+        if (DataPasser.getInstance().areSwitchesVisible()) {
+            SetSwitchesVisibility(View.VISIBLE);
+        } else {
+            SetSwitchesVisibility(View.INVISIBLE);
+        }
 
+        itemTextView.setText(DataPasser.getInstance().getQuery());
+        if (DataPasser.getInstance().isItemVisible()) {
+            itemTextView.setVisibility(View.VISIBLE);
+        } else {
+            itemTextView.setVisibility(View.INVISIBLE);
+        }
+
+        if (DataPasser.getInstance().isIntroVisible()) {
+            introTextView.setVisibility(View.VISIBLE);
+        } else {
+            introTextView.setVisibility(View.INVISIBLE);
+        }
+
+        if (DataPasser.getInstance().isResponseVisible()) {
+            SetResponseItemsVisibility(View.VISIBLE);
+        } else {
+            SetResponseItemsVisibility(View.INVISIBLE);
+        }
+    }
+
+    @SuppressWarnings("ResourceType")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,7 +116,7 @@ public class ScanFragment extends Fragment {
         veganSwitch.setClickable(false);
         glutenFreeSwitch.setClickable(false);
 
-        responseQuerier = ResponseQuerier.getInstance(this.getActivity());
+        SetItemsFromDataPasser();
 
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,6 +126,8 @@ public class ScanFragment extends Fragment {
         });
 
         DEBUG = android.os.Debug.isDebuggerConnected();
+
+        onCreate = true;
 
         return view;
     }
@@ -173,7 +204,7 @@ public class ScanFragment extends Fragment {
     }
 
     public void ProcessResponse(String response) {
-        JSONObject product = responseQuerier.ParseIntoJSON(response);
+        JSONObject product = ResponseQuerier.getInstance(this.getActivity()).ParseIntoJSON(response);
 
         try {
             if (product != null) {
@@ -184,10 +215,10 @@ public class ScanFragment extends Fragment {
                 List<String> editedIngredients = StringToList(ingredients);
                 List<String> editedTraces = StringToList(traces);
 
-                boolean dairy = responseQuerier.IsDairyFree(editedIngredients);
-                boolean vegetarian = responseQuerier.IsVegetarian(editedIngredients);
-                boolean vegan = responseQuerier.IsVegan(editedIngredients);
-                boolean gluten = responseQuerier.IsGlutenFree(editedIngredients);
+                boolean dairy = ResponseQuerier.getInstance(this.getActivity()).IsDairyFree(editedIngredients);
+                boolean vegetarian = ResponseQuerier.getInstance(this.getActivity()).IsVegetarian(editedIngredients);
+                boolean vegan = ResponseQuerier.getInstance(this.getActivity()).IsVegan(editedIngredients);
+                boolean gluten = ResponseQuerier.getInstance(this.getActivity()).IsGlutenFree(editedIngredients);
 
                 SetItemTitleText(item);
                 SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
@@ -256,6 +287,18 @@ public class ScanFragment extends Fragment {
         tracesResponseView.setVisibility(View.VISIBLE);
     }
 
+    public void SetItemTextViewText(String text) {
+        itemTextView.setText(text);
+    }
+
+    public void SetIntroTextViewVsibility(int visibility) {
+        introTextView.setVisibility(visibility);
+    }
+
+    public void SetItemTextViewVisibility(int visibility) {
+        itemTextView.setVisibility(visibility);
+    }
+
     public class RequestHandler extends AsyncTask<String, Void, String> {
 
         protected void onPreExecute() {
@@ -293,4 +336,5 @@ public class ScanFragment extends Fragment {
             ProcessResponse(response);
         }
     }
+
 }

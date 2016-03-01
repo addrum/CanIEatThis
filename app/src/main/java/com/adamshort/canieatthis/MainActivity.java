@@ -1,5 +1,8 @@
 package com.adamshort.canieatthis;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -13,21 +16,35 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+
+    private FragmentPageAdapter fragmentPageAdapter;
+    private ViewPager viewPager;
+    private ResponseQuerier responseQuerier;
+    private List<Fragment> fragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tab_layout);
 
+        fragments = new ArrayList<>();
+        fragments.add(new ScanFragment());
+        fragments.add(PageFragment.newInstance(1));
+
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(new FragmentPageAdapter(getSupportFragmentManager(),
-                MainActivity.this));
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        fragmentPageAdapter = new FragmentPageAdapter(getSupportFragmentManager(), fragments);
+        viewPager.setAdapter(fragmentPageAdapter);
 
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        responseQuerier = ResponseQuerier.getInstance(this);
     }
 
     @Override
@@ -65,17 +82,26 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
                     // query is the value entered into the search bar
-                    /*boolean dairy = IsDairyFree(query);
-                    boolean vegetarian = IsVegetarian(query);
-                    boolean vegan = IsVegan(query);
-                    boolean gluten = IsGlutenFree(query);
-                    SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
+                    boolean dairy = responseQuerier.IsDairyFree(query);
+                    boolean vegetarian = responseQuerier.IsVegetarian(query);
+                    boolean vegan = responseQuerier.IsVegan(query);
+                    boolean gluten = responseQuerier.IsGlutenFree(query);
+
+                    DataPasser.getInstance().setQuery(query);
+
+                    DataPasser.getInstance().setDairy(dairy);
+                    DataPasser.getInstance().setVegetarian(vegetarian);
+                    DataPasser.getInstance().setVegan(vegan);
+                    DataPasser.getInstance().setGluten(gluten);
+
+                    DataPasser.getInstance().setSwitchesVisible(true);
+                    DataPasser.getInstance().setItemVisible(true);
+                    DataPasser.getInstance().setIntroVisible(false);
+                    DataPasser.getInstance().setResponseVisible(false);
+
                     actionMenu.findItem(R.id.action_search).collapseActionView();
-                    itemTextView.setText(String.format(getString(R.string.ingredient), query));
-                    introTextView.setVisibility(View.INVISIBLE);
-                    itemTextView.setVisibility(View.VISIBLE);
-                    SetSwitchesVisibility(View.VISIBLE);
-                    SetResponseItemsVisibility(View.INVISIBLE);*/
+                    viewPager.setAdapter(null);
+                    viewPager.setAdapter(fragmentPageAdapter);
                 }
                 return true;
             }
