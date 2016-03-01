@@ -150,7 +150,6 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:background="#00a400"
-            android:onClick="scanBar"
             android:text="@string/bottomButtonText"
             android:textColor="#ffffff"
             android:textSize="18sp"

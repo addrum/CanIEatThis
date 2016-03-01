@@ -2,6 +2,7 @@ package com.adamshort.canieatthis;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.support.v4.app.Fragment;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -15,9 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -38,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class ScanFragment extends Fragment {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
@@ -77,30 +80,29 @@ public class MainActivity extends AppCompatActivity {
     private Menu menu;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //set the main content layout of the Activity
-        setContentView(R.layout.activity_main);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.activity_main, container, false);
 
-        container = (LinearLayout) findViewById(R.id.container);
+        container = (LinearLayout) view.findViewById(R.id.container);
 
-        responseLinearLayout = (RelativeLayout) findViewById(R.id.responseLinearLayout);
+        responseLinearLayout = (RelativeLayout) view.findViewById(R.id.responseLinearLayout);
 
-        switchesTableLayout = (TableLayout) findViewById(R.id.switchesTableLayout);
+        switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
-        introTextView = (TextView) findViewById(R.id.introTextView);
-        itemTextView = (TextView) findViewById(R.id.itemTitleText);
-        ingredientsTitleText = (TextView) findViewById(R.id.ingredientsTitleText);
-        ingredientResponseView = (TextView) findViewById(R.id.ingredientsResponseView);
-        tracesTitleText = (TextView) findViewById(R.id.tracesTitleText);
-        tracesResponseView = (TextView) findViewById(R.id.tracesResponseView);
+        introTextView = (TextView) view.findViewById(R.id.introTextView);
+        itemTextView = (TextView) view.findViewById(R.id.itemTitleText);
+        ingredientsTitleText = (TextView) view.findViewById(R.id.ingredientsTitleText);
+        ingredientResponseView = (TextView) view.findViewById(R.id.ingredientsResponseView);
+        tracesTitleText = (TextView) view.findViewById(R.id.tracesTitleText);
+        tracesResponseView = (TextView) view.findViewById(R.id.tracesResponseView);
 
-        scanButton = (Button) findViewById(R.id.scanButton);
+        scanButton = (Button) view.findViewById(R.id.scanButton);
 
-        dairyFreeSwitch = (Switch) findViewById(R.id.dairyFreeSwitch);
-        vegetarianSwitch = (Switch) findViewById(R.id.vegetarianSwitch);
-        veganSwitch = (Switch) findViewById(R.id.veganSwitch);
-        glutenFreeSwitch = (Switch) findViewById(R.id.glutenFreeSwitch);
+        dairyFreeSwitch = (Switch) view.findViewById(R.id.dairyFreeSwitch);
+        vegetarianSwitch = (Switch) view.findViewById(R.id.vegetarianSwitch);
+        veganSwitch = (Switch) view.findViewById(R.id.veganSwitch);
+        glutenFreeSwitch = (Switch) view.findViewById(R.id.glutenFreeSwitch);
 
         dairyFreeSwitch.setClickable(false);
         vegetarianSwitch.setClickable(false);
@@ -116,10 +118,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        scanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scanBar(view);
+            }
+        });
+
         DEBUG = android.os.Debug.isDebuggerConnected();
+
+        return view;
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final Menu actionMenu = menu;
         this.menu = menu;
@@ -190,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.action_search), expandListener);
 
         return super.onCreateOptionsMenu(menu);
-    }
+    }*/
 
     //product barcode mode
     public void scanBar(View v) {
@@ -205,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
-            showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No", DOWNLOAD).show();
+            showDialog(this.getActivity(), "No Scanner Found", "Download a scanner code activity?", "Yes", "No", DOWNLOAD).show();
         }
     }
 
@@ -249,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
     //on ActivityResult method
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
@@ -300,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
 
-            showDialog(MainActivity.this, "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
+            showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
         }
         return null;
     }
@@ -424,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader reader;
 
         try {
-            final InputStream file = getAssets().open("dairy.txt");
+            final InputStream file = this.getActivity().getAssets().open("dairy.txt");
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
@@ -439,7 +450,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            final InputStream file = getAssets().open("vegetarian.txt");
+            final InputStream file = this.getActivity().getAssets().open("vegetarian.txt");
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
@@ -454,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            final InputStream file = getAssets().open("vegan.txt");
+            final InputStream file = this.getActivity().getAssets().open("vegan.txt");
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
@@ -469,7 +480,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
-            final InputStream file = getAssets().open("gluten.txt");
+            final InputStream file = this.getActivity().getAssets().open("gluten.txt");
             reader = new BufferedReader(new InputStreamReader(file));
             String line = reader.readLine();
             while (line != null) {
