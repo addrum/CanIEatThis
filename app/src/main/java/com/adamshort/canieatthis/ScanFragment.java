@@ -2,27 +2,18 @@ package com.adamshort.canieatthis;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.support.v4.app.Fragment;
-import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TableLayout;
@@ -32,8 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -49,8 +38,6 @@ public class ScanFragment extends Fragment {
     static final int DOWNLOAD = 0;
     static final int PRODUCT = 1;
     static boolean DEBUG;
-
-    public LinearLayout container;
 
     public RelativeLayout responseLinearLayout;
 
@@ -70,21 +57,12 @@ public class ScanFragment extends Fragment {
     public Switch veganSwitch;
     public Switch glutenFreeSwitch;
 
-    //http://www.godairyfree.org/dairy-free-grocery-shopping-guide/dairy-ingredient-list-2
-    public List<String> dairy;
-    public List<String> vegetarian;
-    //http://www.peta.org/living/beauty/animal-ingredients-list/
-    public List<String> vegan;
-    public List<String> gluten;
-
-    private Menu menu;
+    private ResponseQuerier responseQuerier;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.activity_main, container, false);
-
-        container = (LinearLayout) view.findViewById(R.id.container);
 
         responseLinearLayout = (RelativeLayout) view.findViewById(R.id.responseLinearLayout);
 
@@ -109,19 +87,12 @@ public class ScanFragment extends Fragment {
         veganSwitch.setClickable(false);
         glutenFreeSwitch.setClickable(false);
 
-        SetDatabasesFromFiles();
-
-        container.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                menu.findItem(R.id.action_search).collapseActionView();
-            }
-        });
+        responseQuerier = ResponseQuerier.getInstance(this.getActivity());
 
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanBar(view);
+                scanBar();
             }
         });
 
@@ -130,81 +101,8 @@ public class ScanFragment extends Fragment {
         return view;
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        final Menu actionMenu = menu;
-        this.menu = menu;
-        getMenuInflater().inflate(R.menu.main, actionMenu);
-
-        // Define the listener
-        MenuItemCompat.OnActionExpandListener expandListener = new MenuItemCompat.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                // Do something when action item collapses
-                return true;  // Return true to collapse action view
-            }
-
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                return true;  // Return true to expand action view
-            }
-        };
-
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView = (SearchView) actionMenu.findItem(R.id.action_search).getActionView();
-        if (null != searchView) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            searchView.setIconifiedByDefault(false);
-        }
-
-        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
-            public boolean onQueryTextChange(String newText) {
-                // this is your adapter that will be filtered
-                return true;
-            }
-
-            public boolean onQueryTextSubmit(String query) {
-                if (!TextUtils.isEmpty(query)) {
-                    // query is the value entered into the search bar
-                    boolean dairy = IsDairyFree(query);
-                    boolean vegetarian = IsVegetarian(query);
-                    boolean vegan = IsVegan(query);
-                    boolean gluten = IsGlutenFree(query);
-                    SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
-                    actionMenu.findItem(R.id.action_search).collapseActionView();
-                    itemTextView.setText(String.format(getString(R.string.ingredient), query));
-                    introTextView.setVisibility(View.INVISIBLE);
-                    itemTextView.setVisibility(View.VISIBLE);
-                    SetSwitchesVisibility(View.VISIBLE);
-                    SetResponseItemsVisibility(View.INVISIBLE);
-                }
-                return true;
-            }
-        };
-
-        if (searchView != null) {
-            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View view, boolean queryTextFocused) {
-                    if (!queryTextFocused) {
-                        actionMenu.findItem(R.id.action_search).collapseActionView();
-                        searchView.setQuery("", false);
-                    }
-                }
-            });
-
-            searchView.setOnQueryTextListener(queryTextListener);
-        }
-
-
-        // Assign the listener to that action item
-        MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.action_search), expandListener);
-
-        return super.onCreateOptionsMenu(menu);
-    }*/
-
     //product barcode mode
-    public void scanBar(View v) {
+    public void scanBar() {
         try {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
             Intent intent = new Intent(ACTION_SCAN);
@@ -275,7 +173,7 @@ public class ScanFragment extends Fragment {
     }
 
     public void ProcessResponse(String response) {
-        JSONObject product = ParseIntoJSON(response);
+        JSONObject product = responseQuerier.ParseIntoJSON(response);
 
         try {
             if (product != null) {
@@ -286,10 +184,10 @@ public class ScanFragment extends Fragment {
                 List<String> editedIngredients = StringToList(ingredients);
                 List<String> editedTraces = StringToList(traces);
 
-                boolean dairy = IsDairyFree(editedIngredients);
-                boolean vegetarian = IsVegetarian(editedIngredients);
-                boolean vegan = IsVegan(editedIngredients);
-                boolean gluten = IsGlutenFree(editedIngredients);
+                boolean dairy = responseQuerier.IsDairyFree(editedIngredients);
+                boolean vegetarian = responseQuerier.IsVegetarian(editedIngredients);
+                boolean vegan = responseQuerier.IsVegan(editedIngredients);
+                boolean gluten = responseQuerier.IsGlutenFree(editedIngredients);
 
                 SetItemTitleText(item);
                 SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
@@ -298,22 +196,12 @@ public class ScanFragment extends Fragment {
                 SetSwitchesVisibility(View.VISIBLE);
                 introTextView.setVisibility(View.INVISIBLE);
                 SetResponseItemsVisibility(View.VISIBLE);
+            } else {
+                showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
             }
         } catch (JSONException e) {
             Log.d("ERROR", "Issue ParseIntoJSON(response)");
         }
-    }
-
-    public JSONObject ParseIntoJSON(String response) {
-        try {
-            JSONObject object = new JSONObject(response);
-            return object.getJSONObject("product");
-        } catch (JSONException e) {
-            Log.d("ERROR", "Issue getting ingredients from URL: " + e);
-
-            showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
-        }
-        return null;
     }
 
     public List<String> StringToList(String s) {
@@ -330,86 +218,6 @@ public class ScanFragment extends Fragment {
         return ingredient.replaceAll("[_]|\\s+$\"", "");
     }
 
-    public boolean IsDairyFree(List<String> list) {
-        for (String ingredient : list) {
-            for (String dairyIngredient : dairy) {
-                if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean IsDairyFree(String ingredient) {
-        for (String dairyIngredient : dairy) {
-            if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean IsVegetarian(List<String> list) {
-        for (String ingredient : list) {
-            for (String vegetarianIngredient : vegetarian) {
-                if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean IsVegetarian(String ingredient) {
-        for (String vegetarianIngredient : vegetarian) {
-            if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean IsVegan(List<String> list) {
-        for (String ingredient : list) {
-            for (String veganIngredient : vegan) {
-                if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean IsVegan(String ingredient) {
-        for (String veganIngredient : vegan) {
-            if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean IsGlutenFree(List<String> list) {
-        for (String ingredient : list) {
-            for (String glutenIngredient : gluten) {
-                if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean IsGlutenFree(String ingredient) {
-        for (String glutenIngredient : gluten) {
-            if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void SetSwitchesVisibility(int visibility) {
         switchesTableLayout.setVisibility(visibility);
         dairyFreeSwitch.setVisibility(visibility);
@@ -424,75 +232,6 @@ public class ScanFragment extends Fragment {
         ingredientResponseView.setVisibility(visibility);
         tracesTitleText.setVisibility(visibility);
         tracesResponseView.setVisibility(visibility);
-    }
-
-    public void SetDatabasesFromFiles() {
-        dairy = new ArrayList<>();
-        vegetarian = new ArrayList<>();
-        vegan = new ArrayList<>();
-        gluten = new ArrayList<>();
-
-        BufferedReader reader;
-
-        try {
-            final InputStream file = this.getActivity().getAssets().open("dairy.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                Log.d("Dairy", line);
-                line = reader.readLine();
-                if (line != null) {
-                    dairy.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        try {
-            final InputStream file = this.getActivity().getAssets().open("vegetarian.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                Log.d("Vegetarian", line);
-                line = reader.readLine();
-                if (line != null) {
-                    vegetarian.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        try {
-            final InputStream file = this.getActivity().getAssets().open("vegan.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                Log.d("Vegan", line);
-                line = reader.readLine();
-                if (line != null) {
-                    vegan.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        try {
-            final InputStream file = this.getActivity().getAssets().open("gluten.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                Log.d("Gluten", line);
-                line = reader.readLine();
-                if (line != null) {
-                    gluten.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
     }
 
     public void SetItemTitleText(String item) {
