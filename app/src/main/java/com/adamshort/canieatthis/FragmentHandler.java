@@ -6,11 +6,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-public class FragmentPageAdapter extends FragmentPagerAdapter {
-    private String tabTitles[] = new String[] { "Scan", "Tab2" };
+public class FragmentHandler extends FragmentPagerAdapter {
+    private String tabTitles[] = new String[] { "Scan", "Places to Eat" };
     private List<Fragment> fragments;
 
-    public FragmentPageAdapter(FragmentManager fm, List<Fragment> fragments) {
+    public FragmentHandler(FragmentManager fm, List<Fragment> fragments) {
         super(fm);
         this.fragments = fragments;
     }

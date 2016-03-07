@@ -1,12 +1,12 @@
 package com.adamshort.canieatthis;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FragmentPageAdapter fragmentPageAdapter;
+    private FragmentHandler fragmentHandler;
     private ViewPager viewPager;
     private ResponseQuerier responseQuerier;
     private List<Fragment> fragments;
@@ -33,12 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
-        fragments.add(PageFragment.newInstance(1));
+        fragments.add(new PlacesFragment());
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        fragmentPageAdapter = new FragmentPageAdapter(getSupportFragmentManager(), fragments);
-        viewPager.setAdapter(fragmentPageAdapter);
+        fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
+        viewPager.setAdapter(fragmentHandler);
 
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     DataPasser.getInstance().setResponseVisible(false);
 
                     actionMenu.findItem(R.id.action_search).collapseActionView();
-                    viewPager.setAdapter(fragmentPageAdapter);
+                    viewPager.setAdapter(fragmentHandler);
                 }
                 return true;
             }
