@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                     DataPasser.getInstance().setResponseVisible(false);
 
                     actionMenu.findItem(R.id.action_search).collapseActionView();
-                    viewPager.setAdapter(null);
                     viewPager.setAdapter(fragmentPageAdapter);
                 }
                 return true;

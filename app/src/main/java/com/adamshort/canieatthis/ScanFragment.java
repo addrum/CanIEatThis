@@ -39,7 +39,6 @@ public class ScanFragment extends Fragment {
     static final int DOWNLOAD = 0;
     static final int PRODUCT = 1;
     static boolean DEBUG;
-    static boolean onCreate = false;
 
     public RelativeLayout responseLinearLayout;
 
@@ -60,6 +59,10 @@ public class ScanFragment extends Fragment {
     public static Switch glutenFreeSwitch;
 
     public void SetItemsFromDataPasser() {
+        Log.d("DEBUG: ", "Dairy: " + DataPasser.getInstance().isDairy());
+        Log.d("DEBUG: ", "Vegetarian: " + DataPasser.getInstance().isVegetarian());
+        Log.d("DEBUG: ", "Vegan: " + DataPasser.getInstance().isVegan());
+        Log.d("DEBUG: ", "Gluten: " + DataPasser.getInstance().isGluten());
         SetAllergenSwitches(DataPasser.getInstance().isDairy(), DataPasser.getInstance().isVegetarian(), DataPasser.getInstance().isVegan(), DataPasser.getInstance().isGluten());
         if (DataPasser.getInstance().areSwitchesVisible()) {
             SetSwitchesVisibility(View.VISIBLE);
@@ -127,9 +130,14 @@ public class ScanFragment extends Fragment {
 
         DEBUG = android.os.Debug.isDebuggerConnected();
 
-        onCreate = true;
-
         return view;
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle inState) {
+        super.onViewStateRestored(inState);
+
+        SetItemsFromDataPasser();
     }
 
     //product barcode mode
