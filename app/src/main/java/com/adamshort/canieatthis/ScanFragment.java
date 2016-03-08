@@ -32,30 +32,32 @@ import java.util.List;
 
 public class ScanFragment extends Fragment {
 
-    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
-    static final String EXTENSION = ".json";
-    static final int DOWNLOAD = 0;
-    static final int PRODUCT = 1;
-    static boolean DEBUG;
+    public static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    public static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
+    public static final String EXTENSION = ".json";
+    public static final int DOWNLOAD = 0;
+    public static final int PRODUCT = 1;
+    public static boolean DEBUG;
 
-    public RelativeLayout responseLinearLayout;
+    private static Switch dairyFreeSwitch;
+    private static Switch vegetarianSwitch;
+    private static Switch veganSwitch;
+    private static Switch glutenFreeSwitch;
 
-    public TableLayout switchesTableLayout;
+    private RelativeLayout responseLinearLayout;
 
-    public TextView introTextView;
-    public TextView itemTextView;
-    public TextView ingredientsTitleText;
-    public TextView ingredientResponseView;
-    public TextView tracesTitleText;
-    public TextView tracesResponseView;
+    private TableLayout switchesTableLayout;
 
-    public Button scanButton;
+    private TextView introTextView;
+    private TextView itemTextView;
+    private TextView ingredientsTitleText;
+    private TextView ingredientResponseView;
+    private TextView tracesTitleText;
+    private TextView tracesResponseView;
 
-    public static Switch dairyFreeSwitch;
-    public static Switch vegetarianSwitch;
-    public static Switch veganSwitch;
-    public static Switch glutenFreeSwitch;
+    private Button scanButton;
+
+    private static boolean fragmentCreated = false;
 
     public void SetItemsFromDataPasser() {
         Log.d("DEBUG: ", "Dairy: " + DataPasser.getInstance().isDairy());
@@ -127,9 +129,24 @@ public class ScanFragment extends Fragment {
             }
         });
 
+        fragmentCreated = true;
+
         DEBUG = android.os.Debug.isDebuggerConnected();
 
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        if (isVisibleToUser) {
+            Log.d("ScanFragment", "Fragment is visible.");
+            Log.d("FragmentCreated", Boolean.toString(fragmentCreated));
+            if (fragmentCreated) SetItemsFromDataPasser();
+        } else {
+            Log.d("ScanFragment", "Fragment is not visible.");
+        }
     }
 
     @Override

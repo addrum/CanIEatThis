@@ -25,9 +25,9 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.location_fragment, container, false);
+        View view = inflater.inflate(R.layout.location_fragment, container, false);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(Places.GEO_DATA_API).addApi(Places.PLACE_DETECTION_API).enableAutoManage(getActivity(), this).build();
+//        mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(Places.GEO_DATA_API).addApi(Places.PLACE_DETECTION_API).enableAutoManage(getActivity(), this).build();
 
         return view;
     }

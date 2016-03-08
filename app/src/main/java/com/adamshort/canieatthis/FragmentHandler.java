@@ -9,10 +9,12 @@ import java.util.List;
 public class FragmentHandler extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] { "Scan", "Places to Eat" };
     private List<Fragment> fragments;
+    private int currentPosition;
 
     public FragmentHandler(FragmentManager fm, List<Fragment> fragments) {
         super(fm);
         this.fragments = fragments;
+        currentPosition = 0;
     }
 
     @Override

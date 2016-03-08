@@ -21,6 +21,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private int position;
     private FragmentHandler fragmentHandler;
     private ViewPager viewPager;
     private ResponseQuerier responseQuerier;
@@ -39,6 +40,25 @@ public class MainActivity extends AppCompatActivity {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(fragmentHandler);
+
+        position = 0;
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                setPosition(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
@@ -100,7 +120,12 @@ public class MainActivity extends AppCompatActivity {
                     DataPasser.getInstance().setResponseVisible(false);
 
                     actionMenu.findItem(R.id.action_search).collapseActionView();
-                    viewPager.setAdapter(fragmentHandler);
+                    if (getPosition() != 0) {
+                        viewPager.setCurrentItem(0);
+                    } else {
+                        ScanFragment scanFragment = (ScanFragment) fragments.get(0);
+                        scanFragment.SetItemsFromDataPasser();
+                    }
                 }
                 return true;
             }
@@ -125,6 +150,14 @@ public class MainActivity extends AppCompatActivity {
         MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.action_search), expandListener);
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
 }
