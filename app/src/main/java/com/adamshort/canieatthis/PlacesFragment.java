@@ -2,8 +2,6 @@ package com.adamshort.canieatthis;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +15,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 public class PlacesFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
-    private static View view;
-    private static GoogleMap mMap;
-    private static Double latitude, longitude;
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -27,7 +22,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.location_fragment, container, false);
 
-//        mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(Places.GEO_DATA_API).addApi(Places.PLACE_DETECTION_API).enableAutoManage(getActivity(), this).build();
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(Places.GEO_DATA_API).addApi(Places.PLACE_DETECTION_API).enableAutoManage(getActivity(), this).build();
 
         return view;
     }
