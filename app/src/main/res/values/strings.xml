@@ -23,6 +23,8 @@
     <string name="productNameHint">Product Name</string>
     <string name="quantityHint">Quantity</string>
     <string name="energyPerServingHint">Energy Per Serving (kJ)</string>
-    <string name="ingredientsHint">Ingredients</string>
+    <string name="ingredientsHint">Ingredients (separate with commas)</string>
     <string name="productImageButtonText">PRODUCT IMAGE</string>
+    <string name="productSubmitButtonText">SUBMIT</string>
+    <string name="tracesHint">Traces</string>
 </resources>

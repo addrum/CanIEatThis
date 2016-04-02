@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ScanFragment extends Fragment {
 
@@ -236,7 +237,13 @@ public class ScanFragment extends Fragment {
     }
 
     public void GetBarcodeInformation(String barcode) {
-        new RequestHandler().execute(BASE_URL + barcode + EXTENSION);
+        try {
+            String response = new RequestHandler().execute(BASE_URL + barcode + EXTENSION).get();
+            ProcessResponse(response);
+        } catch (Exception e) {
+            Log.e("ERROR", "Couldn't get a response");
+            e.printStackTrace();
+        }
     }
 
     public void ProcessResponse(String response) {
@@ -248,8 +255,10 @@ public class ScanFragment extends Fragment {
                 String ingredients = product.getString("ingredients_text");
                 String traces = product.getString("traces");
 
-                List<String> editedIngredients = StringToList(ingredients);
-                List<String> editedTraces = StringToList(traces);
+                List<String> editedIngredients = IngredientsList.StringToList(ingredients);
+                editedIngredients = IngredientsList.RemoveUnwantedCharacters(editedIngredients, "[_]|\\s+$\"", "");
+                List<String> editedTraces = IngredientsList.StringToList(traces);
+                editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
                 boolean dairy = ResponseQuerier.getInstance(this.getActivity()).IsDairyFree(editedIngredients);
                 boolean vegetarian = ResponseQuerier.getInstance(this.getActivity()).IsVegetarian(editedIngredients);
@@ -269,20 +278,6 @@ public class ScanFragment extends Fragment {
         } catch (JSONException e) {
             Log.d("ERROR", "Issue ParseIntoJSON(response)");
         }
-    }
-
-    public List<String> StringToList(String s) {
-        ArrayList<String> ingredients = new ArrayList<>(Arrays.asList(s.split(", ")));
-        for (int i = 0; i < ingredients.size(); i++) {
-            ingredients.set(i, RemoveUnwantedCharacters(ingredients.get(i)));
-            Log.i("INFO", ingredients.get(i));
-        }
-        return ingredients;
-    }
-
-    public String RemoveUnwantedCharacters(String ingredient) {
-        // replace any whitespace with nothing
-        return ingredient.replaceAll("[_]|\\s+$\"", "");
     }
 
     public void SetSwitchesVisibility(int visibility) {
@@ -333,44 +328,6 @@ public class ScanFragment extends Fragment {
 
     public void SetItemTextViewVisibility(int visibility) {
         itemTextView.setVisibility(visibility);
-    }
-
-    public class RequestHandler extends AsyncTask<String, Void, String> {
-
-        protected void onPreExecute() {
-        }
-
-        protected String doInBackground(String... urls) {
-            try {
-                URL url = new URL(urls[0]);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                try {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(line).append("\n");
-                    }
-                    bufferedReader.close();
-                    return stringBuilder.toString();
-                } finally {
-                    urlConnection.disconnect();
-                }
-            } catch (Exception e) {
-                Log.e("ERROR", e.getMessage(), e);
-                return null;
-            }
-        }
-
-        protected void onPostExecute(String response) {
-            if (response == null) {
-                Log.d("ERROR", "THERE WAS AN ERROR");
-                return;
-            }
-            Log.i("INFO", response);
-
-            ProcessResponse(response);
-        }
     }
 
 }
