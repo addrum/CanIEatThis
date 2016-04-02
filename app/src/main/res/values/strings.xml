@@ -19,4 +19,10 @@
     <string name="itemTitleText">Item</string>
     <string name="ingredient">"Ingredient: %1$s"</string>
     <string name="product">"Product: %1$s"</string>
+    <string name="barcodeNumberHint">Barcode Number</string>
+    <string name="productNameHint">Product Name</string>
+    <string name="quantityHint">Quantity</string>
+    <string name="energyPerServingHint">Energy Per Serving (kJ)</string>
+    <string name="ingredientsHint">Ingredients</string>
+    <string name="productImageButtonText">PRODUCT IMAGE</string>
 </resources>

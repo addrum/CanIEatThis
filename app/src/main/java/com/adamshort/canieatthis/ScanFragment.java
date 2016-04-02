@@ -3,6 +3,7 @@ package com.adamshort.canieatthis;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -37,7 +38,10 @@ public class ScanFragment extends Fragment {
     public static final String EXTENSION = ".json";
     public static final int DOWNLOAD = 0;
     public static final int PRODUCT = 1;
+
     public static boolean DEBUG;
+
+    private static Context context;
 
     private static Switch dairyFreeSwitch;
     private static Switch vegetarianSwitch;
@@ -131,6 +135,8 @@ public class ScanFragment extends Fragment {
 
         fragmentCreated = true;
 
+        context = getContext();
+
         DEBUG = android.os.Debug.isDebuggerConnected();
 
         return view;
@@ -174,12 +180,13 @@ public class ScanFragment extends Fragment {
     }
 
     //alert dialog for downloadDialog
-    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo, int dialog) {
-        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
-        downloadDialog.setTitle(title);
-        downloadDialog.setMessage(message);
-        if (dialog == 0) {
-            downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo, int dialogNumber) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(act);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+
+        if (dialogNumber == DOWNLOAD) {
+            dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -190,24 +197,29 @@ public class ScanFragment extends Fragment {
                     }
                 }
             });
-            downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+            dialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
                 }
             });
         }
 
-        if (dialog == 1) {
-            downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+        if (dialogNumber == PRODUCT) {
+            dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
+                    try {
+                        act.startActivity(new Intent(context, AddProductActivity.class));
+                    } catch (Exception e) {
+                        Log.d("PRODUCT Yes", "Couldn't start new AddProductActivity");
+                    }
                 }
             });
-            downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+            dialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
                 }
             });
         }
 
-        return downloadDialog.show();
+        return dialog.show();
     }
 
     //on ActivityResult method
