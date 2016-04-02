@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +42,8 @@ public class ScanFragment extends Fragment {
     public static final int PRODUCT = 1;
 
     public static boolean DEBUG;
+
+    private static String barcode = "";
 
     private static Context context;
 
@@ -209,6 +212,8 @@ public class ScanFragment extends Fragment {
             dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     try {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("barcode", barcode);
                         act.startActivity(new Intent(context, AddProductActivity.class));
                     } catch (Exception e) {
                         Log.d("PRODUCT Yes", "Couldn't start new AddProductActivity");
@@ -233,6 +238,7 @@ public class ScanFragment extends Fragment {
                 //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 
                 GetBarcodeInformation(contents);
+                barcode = contents;
             }
         }
     }
@@ -249,6 +255,7 @@ public class ScanFragment extends Fragment {
 
     public void ProcessResponse(String response) {
         JSONObject product = ResponseQuerier.getInstance(this.getActivity()).ParseIntoJSON(response);
+        Log.d("DEBUG", "Product: " + product);
 
         try {
             if (product != null) {

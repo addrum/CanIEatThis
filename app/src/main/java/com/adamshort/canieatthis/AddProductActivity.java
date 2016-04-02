@@ -9,15 +9,18 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.text.WordUtils;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class AddProductActivity extends AppCompatActivity {
 
     public static boolean DEBUG;
 
     private static final String BASE_URL = "http://world.openfoodfacts.org/cgi/product_jqm2.pl?";
+    private static String barcode = "";
 
     private String barcodeText, productNameText, quantityText, energyPerServingText, ingredientsText, tracesText;
 
@@ -69,6 +72,9 @@ public class AddProductActivity extends AppCompatActivity {
 
         DEBUG = android.os.Debug.isDebuggerConnected();
 
+        Bundle b = getIntent().getExtras();
+        barcode = b.getString("barcode");
+
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
         quantityTextView = (TextView) findViewById(R.id.input_quantity);
@@ -78,8 +84,9 @@ public class AddProductActivity extends AppCompatActivity {
 
         submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
+        barcodeNumberTextView.setText(barcode);
+
         final List<String> debugIngredients = Arrays.asList("Fortified Wheat Flour", "Sugar", "Palm Oil", "Hydrolysed Wheat Gluten", "Soya Lecithin");
-        final String debugTraces = "Wheat, Soya, Milk, Gluten";
 
         submitProductButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,17 +113,18 @@ public class AddProductActivity extends AppCompatActivity {
 
                 String ingredients = IngredientsList.ListToString(editedIngredients);
 
-                String editedTraces = "";
-                if (DEBUG) {
-                    editedTraces = debugTraces.replace(", ", "%2c");
-                } else {
-                    editedTraces = tracesText.replace(", ", "%2c");
-                }
-
                 String params = "code=" + barcodeText + "&product_name=" + productNameText + "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText + "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
-                        "&ingredients_text=" + ingredients + "&traces=" + editedTraces;
+                        "&ingredients_text=" + ingredients + "&traces=" + tracesText;
 
-//                String response = new RequestHandler().GetResponse(BASE_URL + params);
+                params = params.replace(" ", "%20");
+                params = params.replace(",", "%2C");
+
+                try {
+                    String response = new RequestHandler().execute((BASE_URL + params)).get();
+                } catch (Exception e) {
+                    Log.e("ERROR", "Couldn't get a response");
+                    e.printStackTrace();
+                }
 
             }
         });
