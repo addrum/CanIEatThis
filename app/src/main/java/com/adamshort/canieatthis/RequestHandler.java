@@ -10,8 +10,6 @@ import java.net.URL;
 
 public class RequestHandler extends AsyncTask<String, Void, String> {
 
-    String response;
-
     protected void onPreExecute() {
     }
 
@@ -44,11 +42,5 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
             return;
         }
         Log.i("INFO", response);
-
-        this.response = response;
-    }
-
-    protected String getResponse() {
-        return response;
     }
 }

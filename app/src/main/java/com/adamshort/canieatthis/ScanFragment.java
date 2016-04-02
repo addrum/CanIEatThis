@@ -170,7 +170,8 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                GetBarcodeInformation("5000295008069");
+//                GetBarcodeInformation("5000295008069");
+                startActivity(new Intent(context, AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
             }
@@ -276,7 +277,7 @@ public class ScanFragment extends Fragment {
                 showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
             }
         } catch (JSONException e) {
-            Log.d("ERROR", "Issue ParseIntoJSON(response)");
+            Log.e("ERROR", "Issue ParseIntoJSON(response)");
         }
     }
 
