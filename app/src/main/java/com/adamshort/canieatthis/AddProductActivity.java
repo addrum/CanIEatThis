@@ -73,7 +73,9 @@ public class AddProductActivity extends AppCompatActivity {
         DEBUG = android.os.Debug.isDebuggerConnected();
 
         Bundle b = getIntent().getExtras();
-        barcode = b.getString("barcode");
+        if (b != null) {
+            barcode = b.getString("barcode");
+        }
 
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);

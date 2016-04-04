@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -23,15 +22,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class ScanFragment extends Fragment {
 
@@ -46,6 +37,8 @@ public class ScanFragment extends Fragment {
     private static String barcode = "";
 
     private static Context context;
+
+    private static Activity activity;
 
     private static Switch dairyFreeSwitch;
     private static Switch vegetarianSwitch;
@@ -141,6 +134,8 @@ public class ScanFragment extends Fragment {
 
         context = getContext();
 
+        activity = getActivity();
+
         DEBUG = android.os.Debug.isDebuggerConnected();
 
         return view;
@@ -212,9 +207,14 @@ public class ScanFragment extends Fragment {
             dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     try {
-                        Bundle bundle = new Bundle();
-                        bundle.putString("barcode", barcode);
-                        act.startActivity(new Intent(context, AddProductActivity.class));
+                        Intent intent = new Intent(act, AddProductActivity.class);
+                        intent.putExtra("barcode", barcode);
+
+                        try {
+                            act.startActivity(intent);
+                        } catch (ActivityNotFoundException anfe) {
+                            Log.d("ERROR", anfe.toString());
+                        }
                     } catch (Exception e) {
                         Log.d("PRODUCT Yes", "Couldn't start new AddProductActivity");
                     }
