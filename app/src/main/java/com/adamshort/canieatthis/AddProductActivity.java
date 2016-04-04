@@ -1,7 +1,7 @@
 package com.adamshort.canieatthis;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -9,22 +9,20 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class AddProductActivity extends AppCompatActivity {
 
     public static boolean DEBUG;
 
     private static final String BASE_URL = "http://world.openfoodfacts.org/cgi/product_jqm2.pl?";
+    private static final String END_ERROR_MSG = "Required field.";
     private static String barcode = "";
 
     private String barcodeText, productNameText, quantityText, energyPerServingText, ingredientsText, tracesText;
 
-    private Button submitProductButton;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
@@ -84,7 +82,7 @@ public class AddProductActivity extends AppCompatActivity {
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
 
-        submitProductButton = (Button) findViewById(R.id.product_submit_button);
+        Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
         barcodeNumberTextView.setText(barcode);
 
@@ -100,10 +98,28 @@ public class AddProductActivity extends AppCompatActivity {
                 ingredientsText = ingredientsTextView.getText().toString();
                 tracesText = tracesTextView.getText().toString();
 
+                List<TextView> required = new ArrayList<>();
+                required.add(barcodeNumberTextView);
+                required.add(productNameTextView);
+                required.add(ingredientsTextView);
+
+                boolean wereErrors = false;
+
+                for (TextView req : required) {
+                    if (req.getText().toString().isEmpty()) {
+                        SetErrorHints(req);
+                        wereErrors = true;
+                    }
+                }
+
+                if (wereErrors) return;
+
                 List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
+
                 if (DEBUG) {
                     editedIngredients = debugIngredients;
                 }
+
                 for (int i = 0; i < editedIngredients.size(); i++) {
                     String ing = editedIngredients.get(i).toLowerCase();
                     for (int j = 0; j < traces.size(); j++) {
@@ -132,5 +148,8 @@ public class AddProductActivity extends AppCompatActivity {
         });
     }
 
+    private void SetErrorHints(TextView tv) {
+       tv.setError(END_ERROR_MSG);
+    }
 
 }
