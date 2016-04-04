@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -38,14 +37,10 @@ public class ScanFragment extends Fragment {
 
     private static Context context;
 
-    private static Activity activity;
-
     private static Switch dairyFreeSwitch;
     private static Switch vegetarianSwitch;
     private static Switch veganSwitch;
     private static Switch glutenFreeSwitch;
-
-    private RelativeLayout responseLinearLayout;
 
     private TableLayout switchesTableLayout;
 
@@ -55,8 +50,6 @@ public class ScanFragment extends Fragment {
     private TextView ingredientResponseView;
     private TextView tracesTitleText;
     private TextView tracesResponseView;
-
-    private Button scanButton;
 
     private static boolean fragmentCreated = false;
 
@@ -98,8 +91,6 @@ public class ScanFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.activity_main, container, false);
 
-        responseLinearLayout = (RelativeLayout) view.findViewById(R.id.responseLinearLayout);
-
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
         introTextView = (TextView) view.findViewById(R.id.introTextView);
@@ -109,7 +100,7 @@ public class ScanFragment extends Fragment {
         tracesTitleText = (TextView) view.findViewById(R.id.tracesTitleText);
         tracesResponseView = (TextView) view.findViewById(R.id.tracesResponseView);
 
-        scanButton = (Button) view.findViewById(R.id.scanButton);
+        Button scanButton = (Button) view.findViewById(R.id.scanButton);
 
         dairyFreeSwitch = (Switch) view.findViewById(R.id.dairyFreeSwitch);
         vegetarianSwitch = (Switch) view.findViewById(R.id.vegetarianSwitch);
@@ -133,8 +124,6 @@ public class ScanFragment extends Fragment {
         fragmentCreated = true;
 
         context = getContext();
-
-        activity = getActivity();
 
         DEBUG = android.os.Debug.isDebuggerConnected();
 
@@ -325,17 +314,4 @@ public class ScanFragment extends Fragment {
         tracesResponseView.setText(response);
         tracesResponseView.setVisibility(View.VISIBLE);
     }
-
-    public void SetItemTextViewText(String text) {
-        itemTextView.setText(text);
-    }
-
-    public void SetIntroTextViewVsibility(int visibility) {
-        introTextView.setVisibility(visibility);
-    }
-
-    public void SetItemTextViewVisibility(int visibility) {
-        itemTextView.setVisibility(visibility);
-    }
-
 }
