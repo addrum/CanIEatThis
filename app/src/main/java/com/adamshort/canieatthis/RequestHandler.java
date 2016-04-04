@@ -10,6 +10,17 @@ import java.net.URL;
 
 public class RequestHandler extends AsyncTask<String, Void, String> {
 
+    // based on this solution: http://stackoverflow.com/a/12575319/1860436
+    public interface AsyncResponse {
+        void processFinish(String output);
+    }
+
+    public AsyncResponse delegate = null;
+
+    public RequestHandler(AsyncResponse delegate) {
+        this.delegate = delegate;
+    }
+
     protected void onPreExecute() {
     }
 
@@ -36,11 +47,13 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
         }
     }
 
+    @Override
     protected void onPostExecute(String response) {
         if (response == null) {
             Log.d("ERROR", "THERE WAS AN ERROR");
             return;
         }
         Log.i("INFO", response);
+        delegate.processFinish(response);
     }
 }

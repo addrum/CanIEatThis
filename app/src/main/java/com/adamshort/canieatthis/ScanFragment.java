@@ -42,6 +42,8 @@ public class ScanFragment extends Fragment {
     private static Switch veganSwitch;
     private static Switch glutenFreeSwitch;
 
+    private String response;
+
     private TableLayout switchesTableLayout;
 
     private TextView introTextView;
@@ -65,23 +67,36 @@ public class ScanFragment extends Fragment {
             SetSwitchesVisibility(View.INVISIBLE);
         }
 
-        itemTextView.setText(DataPasser.getInstance().getQuery());
-        if (DataPasser.getInstance().isItemVisible()) {
-            itemTextView.setVisibility(View.VISIBLE);
-        } else {
-            itemTextView.setVisibility(View.INVISIBLE);
+        if (itemTextView != null) {
+            itemTextView.setText(DataPasser.getInstance().getQuery());
+            if (DataPasser.getInstance().isItemVisible()) {
+                itemTextView.setVisibility(View.VISIBLE);
+            } else {
+                itemTextView.setVisibility(View.INVISIBLE);
+            }
         }
 
-        if (DataPasser.getInstance().isIntroVisible()) {
-            introTextView.setVisibility(View.VISIBLE);
-        } else {
-            introTextView.setVisibility(View.INVISIBLE);
+        if (introTextView != null) {
+            if (DataPasser.getInstance().isIntroVisible()) {
+                introTextView.setVisibility(View.VISIBLE);
+            } else {
+                introTextView.setVisibility(View.INVISIBLE);
+            }
         }
 
         if (DataPasser.getInstance().isResponseVisible()) {
             SetResponseItemsVisibility(View.VISIBLE);
         } else {
             SetResponseItemsVisibility(View.INVISIBLE);
+        }
+
+        if (!DataPasser.getInstance().isFromSearch()) {
+            if (ingredientResponseView != null) {
+                ingredientResponseView.setText(DataPasser.getInstance().getIngredients());
+            }
+            if (tracesResponseView != null) {
+                tracesResponseView.setText(DataPasser.getInstance().getTraces());
+            }
         }
     }
 
@@ -234,8 +249,7 @@ public class ScanFragment extends Fragment {
 
     public void GetBarcodeInformation(String barcode) {
         try {
-            String response = new RequestHandler().execute(BASE_URL + barcode + EXTENSION).get();
-            ProcessResponse(response);
+            rh.execute(BASE_URL + barcode + EXTENSION);
         } catch (Exception e) {
             Log.e("ERROR", "Couldn't get a response");
             e.printStackTrace();
@@ -277,20 +291,45 @@ public class ScanFragment extends Fragment {
         }
     }
 
+    RequestHandler rh = new RequestHandler(new RequestHandler.AsyncResponse() {
+        @Override
+        public void processFinish(String output) {
+            ProcessResponse(output);
+        }
+    });
+
     public void SetSwitchesVisibility(int visibility) {
-        switchesTableLayout.setVisibility(visibility);
-        dairyFreeSwitch.setVisibility(visibility);
-        vegetarianSwitch.setVisibility(visibility);
-        veganSwitch.setVisibility(visibility);
-        glutenFreeSwitch.setVisibility(visibility);
+        if (switchesTableLayout != null) {
+            switchesTableLayout.setVisibility(visibility);
+        }
+        if (dairyFreeSwitch != null) {
+            dairyFreeSwitch.setVisibility(visibility);
+        }
+        if (vegetarianSwitch != null) {
+            vegetarianSwitch.setVisibility(visibility);
+        }
+        if (veganSwitch != null) {
+            veganSwitch.setVisibility(visibility);
+        }
+        if (glutenFreeSwitch != null) {
+            glutenFreeSwitch.setVisibility(visibility);
+        }
     }
 
     public void SetResponseItemsVisibility(int visibility)
     {
-        ingredientsTitleText.setVisibility(visibility);
-        ingredientResponseView.setVisibility(visibility);
-        tracesTitleText.setVisibility(visibility);
-        tracesResponseView.setVisibility(visibility);
+        if (ingredientsTitleText != null) {
+            ingredientsTitleText.setVisibility(visibility);
+        }
+        if (ingredientResponseView != null) {
+            ingredientResponseView.setVisibility(visibility);
+        }
+        if (tracesTitleText != null) {
+            tracesTitleText.setVisibility(visibility);
+        }
+        if (tracesResponseView != null) {
+            tracesResponseView.setVisibility(visibility);
+        }
     }
 
     public void SetItemTitleText(String item) {

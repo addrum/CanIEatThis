@@ -1,11 +1,17 @@
 package com.adamshort.canieatthis;
 
+import android.util.Log;
+
 public class DataPasser {
     private boolean dairy, vegetarian, vegan, gluten;
     private boolean switchesVisible, introVisible, responseVisible, itemVisible;
+
     private String query;
+    private String ingredients;
+    private String traces;
 
     private static DataPasser mInstance = null;
+    private boolean fromSearch;
 
     private DataPasser() {
         dairy = false;
@@ -26,6 +32,7 @@ public class DataPasser {
     }
 
     public String getQuery() {
+        Log.d("GET", "Query: " + query);
         return query;
     }
 
@@ -95,5 +102,36 @@ public class DataPasser {
 
     public void setResponseVisible(boolean responseVisible) {
         this.responseVisible = responseVisible;
+    }
+
+    public void setIngredients(String ingredients) {
+        Log.d("SET", "Ingredients: " + ingredients);
+        this.ingredients = ingredients;
+    }
+
+    public String getIngredients()
+    {
+        Log.d("GET", "Ingredients: " + ingredients);
+        return ingredients;
+    }
+
+    public void setFromSearch(boolean fromSearch) {
+        Log.d("SET", "From Search: " + fromSearch);
+        this.fromSearch = fromSearch;
+    }
+
+    public boolean isFromSearch() {
+        Log.d("GET", "From Search: " + fromSearch);
+        return fromSearch;
+    }
+
+    public void setTraces(String traces) {
+        Log.d("SET", "Traces: " + traces);
+        this.traces = traces;
+    }
+
+    public String getTraces() {
+        Log.d("GET", "Traces: " + traces);
+        return traces;
     }
 }

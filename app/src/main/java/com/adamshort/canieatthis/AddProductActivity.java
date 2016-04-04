@@ -1,14 +1,18 @@
 package com.adamshort.canieatthis;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.lang3.text.WordUtils;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +25,13 @@ public class AddProductActivity extends AppCompatActivity {
     private static final String END_ERROR_MSG = "Required field.";
     private static String barcode = "";
 
-    private String barcodeText, productNameText, quantityText, energyPerServingText, ingredientsText, tracesText;
+    private String barcodeText;
+    private String productNameText;
+    private String quantityText;
+    private String energyPerServingText;
+    private String ingredientsText;
+    private String tracesText;
+    private String itemTitle;
 
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
@@ -30,6 +40,7 @@ public class AddProductActivity extends AppCompatActivity {
     private TextView ingredientsTextView;
     private TextView tracesTextView;
 
+    private List<String> writtenIngredients, writtenTraces;
     private List<String> traces = Arrays.asList("peanuts",
             "nuts",
             "almonds",
@@ -63,6 +74,8 @@ public class AddProductActivity extends AppCompatActivity {
             "lupin",
             "molluscs");
 
+    private ResponseQuerier responseQuerier;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +99,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         barcodeNumberTextView.setText(barcode);
 
-        final List<String> debugIngredients = Arrays.asList("Fortified Wheat Flour", "Sugar", "Palm Oil", "Hydrolysed Wheat Gluten", "Soya Lecithin");
+        responseQuerier = ResponseQuerier.getInstance(this);
 
         submitProductButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,13 +125,14 @@ public class AddProductActivity extends AppCompatActivity {
                     }
                 }
 
-                if (wereErrors) return;
+                if (wereErrors && !DEBUG) return;
 
                 List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
 
-                if (DEBUG) {
-                    editedIngredients = debugIngredients;
-                }
+                // Set values for passing back to scan fragment
+                itemTitle = productNameText;
+                writtenIngredients = editedIngredients;
+                writtenTraces = IngredientsList.StringToList(tracesText);
 
                 for (int i = 0; i < editedIngredients.size(); i++) {
                     String ing = editedIngredients.get(i).toLowerCase();
@@ -131,22 +145,85 @@ public class AddProductActivity extends AppCompatActivity {
 
                 String ingredients = IngredientsList.ListToString(editedIngredients);
 
+                if (DEBUG) {
+                    barcodeText = "072417136160";
+                    productNameText = "Maryland Choc Chip";
+                    itemTitle = productNameText;
+                    quantityText = "230g";
+                    energyPerServingText = "450";
+                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                    writtenIngredients = IngredientsList.StringToList(ingredients);
+                    tracesText = "Milk, Soya, Nuts, Wheat";
+                    writtenTraces = IngredientsList.StringToList(tracesText);
+                }
+
+                try {
+                    productNameText = URLEncoder.encode(productNameText, "UTF-8");
+                    quantityText = URLEncoder.encode(quantityText, "UTF-8");
+                    energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
+                    ingredients = URLEncoder.encode(ingredients, "UTF-8");
+                    tracesText = URLEncoder.encode(tracesText, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    Log.e("ERROR", "Couldn't encode params properly");
+                    e.printStackTrace();
+                }
+
+                productNameText = productNameText.replace("+", "%20");
+                ingredients = ingredients.replace("+", "%20");
+                ingredients = ingredients.replace("_", "%5F");
+
                 String params = "code=" + barcodeText + "&product_name=" + productNameText + "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText + "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
                         "&ingredients_text=" + ingredients + "&traces=" + tracesText;
 
-                params = params.replace(" ", "%20");
-                params = params.replace(",", "%2C");
-
                 try {
-                    String response = new RequestHandler().execute((BASE_URL + params)).get();
+                    String url = BASE_URL + params;
+                    Log.d("DEBUG", "Url to execute at is: " + url);
+                    rh.execute(url);
+
                 } catch (Exception e) {
-                    Log.e("ERROR", "Couldn't get a response");
                     e.printStackTrace();
                 }
 
             }
         });
     }
+
+    RequestHandler rh = new RequestHandler(new RequestHandler.AsyncResponse() {
+        @Override
+        public void processFinish(String output) {
+
+            writtenIngredients = IngredientsList.RemoveUnwantedCharacters(writtenIngredients, "[_]|\\s+$\"", "");
+
+            writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
+
+            boolean dairy = responseQuerier.IsDairyFree(writtenIngredients);
+            boolean vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
+            boolean vegan = responseQuerier.IsVegan(writtenIngredients);
+            boolean gluten = responseQuerier.IsGlutenFree(writtenIngredients);
+
+            DataPasser.getInstance().setQuery(itemTitle);
+
+            DataPasser.getInstance().setDairy(dairy);
+            DataPasser.getInstance().setVegetarian(vegetarian);
+            DataPasser.getInstance().setVegan(vegan);
+            DataPasser.getInstance().setGluten(gluten);
+
+            DataPasser.getInstance().setSwitchesVisible(true);
+            DataPasser.getInstance().setItemVisible(true);
+            DataPasser.getInstance().setIntroVisible(false);
+            DataPasser.getInstance().setResponseVisible(true);
+
+            DataPasser.getInstance().setFromSearch(false);
+
+            DataPasser.getInstance().setIngredients(IngredientsList.ListToString(writtenIngredients));
+            DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
+
+            Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+            startActivity(intent);
+        }
+    });
 
     private void SetErrorHints(TextView tv) {
        tv.setError(END_ERROR_MSG);

@@ -15,8 +15,10 @@ public class IngredientsList {
     public static String ListToString(List<String> s) {
         StringBuilder sb = new StringBuilder();
         for (String st : s) {
+            if (sb.length() != 0) {
+                sb.append(", ");
+            }
             sb.append(st);
-            sb.append(",");
         }
         return sb.toString();
     }

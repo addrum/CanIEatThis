@@ -37,8 +37,7 @@ public class ResponseQuerier {
 
     public JSONObject ParseIntoJSON(String response) {
         try {
-            JSONObject object = new JSONObject(response).getJSONObject("product");
-            return object.getJSONObject("product");
+            return new JSONObject(response).getJSONObject("product");
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL: " + e);
         }

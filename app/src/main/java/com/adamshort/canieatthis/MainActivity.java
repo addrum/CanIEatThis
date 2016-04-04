@@ -116,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
                     DataPasser.getInstance().setIntroVisible(false);
                     DataPasser.getInstance().setResponseVisible(false);
 
+                    DataPasser.getInstance().setFromSearch(true);
+
                     actionMenu.findItem(R.id.action_search).collapseActionView();
                     if (getPosition() != 0) {
                         viewPager.setCurrentItem(0);
