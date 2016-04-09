@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -52,6 +53,10 @@ public class ScanFragment extends Fragment {
     private TextView ingredientResponseView;
     private TextView tracesTitleText;
     private TextView tracesResponseView;
+
+    private ProgressBar progressBar;
+
+    private RequestHandler rh;
 
     private static boolean fragmentCreated = false;
 
@@ -127,6 +132,16 @@ public class ScanFragment extends Fragment {
         veganSwitch.setClickable(false);
         glutenFreeSwitch.setClickable(false);
 
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+
+        rh = new RequestHandler(progressBar, new RequestHandler.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                ProcessResponse(output);
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+
         SetItemsFromDataPasser();
 
         scanButton.setOnClickListener(new View.OnClickListener() {
@@ -172,8 +187,8 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-//                GetBarcodeInformation("5000295008069");
-                startActivity(new Intent(context, AddProductActivity.class));
+                GetBarcodeInformation("5000295008069");
+//                startActivity(new Intent(context, AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
             }
@@ -249,6 +264,8 @@ public class ScanFragment extends Fragment {
 
     public void GetBarcodeInformation(String barcode) {
         try {
+//            CSVReader csvReader = new CSVReader(getResources().openRawResource(R.raw.products));
+//            List<String[]> products = csvReader.read();
             rh.execute(BASE_URL + barcode + EXTENSION);
         } catch (Exception e) {
             Log.e("ERROR", "Couldn't get a response");
@@ -291,12 +308,7 @@ public class ScanFragment extends Fragment {
         }
     }
 
-    RequestHandler rh = new RequestHandler(new RequestHandler.AsyncResponse() {
-        @Override
-        public void processFinish(String output) {
-            ProcessResponse(output);
-        }
-    });
+
 
     public void SetSwitchesVisibility(int visibility) {
         if (switchesTableLayout != null) {

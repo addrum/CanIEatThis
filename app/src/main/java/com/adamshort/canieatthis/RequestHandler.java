@@ -2,6 +2,8 @@ package com.adamshort.canieatthis;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,6 +12,8 @@ import java.net.URL;
 
 public class RequestHandler extends AsyncTask<String, Void, String> {
 
+    private ProgressBar progressBar;
+
     // based on this solution: http://stackoverflow.com/a/12575319/1860436
     public interface AsyncResponse {
         void processFinish(String output);
@@ -17,11 +21,15 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
 
     public AsyncResponse delegate = null;
 
-    public RequestHandler(AsyncResponse delegate) {
+    public RequestHandler(ProgressBar progressBar, AsyncResponse delegate) {
+        this.progressBar = progressBar;
         this.delegate = delegate;
     }
 
     protected void onPreExecute() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
     protected String doInBackground(String... urls) {
@@ -56,4 +64,5 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
         Log.i("INFO", response);
         delegate.processFinish(response);
     }
+
 }

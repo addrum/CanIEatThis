@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,41 +41,13 @@ public class AddProductActivity extends AppCompatActivity {
     private TextView ingredientsTextView;
     private TextView tracesTextView;
 
+    private ProgressBar progressBar;
+
     private List<String> writtenIngredients, writtenTraces;
-    private List<String> traces = Arrays.asList("peanuts",
-            "nuts",
-            "almonds",
-            "hazelnuts",
-            "walnuts",
-            "brazil nuts",
-            "cashews",
-            "pecans",
-            "pistachios",
-            "macadamia nuts",
-            "queensland nut",
-            "eggs",
-            "milk",
-            "crustaceans",
-            "prawns",
-            "crabs",
-            "lobsters",
-            "fish",
-            "sesame seeds",
-            "cereals",
-            "gluten",
-            "wheat",
-            "rye",
-            "barley",
-            "oats",
-            "soya",
-            "celery",
-            "mustard",
-            "sulphur dioxide",
-            "sulphites",
-            "lupin",
-            "molluscs");
 
     private ResponseQuerier responseQuerier;
+
+    private RequestHandler rh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,11 +68,50 @@ public class AddProductActivity extends AppCompatActivity {
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
 
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
         Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
         barcodeNumberTextView.setText(barcode);
 
         responseQuerier = ResponseQuerier.getInstance(this);
+
+        rh = new RequestHandler(progressBar, new RequestHandler.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+
+                writtenIngredients = IngredientsList.RemoveUnwantedCharacters(writtenIngredients, "[_]|\\s+$\"", "");
+
+                writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
+
+                boolean dairy = responseQuerier.IsDairyFree(writtenIngredients);
+                boolean vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
+                boolean vegan = responseQuerier.IsVegan(writtenIngredients);
+                boolean gluten = responseQuerier.IsGlutenFree(writtenIngredients);
+
+                DataPasser.getInstance().setQuery(itemTitle);
+
+                DataPasser.getInstance().setDairy(dairy);
+                DataPasser.getInstance().setVegetarian(vegetarian);
+                DataPasser.getInstance().setVegan(vegan);
+                DataPasser.getInstance().setGluten(gluten);
+
+                DataPasser.getInstance().setSwitchesVisible(true);
+                DataPasser.getInstance().setItemVisible(true);
+                DataPasser.getInstance().setIntroVisible(false);
+                DataPasser.getInstance().setResponseVisible(true);
+
+                DataPasser.getInstance().setFromSearch(false);
+
+                DataPasser.getInstance().setIngredients(IngredientsList.ListToString(writtenIngredients));
+                DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
+
+                Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         submitProductButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,6 +145,8 @@ public class AddProductActivity extends AppCompatActivity {
                 itemTitle = productNameText;
                 writtenIngredients = editedIngredients;
                 writtenTraces = IngredientsList.StringToList(tracesText);
+
+                List<String> traces = ResponseQuerier.getInstance(AddProductActivity.this).getTraces();
 
                 for (int i = 0; i < editedIngredients.size(); i++) {
                     String ing = editedIngredients.get(i).toLowerCase();
@@ -187,43 +201,6 @@ public class AddProductActivity extends AppCompatActivity {
             }
         });
     }
-
-    RequestHandler rh = new RequestHandler(new RequestHandler.AsyncResponse() {
-        @Override
-        public void processFinish(String output) {
-
-            writtenIngredients = IngredientsList.RemoveUnwantedCharacters(writtenIngredients, "[_]|\\s+$\"", "");
-
-            writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
-
-            boolean dairy = responseQuerier.IsDairyFree(writtenIngredients);
-            boolean vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
-            boolean vegan = responseQuerier.IsVegan(writtenIngredients);
-            boolean gluten = responseQuerier.IsGlutenFree(writtenIngredients);
-
-            DataPasser.getInstance().setQuery(itemTitle);
-
-            DataPasser.getInstance().setDairy(dairy);
-            DataPasser.getInstance().setVegetarian(vegetarian);
-            DataPasser.getInstance().setVegan(vegan);
-            DataPasser.getInstance().setGluten(gluten);
-
-            DataPasser.getInstance().setSwitchesVisible(true);
-            DataPasser.getInstance().setItemVisible(true);
-            DataPasser.getInstance().setIntroVisible(false);
-            DataPasser.getInstance().setResponseVisible(true);
-
-            DataPasser.getInstance().setFromSearch(false);
-
-            DataPasser.getInstance().setIngredients(IngredientsList.ListToString(writtenIngredients));
-            DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
-
-            Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-            startActivity(intent);
-        }
-    });
 
     private void SetErrorHints(TextView tv) {
        tv.setError(END_ERROR_MSG);

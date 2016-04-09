@@ -21,6 +21,7 @@ public class ResponseQuerier {
     //http://www.peta.org/living/beauty/animal-ingredients-list/
     public List<String> vegan;
     public List<String> gluten;
+    public List<String> traces;
 
     private static ResponseQuerier mInstance = null;
 
@@ -49,6 +50,7 @@ public class ResponseQuerier {
         vegetarian = new ArrayList<>();
         vegan = new ArrayList<>();
         gluten = new ArrayList<>();
+        traces = new ArrayList<>();
 
         BufferedReader reader;
 
@@ -102,6 +104,20 @@ public class ResponseQuerier {
                 line = reader.readLine();
                 if (line != null) {
                     gluten.add(line);
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        try {
+            final InputStream file = activity.getAssets().open("traces.txt");
+            reader = new BufferedReader(new InputStreamReader(file));
+            String line = reader.readLine();
+            while (line != null) {
+                line = reader.readLine();
+                if (line != null) {
+                    traces.add(line);
                 }
             }
         } catch (IOException ioe) {
@@ -188,5 +204,7 @@ public class ResponseQuerier {
         }
         return true;
     }
+
+    public List<String> getTraces() { return traces; }
 
 }
