@@ -133,11 +133,26 @@
             style="@style/Widget.AppCompat.Button.Colored" />
     </LinearLayout>
 
-    <ProgressBar
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/responseRelativeLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_gravity="center"
-        android:visibility="invisible" />
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:minHeight="100dp"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

@@ -1,38 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
     android:orientation="vertical"
-    android:weightSum="1"
-    >
-
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_gravity="center"
-        android:visibility="invisible" />
+    android:weightSum="1">
 
     <TextView
+        android:id="@+id/itemTitleText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/itemTitleText"
-        android:id="@+id/itemTitleText"
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
-        android:visibility="invisible"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:text="@string/itemTitleText"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:visibility="invisible" />
 
     <TableLayout
+        android:id="@+id/switchesTableLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:stretchColumns="0,1"
-        android:id="@+id/switchesTableLayout"
         android:visibility="invisible">
 
         <TableRow
@@ -41,131 +32,140 @@
 
             <Switch
                 android:id="@+id/dairyFreeSwitch"
-                android:checked="false"
-                android:text="@string/dairySwitchText"
+                android:layout_marginEnd="10dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="10dp"/>
+                android:checked="false"
+                android:text="@string/dairySwitchText" />
 
             <Switch
                 android:id="@+id/vegetarianSwitch"
-                android:checked="false"
-                android:text="@string/vegetarianSwitchText"
+                android:layout_marginEnd="20dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="20dp"/>
+                android:checked="false"
+                android:text="@string/vegetarianSwitchText" />
 
         </TableRow>
 
-        <TableRow android:layout_marginRight="10dp"
-                  android:layout_marginLeft="10dp">
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
 
             <Switch
                 android:id="@+id/veganSwitch"
-                android:checked="false"
-                android:text="@string/veganSwitchText"
+                android:layout_marginEnd="10dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="10dp"/>
+                android:checked="false"
+                android:text="@string/veganSwitchText" />
 
             <Switch
                 android:id="@+id/glutenFreeSwitch"
-                android:checked="false"
-                android:text="@string/glutenFreeSwitchText"
+                android:layout_marginEnd="20dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginEnd="20dp"/>
+                android:checked="false"
+                android:text="@string/glutenFreeSwitchText" />
 
         </TableRow>
     </TableLayout>
 
     <RelativeLayout
-        android:orientation="vertical"
+        android:id="@+id/responseRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:id="@+id/responseLinearLayout"
         android:layout_margin="10dp"
         android:gravity="center"
         android:minHeight="100dp"
-        >
+        android:orientation="vertical">
 
         <TextView
+            android:id="@+id/ingredientsTitleText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/ingredientsTitleText"
-            android:id="@+id/ingredientsTitleText"
-            android:layout_gravity="top"
-            android:gravity="center"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
+            android:layout_gravity="top"
             android:layout_margin="10dp"
-            android:visibility="invisible"/>
+            android:gravity="center"
+            android:text="@string/ingredientsTitleText"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/ingredientsResponseView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:freezesText="true"
-            android:text="@string/ingredientsTextViewText"
             android:layout_below="@+id/ingredientsTitleText"
             android:layout_margin="10dp"
-            android:visibility="invisible"/>
+            android:freezesText="true"
+            android:text="@string/ingredientsTextViewText"
+            android:visibility="invisible" />
 
         <TextView
+            android:id="@+id/tracesTitleText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/tracesTitleText"
-            android:id="@+id/tracesTitleText"
-            android:layout_gravity="top"
-            android:gravity="center"
             android:layout_alignParentTop="false"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="10dp"
             android:layout_below="@+id/ingredientsResponseView"
-            android:visibility="invisible"/>
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="top"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="@string/tracesTitleText"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/tracesResponseView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:freezesText="true"
-            android:text="@string/tracesTextViewText"
             android:layout_below="@+id/tracesTitleText"
             android:layout_margin="10dp"
-            android:visibility="invisible"/>
+            android:freezesText="true"
+            android:text="@string/tracesTextViewText"
+            android:visibility="invisible" />
 
         <TextView
+            android:id="@+id/introTextView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find it&apos;s information."
-            android:id="@+id/introTextView"
-            android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
             android:gravity="center"
-            android:layout_gravity="center"/>
+            android:text="@string/introTextViewText"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:visibility="invisible" />
 
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/buttonRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:id="@+id/buttonRelativeLayout">
+        android:layout_margin="10dp">
 
         <Button
             android:id="@+id/scanButton"
             android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:background="#00a400"
-            android:text="@string/bottomButtonText"
-            android:textColor="#ffffff"
-            android:textSize="18sp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true">
-        </Button>
+            android:background="#00a400"
+            android:text="@string/bottomButtonText"
+            android:textColor="#ffffff"
+            android:textSize="18sp"/>
     </RelativeLayout>
 
 </LinearLayout>
