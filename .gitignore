@@ -33,3 +33,6 @@ captures/
 
 # IntelliJ Generated Folder (Layout Preferences  etc)
 .idea
+
+# ignore csv's as they're too large for git
+*.csv

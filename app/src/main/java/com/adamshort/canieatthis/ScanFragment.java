@@ -27,12 +27,13 @@ import java.util.List;
 public class ScanFragment extends Fragment {
 
     public static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    public static final String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     public static final String EXTENSION = ".json";
     public static final int DOWNLOAD = 0;
     public static final int PRODUCT = 1;
 
     public static boolean DEBUG;
+
+    public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
 
     private static String barcode = "";
 
@@ -156,6 +157,10 @@ public class ScanFragment extends Fragment {
         context = getContext();
 
         DEBUG = android.os.Debug.isDebuggerConnected();
+
+        if (DEBUG) {
+            BASE_URL = "http://world.openfoodfacts.net/api/v0/product/";
+        }
 
         return view;
     }
