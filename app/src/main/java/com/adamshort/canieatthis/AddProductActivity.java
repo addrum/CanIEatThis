@@ -76,7 +76,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         responseQuerier = ResponseQuerier.getInstance(this);
 
-        rh = new RequestHandler(progressBar, new RequestHandler.AsyncResponse() {
+        rh = new RequestHandler(this.getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
             @Override
             public void processFinish(String output) {
 

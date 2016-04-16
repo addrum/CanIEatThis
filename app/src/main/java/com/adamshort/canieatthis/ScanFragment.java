@@ -135,14 +135,6 @@ public class ScanFragment extends Fragment {
 
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
-        rh = new RequestHandler(progressBar, new RequestHandler.AsyncResponse() {
-            @Override
-            public void processFinish(String output) {
-                ProcessResponse(output);
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
-
         SetItemsFromDataPasser();
 
         scanButton.setOnClickListener(new View.OnClickListener() {
@@ -269,8 +261,13 @@ public class ScanFragment extends Fragment {
 
     public void GetBarcodeInformation(String barcode) {
         try {
-//            CSVReader csvReader = new CSVReader(getResources().openRawResource(R.raw.products));
-//            List<String[]> products = csvReader.read();
+            rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
+                @Override
+                public void processFinish(String output) {
+                    ProcessResponse(output);
+                }
+            });
+            rh.setBarcode(barcode);
             rh.execute(BASE_URL + barcode + EXTENSION);
         } catch (Exception e) {
             Log.e("ERROR", "Couldn't get a response");
@@ -314,7 +311,6 @@ public class ScanFragment extends Fragment {
     }
 
 
-
     public void SetSwitchesVisibility(int visibility) {
         if (switchesTableLayout != null) {
             switchesTableLayout.setVisibility(visibility);
@@ -333,8 +329,7 @@ public class ScanFragment extends Fragment {
         }
     }
 
-    public void SetResponseItemsVisibility(int visibility)
-    {
+    public void SetResponseItemsVisibility(int visibility) {
         if (ingredientsTitleText != null) {
             ingredientsTitleText.setVisibility(visibility);
         }
