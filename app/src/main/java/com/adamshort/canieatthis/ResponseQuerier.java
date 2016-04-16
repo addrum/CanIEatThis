@@ -40,7 +40,12 @@ public class ResponseQuerier {
         try {
             return new JSONObject(response).getJSONObject("product");
         } catch (JSONException e) {
-            Log.d("ERROR", "Issue getting ingredients from URL: " + e);
+            Log.d("ERROR", "Issue getting ingredients from URL, could be from csv: " + e);
+            try {
+                return new JSONObject(response);
+            } catch (JSONException e1) {
+                Log.d("ERROR", "Issue getting igredients from URL: " + e);
+            }
         }
         return null;
     }

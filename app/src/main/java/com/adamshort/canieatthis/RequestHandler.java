@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -77,17 +81,18 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String response) {
         if (response == null) {
-            Log.d("DEBUG", "THERE WAS AN ERROR");
+            Log.d("DEBUG", "Response was null");
             progressBar.setVisibility(View.INVISIBLE);
-            Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
         }
         if (response.equals("")) {
             Log.d("DEBUG", "Couldn't find matching barcode in local csv");
             progressBar.setVisibility(View.INVISIBLE);
-            Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
         }
+        progressBar.setVisibility(View.INVISIBLE);
         Log.i("INFO", response);
         delegate.processFinish(response);
     }
@@ -103,11 +108,23 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
 
                 String[] row = line.split(",");
 
-                Log.d("DEBUG:", row[0]);
-
-//                    if (Long.toString(barcodeVal).equals(barcode)) {
-//                        return Arrays.toString(row);
-//                    }
+                if (row[0].equals(barcode)) {
+                    JSONObject convertedResponse = new JSONObject();
+                    try {
+                        if (row.length > 7) {
+                            convertedResponse.put("product_name", row[7]);
+                        }
+                        if (row.length > 34) {
+                            convertedResponse.put("ingredients_text", row[34]);
+                        }
+                        if (row.length > 37) {
+                            convertedResponse.put("traces", row[37]);
+                        }
+                    } catch (JSONException e) {
+                        Log.e("ERROR", "Error setting json object with product data from csv");
+                    }
+                    return Arrays.toString(row);
+                }
             }
 
         } catch (IOException e) {
