@@ -6,6 +6,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -254,9 +256,8 @@ public class ScanFragment extends Fragment {
     }
 
     public void GetBarcodeInformation(String barcode) {
-        boolean connection = false;
         final Activity activity = getActivity();
-        if (connection) {
+        if (hasInternetConnection()) {
             RequestHandler rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
@@ -310,6 +311,12 @@ public class ScanFragment extends Fragment {
         }
     }
 
+    public boolean hasInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
 
     public void SetSwitchesVisibility(int visibility) {
         if (switchesTableLayout != null) {
