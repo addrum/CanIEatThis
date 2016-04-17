@@ -1,7 +1,10 @@
 package com.adamshort.canieatthis;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ResponseQuerier {
@@ -41,13 +45,60 @@ public class ResponseQuerier {
             return new JSONObject(response).getJSONObject("product");
         } catch (JSONException e) {
             Log.d("ERROR", "Issue getting ingredients from URL, could be from csv: " + e);
-            try {
-                return new JSONObject(response);
-            } catch (JSONException e1) {
-                Log.d("ERROR", "Issue getting igredients from URL: " + e);
-            }
         }
         return null;
+    }
+
+    public JSONObject ArrayToJSON(String[] response) {
+        try {
+            JSONObject convertedResponse = new JSONObject();
+            if (response.length > 7) {
+                convertedResponse.put("product_name", response[7]);
+            }
+            if (response.length > 34) {
+                convertedResponse.put("ingredients_text", response[34]);
+            }
+            if (response.length > 37) {
+                convertedResponse.put("traces", response[37]);
+            }
+            return convertedResponse;
+        } catch (JSONException e1) {
+            Log.e("ERROR", "Error setting json object with product data from csv: " + e1);
+        }
+        return null;
+    }
+
+    public JSONObject parseCSV(InputStreamReader csvFile, String barcode, ProgressBar progressBar) {
+        BufferedReader br = null;
+        String[] response = null;
+        try {
+            if (progressBar != null) {
+                Log.d("DEBUG", "Progress Bar is not null");
+                progressBar.setVisibility(View.VISIBLE);
+            }
+            br = new BufferedReader(csvFile);
+            String line;
+            while ((line = br.readLine()) != null) {
+
+                String[] row = line.split("\t");
+
+                if (row[0].equals(barcode)) {
+                    response = row;
+                }
+            }
+            return ArrayToJSON(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void SetDatabasesFromFiles(Activity activity) {
@@ -210,6 +261,8 @@ public class ResponseQuerier {
         return true;
     }
 
-    public List<String> getTraces() { return traces; }
+    public List<String> getTraces() {
+        return traces;
+    }
 
 }

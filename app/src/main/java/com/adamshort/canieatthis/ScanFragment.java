@@ -22,6 +22,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class ScanFragment extends Fragment {
@@ -180,7 +182,7 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                GetBarcodeInformation("0008295616241");
+                GetBarcodeInformation("5000295008069");
 //                startActivity(new Intent(context, AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
@@ -256,24 +258,36 @@ public class ScanFragment extends Fragment {
     }
 
     public void GetBarcodeInformation(String barcode) {
-        try {
-            rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
-                @Override
-                public void processFinish(String output) {
-                    ProcessResponse(output);
-                }
-            });
-            rh.setBarcode(barcode);
-            rh.execute(BASE_URL + barcode + EXTENSION);
-        } catch (Exception e) {
-            Log.e("ERROR", "Couldn't get a response");
-            e.printStackTrace();
+        boolean connection = false;
+        final Activity activity = getActivity();
+        if (connection) {
+            try {
+                rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
+                    @Override
+                    public void processFinish(String output) {
+                        JSONObject product = ResponseQuerier.getInstance(activity).ParseIntoJSON(response);
+                        ProcessResponse(product);
+                    }
+                });
+                rh.execute(BASE_URL + barcode + EXTENSION);
+            } catch (Exception e) {
+                Log.e("ERROR", "Couldn't get a response");
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                progressBar.setVisibility(View.VISIBLE);
+                JSONObject response = ResponseQuerier.getInstance(getActivity()).parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), barcode, progressBar);
+                ProcessResponse(response);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void ProcessResponse(String response) {
-        JSONObject product = ResponseQuerier.getInstance(this.getActivity()).ParseIntoJSON(response);
+    public void ProcessResponse(JSONObject product) {
         Log.d("DEBUG", "Product: " + product);
+        progressBar.setVisibility(View.INVISIBLE);
 
         try {
             if (product != null) {
