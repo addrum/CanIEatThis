@@ -1,11 +1,12 @@
 package com.adamshort.canieatthis;
 
 import android.Manifest;
+import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,8 +18,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -37,10 +38,10 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
         View view = inflater.inflate(R.layout.location_fragment, container, false);
 
         if (isVisible) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getContext()).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getBaseContext()).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
             mGoogleApiClient.connect();
 
-            ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
+            ((MapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
         }
 
         return view;
@@ -54,7 +55,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
     public void onMapReady(GoogleMap map) {
         mMap = map;
 
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             mMap.setMyLocationEnabled(true);
             mMap.setTrafficEnabled(true);
@@ -66,7 +67,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
             mMap.addMarker(new MarkerOptions().position(latLng));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
         } else {
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
         }
     }
 
@@ -76,8 +77,8 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
 
         if (isVisibleToUser) {
             Log.d("PlacesFragment", "Fragment is visible.");
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
+            if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
             }
         } else {
             Log.d("PlacesFragment", "Fragment is not visible.");
@@ -93,7 +94,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay!
                     if (mMap != null) {
-                        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                             mMap.setMyLocationEnabled(true);
                             mMap.setTrafficEnabled(true);
@@ -105,7 +106,7 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
                             mMap.addMarker(new MarkerOptions().position(latLng));
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
                         } else {
-                            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
                         }
                     }
                 } else {
@@ -120,21 +121,21 @@ public class PlacesFragment extends Fragment implements OnMapReadyCallback, Goog
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        SupportMapFragment f = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map);
+        MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (f != null)
             getFragmentManager().beginTransaction().remove(f).commit();
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.addMarker(new MarkerOptions().position(latLng));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
             Log.d("onConnected", "Moving camera to " + mLastLocation);
         } else {
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
         }
     }
 

@@ -2,6 +2,7 @@ package com.adamshort.canieatthis;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,7 +11,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,8 +38,6 @@ public class ScanFragment extends Fragment {
     public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
 
     private static String barcode = "";
-
-    private static Context context;
 
     private static Switch dairyFreeSwitch;
     private static Switch vegetarianSwitch;
@@ -143,8 +141,6 @@ public class ScanFragment extends Fragment {
         });
 
         fragmentCreated = true;
-
-        context = getContext();
 
         DEBUG = android.os.Debug.isDebuggerConnected();
 
@@ -256,7 +252,7 @@ public class ScanFragment extends Fragment {
     public void GetBarcodeInformation(String barcode) {
         final Activity activity = getActivity();
         if (hasInternetConnection()) {
-            RequestHandler rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
+            RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
                     JSONObject product = ResponseQuerier.getInstance(activity).ParseIntoJSON(output);
@@ -265,7 +261,7 @@ public class ScanFragment extends Fragment {
             });
             rh.execute(BASE_URL + barcode + EXTENSION);
         } else {
-            CSVReader csvReader = new CSVReader(getContext(), progressBar, new CSVReader.AsyncResponse() {
+            CSVReader csvReader = new CSVReader(getActivity().getBaseContext(), progressBar, new CSVReader.AsyncResponse() {
                 @Override
                 public void processFinish(JSONObject output) {
                     ProcessResponse(output);
@@ -310,7 +306,7 @@ public class ScanFragment extends Fragment {
     }
 
     public boolean hasInternetConnection() {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();

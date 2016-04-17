@@ -1,8 +1,8 @@
 package com.adamshort.canieatthis;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +17,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddProductActivity extends AppCompatActivity {
+public class AddProductActivity extends Activity {
 
     public static boolean DEBUG;
 
