@@ -46,8 +46,6 @@ public class ScanFragment extends Fragment {
     private static Switch veganSwitch;
     private static Switch glutenFreeSwitch;
 
-    private String response;
-
     private TableLayout switchesTableLayout;
 
     private TextView introTextView;
@@ -58,8 +56,6 @@ public class ScanFragment extends Fragment {
     private TextView tracesResponseView;
 
     private ProgressBar progressBar;
-
-    private RequestHandler rh;
 
     private static boolean fragmentCreated = false;
 
@@ -261,33 +257,27 @@ public class ScanFragment extends Fragment {
         boolean connection = false;
         final Activity activity = getActivity();
         if (connection) {
-            try {
-                rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
-                    @Override
-                    public void processFinish(String output) {
-                        JSONObject product = ResponseQuerier.getInstance(activity).ParseIntoJSON(response);
-                        ProcessResponse(product);
-                    }
-                });
-                rh.execute(BASE_URL + barcode + EXTENSION);
-            } catch (Exception e) {
-                Log.e("ERROR", "Couldn't get a response");
-                e.printStackTrace();
-            }
+            RequestHandler rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
+                @Override
+                public void processFinish(String output) {
+                    JSONObject product = ResponseQuerier.getInstance(activity).ParseIntoJSON(output);
+                    ProcessResponse(product);
+                }
+            });
+            rh.execute(BASE_URL + barcode + EXTENSION);
         } else {
-            try {
-                progressBar.setVisibility(View.VISIBLE);
-                JSONObject response = ResponseQuerier.getInstance(getActivity()).parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), barcode, progressBar);
-                ProcessResponse(response);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            CSVReader csvReader = new CSVReader(getContext(), progressBar, new CSVReader.AsyncResponse() {
+                @Override
+                public void processFinish(JSONObject output) {
+                    ProcessResponse(output);
+                }
+            });
+            csvReader.execute(barcode);
         }
     }
 
     public void ProcessResponse(JSONObject product) {
         Log.d("DEBUG", "Product: " + product);
-        progressBar.setVisibility(View.INVISIBLE);
 
         try {
             if (product != null) {

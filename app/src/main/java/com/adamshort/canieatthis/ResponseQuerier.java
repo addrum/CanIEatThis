@@ -49,58 +49,6 @@ public class ResponseQuerier {
         return null;
     }
 
-    public JSONObject ArrayToJSON(String[] response) {
-        try {
-            JSONObject convertedResponse = new JSONObject();
-            if (response.length > 7) {
-                convertedResponse.put("product_name", response[7]);
-            }
-            if (response.length > 34) {
-                convertedResponse.put("ingredients_text", response[34]);
-            }
-            if (response.length > 37) {
-                convertedResponse.put("traces", response[37]);
-            }
-            return convertedResponse;
-        } catch (JSONException e1) {
-            Log.e("ERROR", "Error setting json object with product data from csv: " + e1);
-        }
-        return null;
-    }
-
-    public JSONObject parseCSV(InputStreamReader csvFile, String barcode, ProgressBar progressBar) {
-        BufferedReader br = null;
-        String[] response = null;
-        try {
-            if (progressBar != null) {
-                Log.d("DEBUG", "Progress Bar is not null");
-                progressBar.setVisibility(View.VISIBLE);
-            }
-            br = new BufferedReader(csvFile);
-            String line;
-            while ((line = br.readLine()) != null) {
-
-                String[] row = line.split("\t");
-
-                if (row[0].equals(barcode)) {
-                    response = row;
-                }
-            }
-            return ArrayToJSON(response);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     public void SetDatabasesFromFiles(Activity activity) {
         dairy = new ArrayList<>();
         vegetarian = new ArrayList<>();
