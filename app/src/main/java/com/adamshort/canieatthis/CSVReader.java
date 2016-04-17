@@ -13,8 +13,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class CSVReader extends AsyncTask<String, Void, JSONObject> {
 
@@ -42,7 +40,7 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
 
     protected JSONObject doInBackground(String... barcode) {
         try {
-            return parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), barcode[0], progressBar);
+            return parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), barcode[0]);
         } catch (IOException e) {
             Log.e("ERROR", "Couldn't parse CSV");
         }
@@ -81,7 +79,7 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
         return null;
     }
 
-    public JSONObject parseCSV(InputStreamReader csvFile, String barcode, ProgressBar progressBar) {
+    public JSONObject parseCSV(InputStreamReader csvFile, String barcode) {
         BufferedReader br = null;
         String[] response = null;
         try {

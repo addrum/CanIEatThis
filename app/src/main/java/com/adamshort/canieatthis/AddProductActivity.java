@@ -15,7 +15,6 @@ import org.apache.commons.lang3.text.WordUtils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AddProductActivity extends AppCompatActivity {
@@ -40,8 +39,6 @@ public class AddProductActivity extends AppCompatActivity {
     private TextView energyPerServingTextView;
     private TextView ingredientsTextView;
     private TextView tracesTextView;
-
-    private ProgressBar progressBar;
 
     private List<String> writtenIngredients, writtenTraces;
 
@@ -68,7 +65,7 @@ public class AddProductActivity extends AppCompatActivity {
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 

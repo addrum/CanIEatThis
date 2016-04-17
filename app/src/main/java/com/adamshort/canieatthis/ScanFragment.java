@@ -24,8 +24,6 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
 public class ScanFragment extends Fragment {

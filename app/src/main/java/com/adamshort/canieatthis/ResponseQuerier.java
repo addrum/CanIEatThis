@@ -1,10 +1,7 @@
 package com.adamshort.canieatthis;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ResponseQuerier {
