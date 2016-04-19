@@ -20,9 +20,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private int position;
+    
+    private List<Fragment> fragments;
+    
     private ViewPager viewPager;
     private ResponseQuerier responseQuerier;
-    private List<Fragment> fragments;
+    private DataPasser dataPasser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         responseQuerier = ResponseQuerier.getInstance(this);
+        dataPasser = DataPasser.getInstance();
     }
 
     @Override
@@ -91,19 +95,19 @@ public class MainActivity extends AppCompatActivity {
                     boolean vegan = responseQuerier.IsVegan(query);
                     boolean gluten = responseQuerier.IsGlutenFree(query);
 
-                    DataPasser.getInstance().setQuery(query);
+                    dataPasser.setQuery(query);
 
-                    DataPasser.getInstance().setDairy(dairy);
-                    DataPasser.getInstance().setVegetarian(vegetarian);
-                    DataPasser.getInstance().setVegan(vegan);
-                    DataPasser.getInstance().setGluten(gluten);
+                    dataPasser.setDairy(dairy);
+                    dataPasser.setVegetarian(vegetarian);
+                    dataPasser.setVegan(vegan);
+                    dataPasser.setGluten(gluten);
 
-                    DataPasser.getInstance().setSwitchesVisible(true);
-                    DataPasser.getInstance().setItemVisible(true);
-                    DataPasser.getInstance().setIntroVisible(false);
-                    DataPasser.getInstance().setResponseVisible(false);
+                    dataPasser.setSwitchesVisible(true);
+                    dataPasser.setItemVisible(true);
+                    dataPasser.setIntroVisible(false);
+                    dataPasser.setResponseVisible(false);
 
-                    DataPasser.getInstance().setFromSearch(true);
+                    dataPasser.setFromSearch(true);
 
                     actionMenu.findItem(R.id.action_search).collapseActionView();
                     if (getPosition() != 0) {

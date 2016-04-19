@@ -37,6 +37,8 @@ public class ScanFragment extends Fragment {
 
     public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
 
+    private static boolean fragmentCreated = false;
+    
     private static String barcode = "";
 
     private static Switch dairyFreeSwitch;
@@ -54,24 +56,25 @@ public class ScanFragment extends Fragment {
     private TextView tracesResponseView;
 
     private ProgressBar progressBar;
+    
+    private DataPasser dataPasser;
 
-    private static boolean fragmentCreated = false;
+    private ResponseQuerier responseQuerier;
 
     public void SetItemsFromDataPasser() {
-        Log.d("DEBUG: ", "Dairy: " + DataPasser.getInstance().isDairy());
-        Log.d("DEBUG: ", "Vegetarian: " + DataPasser.getInstance().isVegetarian());
-        Log.d("DEBUG: ", "Vegan: " + DataPasser.getInstance().isVegan());
-        Log.d("DEBUG: ", "Gluten: " + DataPasser.getInstance().isGluten());
-        SetAllergenSwitches(DataPasser.getInstance().isDairy(), DataPasser.getInstance().isVegetarian(), DataPasser.getInstance().isVegan(), DataPasser.getInstance().isGluten());
-        if (DataPasser.getInstance().areSwitchesVisible()) {
+        if (dataPasser == null) dataPasser = DataPasser.getInstance();
+        
+        SetAllergenSwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
+        
+        if (dataPasser.areSwitchesVisible()) {
             SetSwitchesVisibility(View.VISIBLE);
         } else {
             SetSwitchesVisibility(View.INVISIBLE);
         }
 
         if (itemTextView != null) {
-            itemTextView.setText(DataPasser.getInstance().getQuery());
-            if (DataPasser.getInstance().isItemVisible()) {
+            itemTextView.setText(dataPasser.getQuery());
+            if (dataPasser.isItemVisible()) {
                 itemTextView.setVisibility(View.VISIBLE);
             } else {
                 itemTextView.setVisibility(View.INVISIBLE);
@@ -79,25 +82,25 @@ public class ScanFragment extends Fragment {
         }
 
         if (introTextView != null) {
-            if (DataPasser.getInstance().isIntroVisible()) {
+            if (dataPasser.isIntroVisible()) {
                 introTextView.setVisibility(View.VISIBLE);
             } else {
                 introTextView.setVisibility(View.INVISIBLE);
             }
         }
 
-        if (DataPasser.getInstance().isResponseVisible()) {
+        if (dataPasser.isResponseVisible()) {
             SetResponseItemsVisibility(View.VISIBLE);
         } else {
             SetResponseItemsVisibility(View.INVISIBLE);
         }
 
-        if (!DataPasser.getInstance().isFromSearch()) {
+        if (!dataPasser.isFromSearch()) {
             if (ingredientResponseView != null) {
-                ingredientResponseView.setText(DataPasser.getInstance().getIngredients());
+                ingredientResponseView.setText(dataPasser.getIngredients());
             }
             if (tracesResponseView != null) {
-                tracesResponseView.setText(DataPasser.getInstance().getTraces());
+                tracesResponseView.setText(dataPasser.getTraces());
             }
         }
     }
@@ -143,6 +146,10 @@ public class ScanFragment extends Fragment {
         fragmentCreated = true;
 
         DEBUG = android.os.Debug.isDebuggerConnected();
+        
+        dataPasser = DataPasser.getInstance();
+
+        responseQuerier = ResponseQuerier.getInstance(getActivity());
 
         return view;
     }
