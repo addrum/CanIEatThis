@@ -38,6 +38,9 @@
 
         <activity android:name=".AddProductActivity">
         </activity>
+
+        <activity android:name=".SettingsActivity">
+        </activity>
     </application>
 
 </manifest>
