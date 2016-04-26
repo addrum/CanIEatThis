@@ -109,7 +109,7 @@ public class ScanFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.activity_main, container, false);
+        final View view = inflater.inflate(R.layout.fragment_scan, container, false);
 
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
@@ -132,7 +132,7 @@ public class ScanFragment extends Fragment {
         veganSwitch.setClickable(false);
         glutenFreeSwitch.setClickable(false);
 
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        progressBar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
 
         SetItemsFromDataPasser();
 

@@ -10,19 +10,28 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.os.Environment.getExternalStorageDirectory;
 
 public class MainActivity extends AppCompatActivity {
 
     private int position;
-    
+
+    private static final String CSV_URL = "http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv";
+
     private List<Fragment> fragments;
-    
+
     private ViewPager viewPager;
     private ResponseQuerier responseQuerier;
     private DataPasser dataPasser;
@@ -67,6 +76,33 @@ public class MainActivity extends AppCompatActivity {
 
         responseQuerier = ResponseQuerier.getInstance(this);
         dataPasser = DataPasser.getInstance();
+
+        final RelativeLayout layout = new RelativeLayout(this);
+        layout.setVisibility(View.VISIBLE);
+        ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyle);
+        progressBar.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        layout.addView(progressBar, params);
+
+        final LinearLayout parent = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
+
+        if (parent != null) {
+            parent.addView(layout);
+
+            FileDownloader fileDownloader = new FileDownloader(this, getBaseContext(), progressBar, new FileDownloader.AsyncResponse() {
+                @Override
+                public void processFinish(String output) {
+                    File file = new File(String.format("%s/products.csv", getExternalStorageDirectory().getPath()));
+                    if (file.exists()) {
+                        Log.d("DEBUG", "CSV file downloaded successfully");
+                    }
+                    parent.removeView(layout);
+                }
+            });
+            fileDownloader.execute(CSV_URL);
+
+        }
     }
 
     @Override
@@ -140,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 this.startActivity(intent);
