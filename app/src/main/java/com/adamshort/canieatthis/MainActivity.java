@@ -11,9 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -78,12 +80,18 @@ public class MainActivity extends AppCompatActivity {
         dataPasser = DataPasser.getInstance();
 
         final RelativeLayout layout = new RelativeLayout(this);
+        layout.setGravity(Gravity.CENTER);
         layout.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        layout.setLayoutParams(layoutParams);
+
         ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyle);
+        ViewGroup.LayoutParams pbParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        progressBar.setLayoutParams(pbParams);
         progressBar.setVisibility(View.VISIBLE);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        layout.addView(progressBar, params);
+
+        layout.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+        layout.addView(progressBar);
 
         final LinearLayout parent = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
 
