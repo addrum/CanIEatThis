@@ -31,4 +31,5 @@
     <string name="checkForUpdateSwitchPrefTitle">Check for Updates to Local Database</string>
     <string name="updateCheckFrequencyListPrefTitle">Update Check Frequency</string>
     <string name="updateCheckFrequencyListPrefKey">Update Check Frequency</string>
+    <string name="downloadLocalDatabaseSwitchPrefKey">Download Local Database</string>
 </resources>

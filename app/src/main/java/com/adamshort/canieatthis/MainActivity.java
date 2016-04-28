@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -85,31 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
         responseQuerier = ResponseQuerier.getInstance(this);
         dataPasser = DataPasser.getInstance();
-
-        final Activity activity = this;
-
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-        String status = prefs.getString("download_status", "null");
-        if (!status.equals("downloading")) {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle("Database Update Available");
-            dialog.setMessage("A new database update is available for download. Download now?");
-            dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                    fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL);
-                }
-            });
-            dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            });
-            dialog.show();
-        }
-
-        createBroadcastCompleteReceiver();
     }
 
     @Override
@@ -232,6 +208,38 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(downloadCompleteReceiver, intentFilter);
     }
 
+    private void downloadDatabase() {
+        final Activity activity = this;
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
+        Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
+
+        if (downloadDatabasePref) {
+            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+            String status = prefs.getString("download_status", "null");
+            Log.d("DEBUG", "Download Status: " + status);
+            if (!status.equals("downloading")) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                dialog.setTitle("Database Update Available");
+                dialog.setMessage("A new database update is available for download. Download now?");
+                dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                        fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL);
+                    }
+                });
+                dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                dialog.show();
+            }
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -249,8 +257,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         createBroadcastCompleteReceiver();
+        downloadDatabase();
     }
 
     @Override

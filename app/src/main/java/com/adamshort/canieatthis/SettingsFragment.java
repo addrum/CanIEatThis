@@ -6,6 +6,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.util.Log;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     @Override
@@ -34,6 +35,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Preference pref = findPreference(key);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         if (pref instanceof ListPreference) {
             ListPreference lp = (ListPreference) pref;
             pref.setSummary(lp.getEntry());
@@ -41,6 +44,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             SwitchPreference sp = (SwitchPreference) pref;
             ListPreference updateListPref = (ListPreference) findPreference("Update Check Frequency");
             updateListPref.setEnabled(sp.isChecked());
+            editor.putBoolean("@string/downloadLocalDatabaseSwitchPrefKey", sp.isChecked());
+            Log.d("DEBUG", "Should download database: " + sp.isChecked());
         }
+        editor.apply();
     }
 }
