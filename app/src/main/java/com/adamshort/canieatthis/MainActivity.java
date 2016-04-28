@@ -1,9 +1,17 @@
 package com.adamshort.canieatthis;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -11,32 +19,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
+import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.os.Environment.getExternalStorageDirectory;
-
 public class MainActivity extends AppCompatActivity {
 
-    private int position;
-
     private static final String CSV_URL = "http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv";
+
+    private int position;
 
     private List<Fragment> fragments;
 
     private ViewPager viewPager;
     private ResponseQuerier responseQuerier;
     private DataPasser dataPasser;
+
+    private DownloadManager downloadManager;
+
+    private BroadcastReceiver downloadCompleteReceiver;
+
+    private FileDownloader fileDownloader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,38 +86,30 @@ public class MainActivity extends AppCompatActivity {
         responseQuerier = ResponseQuerier.getInstance(this);
         dataPasser = DataPasser.getInstance();
 
-        final RelativeLayout layout = new RelativeLayout(this);
-        layout.setGravity(Gravity.CENTER);
-        layout.setVisibility(View.VISIBLE);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layout.setLayoutParams(layoutParams);
+        final Activity activity = this;
 
-        ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyle);
-        ViewGroup.LayoutParams pbParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        progressBar.setLayoutParams(pbParams);
-        progressBar.setVisibility(View.VISIBLE);
-
-        layout.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-        layout.addView(progressBar);
-
-        final LinearLayout parent = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
-
-        if (parent != null) {
-            parent.addView(layout);
-
-            FileDownloader fileDownloader = new FileDownloader(this, getBaseContext(), progressBar, new FileDownloader.AsyncResponse() {
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        String status = prefs.getString("download_status", "null");
+        if (!status.equals("downloading")) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle("Database Update Available");
+            dialog.setMessage("A new database update is available for download. Download now?");
+            dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
-                public void processFinish(String output) {
-                    File file = new File(String.format("%s/products.csv", getExternalStorageDirectory().getPath()));
-                    if (file.exists()) {
-                        Log.d("DEBUG", "CSV file downloaded successfully");
-                    }
-                    parent.removeView(layout);
+                public void onClick(DialogInterface dialog, int which) {
+                    downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                    fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL);
                 }
             });
-            fileDownloader.execute(CSV_URL);
-
+            dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            dialog.show();
         }
+
+        createBroadcastCompleteReceiver();
     }
 
     @Override
@@ -182,6 +181,57 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void createBroadcastCompleteReceiver() {
+        Log.d("DEBUG", "Registering download complete receiver");
+        IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        downloadCompleteReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                if (fileDownloader.getDownloadReference() == reference) {
+                    DownloadManager.Query query = new DownloadManager.Query();
+                    query.setFilterById(reference);
+                    Cursor cursor = downloadManager.query(query);
+
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                    int status = cursor.getInt(columnIndex);
+
+                    int fileNameIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+                    String savedFilePath = cursor.getString(fileNameIndex);
+
+                    int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+                    int reason = cursor.getInt(columnReason);
+
+                    switch (status) {
+                        case DownloadManager.STATUS_SUCCESSFUL:
+                            Toast.makeText(MainActivity.this, "Successfully downloaded database update", Toast.LENGTH_LONG).show();
+                            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("download_status", "downloaded");
+                            editor.apply();
+                            break;
+                        case DownloadManager.STATUS_FAILED:
+                            Toast.makeText(MainActivity.this, "FAILED: " + reason, Toast.LENGTH_LONG).show();
+                            break;
+                        case DownloadManager.STATUS_PAUSED:
+                            Toast.makeText(MainActivity.this, "PAUSED: " + reason, Toast.LENGTH_LONG).show();
+                            break;
+                        case DownloadManager.STATUS_PENDING:
+                            Toast.makeText(MainActivity.this, "PENDING!", Toast.LENGTH_LONG).show();
+                            break;
+                        case DownloadManager.STATUS_RUNNING:
+                            Toast.makeText(MainActivity.this, "RUNNING!", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                    cursor.close();
+                }
+            }
+        };
+        registerReceiver(downloadCompleteReceiver, intentFilter);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -194,6 +244,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        createBroadcastCompleteReceiver();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(downloadCompleteReceiver);
     }
 
     public void setPosition(int position) {
