@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -257,12 +254,11 @@ public class ScanFragment extends Fragment {
     }
 
     public void GetBarcodeInformation(String barcode) {
-        final Activity activity = getActivity();
-        if (hasInternetConnection()) {
+        if (((MainActivity) getActivity()).hasInternetConnection()) {
             RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
-                    JSONObject product = ResponseQuerier.getInstance(activity).ParseIntoJSON(output);
+                    JSONObject product = responseQuerier.ParseIntoJSON(output);
                     ProcessResponse(product);
                 }
             });
@@ -292,10 +288,10 @@ public class ScanFragment extends Fragment {
                 List<String> editedTraces = IngredientsList.StringToList(traces);
                 editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
-                boolean dairy = ResponseQuerier.getInstance(this.getActivity()).IsDairyFree(editedIngredients);
-                boolean vegetarian = ResponseQuerier.getInstance(this.getActivity()).IsVegetarian(editedIngredients);
-                boolean vegan = ResponseQuerier.getInstance(this.getActivity()).IsVegan(editedIngredients);
-                boolean gluten = ResponseQuerier.getInstance(this.getActivity()).IsGlutenFree(editedIngredients);
+                boolean dairy = responseQuerier.IsDairyFree(editedIngredients);
+                boolean vegetarian = responseQuerier.IsVegetarian(editedIngredients);
+                boolean vegan = responseQuerier.IsVegan(editedIngredients);
+                boolean gluten = responseQuerier.IsGlutenFree(editedIngredients);
 
                 SetItemTitleText(item);
                 SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
@@ -310,13 +306,6 @@ public class ScanFragment extends Fragment {
         } catch (JSONException e) {
             Log.e("ERROR", "Issue ParseIntoJSON(response)");
         }
-    }
-
-    public boolean hasInternetConnection() {
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public void SetSwitchesVisibility(int visibility) {

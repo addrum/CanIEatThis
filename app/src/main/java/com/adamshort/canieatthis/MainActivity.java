@@ -13,6 +13,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -222,40 +224,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void downloadDatabase() {
-        final Activity activity = this;
+        if (hasInternetConnection()) {
+            final Activity activity = this;
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
-        Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
+            Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
 
 
-        if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            if (downloadDatabasePref) {
-                SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-                String status = prefs.getString("download_status", "null");
-                Log.d("DEBUG", "Download Status: " + status);
-                if (!status.equals("downloading")) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                    dialog.setTitle("Database Update Available");
-                    dialog.setMessage("A new database update is available for download. Download now?");
-                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                            fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL, "products.csv.tmp");
-                        }
-                    });
-                    dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-                    dialog.show();
+            if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (downloadDatabasePref) {
+                    SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                    String status = prefs.getString("download_status", "null");
+                    Log.d("DEBUG", "Download Status: " + status);
+                    if (!status.equals("downloading")) {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                        dialog.setTitle("Database Update Available");
+                        dialog.setMessage("A new database update is available for download. Download now?");
+                        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                                fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL, "products.csv.tmp");
+                            }
+                        });
+                        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                        dialog.show();
+                    }
                 }
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
             }
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
+            Log.d("DEBUG", "No internet connection so won't display update dialog");
         }
+    }
+
+    public boolean hasInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     @Override
