@@ -132,7 +132,7 @@ public class ScanFragment extends Fragment {
         veganSwitch.setClickable(false);
         glutenFreeSwitch.setClickable(false);
 
-        progressBar = (ProgressBar) getActivity().findViewById(R.id.progressBar);
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
         SetItemsFromDataPasser();
 

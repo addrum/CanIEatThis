@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -38,9 +40,16 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
         }
     }
 
-    protected JSONObject doInBackground(String... barcode) {
+    // @params params[0] is barcode number
+    protected JSONObject doInBackground(String... params) {
         try {
-            return parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), barcode[0]);
+            File file = new File(context.getExternalFilesDir(null).getPath(), "products.csv");
+            if (file.exists()) {
+                Log.d("DEBUG", "Using file in externalFilesDir");
+                return parseCSV(new InputStreamReader(new FileInputStream(file)), params[0]);
+            }
+            Log.d("DEBUG", "Using file in assets folder");
+            return parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), params[0]);
         } catch (IOException e) {
             Log.e("ERROR", "Couldn't parse CSV");
         }
@@ -73,7 +82,7 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
                 convertedResponse.put("traces", response[37]);
             }
             return convertedResponse;
-        } catch (JSONException e1) {
+        } catch (JSONException | NullPointerException e1) {
             Log.e("ERROR", "Error setting json object with product data from csv: " + e1);
         }
         return null;

@@ -228,14 +228,13 @@ public class MainActivity extends AppCompatActivity {
         boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
         Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
 
-        boolean debug = android.os.Debug.isDebuggerConnected();
 
         if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            if (downloadDatabasePref || debug) {
+            if (downloadDatabasePref) {
                 SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
                 String status = prefs.getString("download_status", "null");
                 Log.d("DEBUG", "Download Status: " + status);
-                if (!status.equals("downloading") || debug) {
+                if (!status.equals("downloading")) {
                     AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                     dialog.setTitle("Database Update Available");
                     dialog.setMessage("A new database update is available for download. Download now?");
