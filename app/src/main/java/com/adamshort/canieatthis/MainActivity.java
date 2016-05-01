@@ -11,10 +11,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -25,10 +30,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Manifest;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE = 1;
 
     private static final String CSV_URL = "http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv";
 
@@ -168,37 +177,41 @@ public class MainActivity extends AppCompatActivity {
                     DownloadManager.Query query = new DownloadManager.Query();
                     query.setFilterById(reference);
                     Cursor cursor = downloadManager.query(query);
-
                     cursor.moveToFirst();
 
                     int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
                     int status = cursor.getInt(columnIndex);
-
-                    int fileNameIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-                    String savedFilePath = cursor.getString(fileNameIndex);
-
                     int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
                     int reason = cursor.getInt(columnReason);
+
+                    SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
 
                     switch (status) {
                         case DownloadManager.STATUS_SUCCESSFUL:
                             Toast.makeText(MainActivity.this, "Successfully downloaded database update", Toast.LENGTH_LONG).show();
-                            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = prefs.edit();
                             editor.putString("download_status", "downloaded");
                             editor.apply();
+
+                            String internalDir = getExternalFilesDir(null).getPath();
+                            File from = new File(internalDir, "products.csv.tmp");
+                            File to = new File(internalDir, "products.csv");
+                            boolean success = from.renameTo(to);
+                            Log.d("DEBUG", "Renamed: " + success);
+
                             break;
                         case DownloadManager.STATUS_FAILED:
-                            Toast.makeText(MainActivity.this, "FAILED: " + reason, Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Database update download failed: " + reason, Toast.LENGTH_LONG).show();
+                            editor.putString("download_status", "failed");
                             break;
                         case DownloadManager.STATUS_PAUSED:
-                            Toast.makeText(MainActivity.this, "PAUSED: " + reason, Toast.LENGTH_LONG).show();
+                            editor.putString("download_status", "paused");
                             break;
                         case DownloadManager.STATUS_PENDING:
-                            Toast.makeText(MainActivity.this, "PENDING!", Toast.LENGTH_LONG).show();
+                            editor.putString("download_status", "pending");
                             break;
                         case DownloadManager.STATUS_RUNNING:
-                            Toast.makeText(MainActivity.this, "RUNNING!", Toast.LENGTH_LONG).show();
+                            editor.putString("download_status", "running");
                             break;
                     }
                     cursor.close();
@@ -215,28 +228,34 @@ public class MainActivity extends AppCompatActivity {
         boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
         Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
 
-        if (downloadDatabasePref) {
-            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-            String status = prefs.getString("download_status", "null");
-            Log.d("DEBUG", "Download Status: " + status);
-            if (!status.equals("downloading")) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setTitle("Database Update Available");
-                dialog.setMessage("A new database update is available for download. Download now?");
-                dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                        fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL);
-                    }
-                });
-                dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                dialog.show();
+        boolean debug = android.os.Debug.isDebuggerConnected();
+
+        if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (downloadDatabasePref || debug) {
+                SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                String status = prefs.getString("download_status", "null");
+                Log.d("DEBUG", "Download Status: " + status);
+                if (!status.equals("downloading") || debug) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setTitle("Database Update Available");
+                    dialog.setMessage("A new database update is available for download. Download now?");
+                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                            fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL, "products.csv.tmp");
+                        }
+                    });
+                    dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    dialog.show();
+                }
             }
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
         }
     }
 

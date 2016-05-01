@@ -7,25 +7,42 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
+
+import java.io.File;
 
 public class FileDownloader {
 
     private long downloadReference;
 
-    public FileDownloader(Activity activity, DownloadManager downloadManager, String url) {
+    public FileDownloader(Activity activity, DownloadManager downloadManager, String url, String filename) {
         Log.d("DEBUG", "Download file at: " + url);
         Uri uri = Uri.parse(url);
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setDescription("Local database for CanIEatThis");
-        request.setTitle("CanIEatThis Database");
-        request.setDestinationInExternalPublicDir(Environment.getExternalStorageDirectory().getPath(), "products.csv");
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 
-        downloadReference = downloadManager.enqueue(request);
-        SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("download_status", "downloading");
-        editor.apply();
+        String storageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(storageState)) {
+
+            File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
+            if (file.exists()) {
+                Log.d("DEBUG", "Exists!");
+                boolean delete = file.delete();
+                Log.d("DEBUG", "Deleted: " + delete);
+            }
+
+            DownloadManager.Request request = new DownloadManager.Request(uri);
+            request.setDescription("Local database for CanIEatThis");
+            request.setTitle("CanIEatThis Database");
+            request.setDestinationInExternalFilesDir(activity, null, filename);
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+
+            downloadReference = downloadManager.enqueue(request);
+            SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("download_status", "downloading");
+            editor.apply();
+        } else {
+            Toast.makeText(activity, "Storage device not available", Toast.LENGTH_LONG).show();
+        }
     }
 
     public long getDownloadReference() {
