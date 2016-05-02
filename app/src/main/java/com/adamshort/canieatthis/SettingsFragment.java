@@ -16,8 +16,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
-        ListPreference updateFrequencyListPref = (ListPreference) findPreference("Update Check Frequency");
-        updateFrequencyListPref.setSummary(updateFrequencyListPref.getEntry());
+        SwitchPreference sp =(SwitchPreference) findPreference("download_switch_pref");
+        ListPreference frequencyListPref = (ListPreference) findPreference("frequency_list_pref");
+        frequencyListPref.setEnabled(sp.isChecked());
     }
 
     @Override
@@ -35,18 +36,13 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Preference pref = findPreference(key);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
         if (pref instanceof ListPreference) {
             ListPreference lp = (ListPreference) pref;
             pref.setSummary(lp.getEntry());
         } else if (pref instanceof SwitchPreference) {
             SwitchPreference sp = (SwitchPreference) pref;
-            ListPreference updateListPref = (ListPreference) findPreference("Update Check Frequency");
-            updateListPref.setEnabled(sp.isChecked());
-            editor.putBoolean("@string/downloadLocalDatabaseSwitchPrefKey", sp.isChecked());
-            Log.d("DEBUG", "Should download database: " + sp.isChecked());
+            ListPreference frequencyListPref = (ListPreference) findPreference("frequency_list_pref");
+            frequencyListPref.setEnabled(sp.isChecked());
         }
-        editor.apply();
     }
 }

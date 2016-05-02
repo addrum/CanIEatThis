@@ -15,7 +15,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
         if (hasInternetConnection()) {
             if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
+                boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
                 Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
 
                 if (downloadDatabasePref) {
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean timeForUpdatePrompt(Timestamp current) {
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         long lastPref = prefs.getLong("timestamp", current.getTime());
         if (lastPref == 0) {
             // Pref is probably empty when app is first installed so set it to current time as default
@@ -287,27 +287,26 @@ public class MainActivity extends AppCompatActivity {
         }
         Timestamp last = new Timestamp(lastPref);
 
-        String frequency = prefs.getString("@string/updateCheckFrequencyListPrefKey", "Daily");
         Log.d("DEBUG", "Current: " + current.getTime() + " - Last: " + last.getTime());
+
+        String frequency = prefs.getString("frequency_list_pref", "0");
+        Log.d("DEBUG", "Frequency is " + frequency);
+
         long days = TimeUnit.MILLISECONDS.toDays(current.getTime() - last.getTime());
+        Log.d("DEBUG", "Days is " + days);
+
         switch (frequency) {
-            case "Daily":
-                Log.d("DEBUG", "Frequency is daily");
-                Log.d("DEBUG", "Days is " + days);
+            case "0":
                 if (days > 1) {
                     return true;
                 }
                 break;
-            case "Weekly":
-                Log.d("DEBUG", "Frequency is weekly");
-                Log.d("DEBUG", "Days is " + days);
+            case "1":
                 if (days > 7) {
                     return true;
                 }
                 break;
-            case "Monthly":
-                Log.d("DEBUG", "Frequency is monthly");
-                Log.d("DEBUG", "Days is " + days);
+            case "2":
                 if (days > 28) {
                     return true;
                 }
