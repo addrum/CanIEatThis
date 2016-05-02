@@ -24,7 +24,7 @@ public class FileDownloader {
 
             File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
             if (file.exists()) {
-                Log.d("DEBUG", "Exists!");
+                Log.d("DEBUG", "File exists!");
                 boolean delete = file.delete();
                 Log.d("DEBUG", "Deleted: " + delete);
             }
@@ -42,6 +42,7 @@ public class FileDownloader {
             editor.apply();
         } else {
             Toast.makeText(activity, "Storage device not available", Toast.LENGTH_LONG).show();
+            Log.e("ERROR", "Storage device was not available, state was: " + storageState);
         }
     }
 

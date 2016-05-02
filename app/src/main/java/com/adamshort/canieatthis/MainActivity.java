@@ -1,6 +1,5 @@
 package com.adamshort.canieatthis;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.Fragment;
@@ -16,9 +15,8 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -33,9 +31,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Manifest;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -223,16 +222,13 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(downloadCompleteReceiver, intentFilter);
     }
 
-    private void downloadDatabase() {
+    private void showDownloadPrompt() {
         if (hasInternetConnection()) {
-            final Activity activity = this;
-
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
-            Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
-
-
             if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                boolean downloadDatabasePref = preferences.getBoolean("@string/downloadLocalDatabaseSwitchPrefKey", false);
+                Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
+
                 if (downloadDatabasePref) {
                     SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
                     String status = prefs.getString("download_status", "null");
@@ -244,8 +240,7 @@ public class MainActivity extends AppCompatActivity {
                         dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                                fileDownloader = new FileDownloader(activity, downloadManager, CSV_URL, "products.csv.tmp");
+                                downloadDatabase();
                             }
                         });
                         dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -257,18 +252,68 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
+                Log.d("DEBUG", "Didn't have needed permission, requesting WRITE_EXTERNAL_STORAGE");
                 ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
             }
-        } else {
-            Log.d("DEBUG", "No internet connection so won't display update dialog");
         }
+    }
+
+    private void downloadDatabase() {
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        fileDownloader = new FileDownloader(this, downloadManager, CSV_URL, "products.csv.tmp");
+
+        // Update timestamp since we've downloaded a new one
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("timestamp", System.currentTimeMillis());
+        editor.apply();
     }
 
     public boolean hasInternetConnection() {
         ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        Log.d("DEBUG", "Network state: " + activeNetwork.isConnectedOrConnecting());
+        return activeNetwork.isConnectedOrConnecting();
+    }
+
+    public boolean timeForUpdatePrompt(Timestamp current) {
+        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        long lastPref = prefs.getLong("timestamp", current.getTime());
+        if (lastPref == 0) {
+            // Pref is probably empty when app is first installed so set it to current time as default
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putLong("timestamp", System.currentTimeMillis());
+            editor.apply();
+        }
+        Timestamp last = new Timestamp(lastPref);
+
+        String frequency = prefs.getString("@string/updateCheckFrequencyListPrefKey", "Daily");
+        Log.d("DEBUG", "Current: " + current.getTime() + " - Last: " + last.getTime());
+        long days = TimeUnit.MILLISECONDS.toDays(current.getTime() - last.getTime());
+        switch (frequency) {
+            case "Daily":
+                Log.d("DEBUG", "Frequency is daily");
+                Log.d("DEBUG", "Days is " + days);
+                if (days > 1) {
+                    return true;
+                }
+                break;
+            case "Weekly":
+                Log.d("DEBUG", "Frequency is weekly");
+                Log.d("DEBUG", "Days is " + days);
+                if (days > 7) {
+                    return true;
+                }
+                break;
+            case "Monthly":
+                Log.d("DEBUG", "Frequency is monthly");
+                Log.d("DEBUG", "Days is " + days);
+                if (days > 28) {
+                    return true;
+                }
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -289,7 +334,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         createBroadcastCompleteReceiver();
-        downloadDatabase();
+        long current = System.currentTimeMillis();
+        Timestamp cur = new Timestamp(current);
+        if (timeForUpdatePrompt(cur)) {
+            Log.d("DEBUG", "Time for update prompt was true");
+            showDownloadPrompt();
+        }
     }
 
     @Override
