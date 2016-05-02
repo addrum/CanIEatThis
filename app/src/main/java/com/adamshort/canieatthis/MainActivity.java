@@ -15,7 +15,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -63,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
-        fragments.add(new PlacesFragment());
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
