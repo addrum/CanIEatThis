@@ -178,7 +178,7 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                GetBarcodeInformation("000000000");
+                GetBarcodeInformation("5000168001142");
 //                startActivity(new Intent(context, AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
