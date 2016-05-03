@@ -137,6 +137,7 @@ lipids
 marine oil
 methionine
 milk protein
+milk
 mink oil
 monoglycerides.
 glycerides
