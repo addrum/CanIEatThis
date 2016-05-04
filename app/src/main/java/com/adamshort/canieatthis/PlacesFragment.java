@@ -5,7 +5,7 @@ import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -13,150 +13,128 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class PlacesFragment extends Fragment implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks {
 
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST = 1;
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
 
-    private boolean isVisible;
+    private double latitude;
+    private double longitude;
+
+    private MapView mMapView;
     private GoogleApiClient mGoogleApiClient;
-    private GoogleMap mMap;
     private Location mLastLocation;
+    private GoogleMap googleMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_places, container, false);
+        // inflat and return the layout
+        View v = inflater.inflate(R.layout.fragment_places, container,
+                false);
+        mMapView = (MapView) v.findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
 
-        if (isVisible) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getBaseContext()).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
-            mGoogleApiClient.connect();
+        mMapView.onResume();// needed to get the map to display immediately
 
-            ((MapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
+        try {
+            MapsInitializer.initialize(getActivity().getApplicationContext());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return view;
-    }
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getBaseContext())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .build();
+        mGoogleApiClient.connect();
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult result) {
-    }
+        googleMap = mMapView.getMap();
+        // latitude and longitude
+        latitude = 17.385044;
+        longitude = 78.486671;
 
-    @Override
-    public void onMapReady(GoogleMap map) {
-        mMap = map;
+        // create marker
+        MarkerOptions marker = new MarkerOptions().position(
+                new LatLng(latitude, longitude)).title("Hello Maps");
+
+        // Changing marker icon
+        marker.icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+        // adding marker
+        googleMap.addMarker(marker);
+
+        moveCamera(googleMap, latitude, longitude);
 
         if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            mMap.setMyLocationEnabled(true);
-            mMap.setTrafficEnabled(true);
-            mMap.setIndoorEnabled(true);
-            mMap.setBuildingsEnabled(true);
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latLng));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
+            googleMap.setMyLocationEnabled(true);
+            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
+            Log.d("DEBUG", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
         }
+
+        // Perform any camera updates here
+        return v;
+    }
+
+    private void moveCamera(GoogleMap googleMap, double latitude, double longitude) {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(latitude, longitude)).zoom(12).build();
+        googleMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-
-        if (isVisibleToUser) {
-            Log.d("PlacesFragment", "Fragment is visible.");
-            if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
-            }
-        } else {
-            Log.d("PlacesFragment", "Fragment is not visible.");
-        }
-        isVisible = isVisibleToUser;
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-                    if (mMap != null) {
-                        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                            mMap.setMyLocationEnabled(true);
-                            mMap.setTrafficEnabled(true);
-                            mMap.setIndoorEnabled(true);
-                            mMap.setBuildingsEnabled(true);
-                            mMap.getUiSettings().setZoomControlsEnabled(true);
-                            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                            LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                            mMap.addMarker(new MarkerOptions().position(latLng));
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
-                        } else {
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
-                        }
-                    }
-                } else {
-                    Log.d("RequestPermissions", "CourseLocationRequest permission was not granted");
-                }
-                return;
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onPause() {
+        super.onPause();
+        mMapView.onPause();
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        if (f != null)
-            getFragmentManager().beginTransaction().remove(f).commit();
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.d("DEBUG", "onConnected");
         if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latLng));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f));
-            Log.d("onConnected", "Moving camera to " + mLastLocation);
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
+            moveCamera(googleMap, latitude, longitude);
         } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION_REQUEST);
+            Log.d("DEBUG", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
         }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onStart() {
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
-        }
-        super.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.disconnect();
-        }
-        super.onStop();
     }
 }
