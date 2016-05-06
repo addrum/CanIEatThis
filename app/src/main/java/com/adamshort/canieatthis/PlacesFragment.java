@@ -29,14 +29,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
-
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
 
-    private double latitude;
-    private double longitude;
+    private boolean connected;
+    private double lat;
+    private double lng;
 
     private MapView mMapView;
     private GoogleApiClient mGoogleApiClient;
@@ -67,78 +66,99 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         return v;
     }
 
-    private void moveCamera(GoogleMap googleMap, double latitude, double longitude) {
+    private void moveCamera(GoogleMap googleMap, LatLng latLng) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(latitude, longitude)).zoom(12).build();
+                .target(latLng).zoom(15).build();
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        // latitude and longitude
-        latitude = 51.5572700;
-        longitude = -0.2838810;
-
-        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude));
-        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-        googleMap.addMarker(marker);
-
-        moveCamera(googleMap, latitude, longitude);
+        if (connected) {
+            setUserLatLng();
+        }
+        moveCamera(googleMap, new LatLng(lat, lng));
 
         if (checkForPermission()) {
             googleMap.setMyLocationEnabled(true);
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            createNearbyMarkers(googleMap);
         }
         googleMap.getUiSettings().setZoomControlsEnabled(true);
 
-        String radius = "1000";
-        String apiKey = getResources().getString(R.string.server_key);
-        String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
-                + latitude + "," + longitude + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
-
-        RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), null, new RequestHandler.AsyncResponse() {
+        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
-            public void processFinish(String output) {
-                try {
-                    JSONObject response = new JSONObject(output);
-                    JSONArray results = response.getJSONArray("results");
-
-                    for(int i = 0; i < results.length(); i++) {
-                        JSONObject location = results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location");
-                        double lat = location.getDouble("lat");
-                        double lng = location.getDouble("lng");
-
-                        LatLng latlng = new LatLng(lat, lng);
-                        MarkerOptions marker = new MarkerOptions().position(latlng);
-                        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-                        googleMap.addMarker(marker);
-                        Log.d("DEBUG", "lat " + lat + " lng " + lng);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            public boolean onMyLocationButtonClick() {
+                createNearbyMarkers(googleMap);
+                return false;
             }
         });
-        rh.execute(placesUrl);
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
+    private void createNearbyMarkers(GoogleMap googleMap) {
+        final GoogleMap mMap = googleMap;
+        if (checkForPermission()) {
+            if (connected) {
+                setUserLatLng();
+            }
+            String radius = "1000";
+            String apiKey = getResources().getString(R.string.server_key);
+            String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+                    + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+
+            RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), null, new RequestHandler.AsyncResponse() {
+                @Override
+                public void processFinish(String output) {
+                    try {
+                        JSONObject response = new JSONObject(output);
+                        JSONArray results = response.getJSONArray("results");
+
+                        for (int i = 0; i < results.length(); i++) {
+                            JSONObject location = results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location");
+                            double lat = location.getDouble("lat");
+                            double lng = location.getDouble("lng");
+
+                            LatLng latlng = new LatLng(lat, lng);
+                            MarkerOptions marker = new MarkerOptions().position(latlng);
+                            marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                            mMap.addMarker(marker);
+                            Log.d("DEBUG", "lat " + lat + " lng " + lng);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            rh.execute(placesUrl);
+        } else {
+            Log.d("createNearbyMarkers", "LatLng was null so won't make places request");
+        }
+    }
+
+    private LatLng setUserLatLng() {
         if (checkForPermission()) {
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            latitude = mLastLocation.getLatitude();
-            longitude = mLastLocation.getLongitude();
+            lat = mLastLocation.getLatitude();
+            lng = mLastLocation.getLongitude();
+            return new LatLng(lat, lng);
         }
+        return null;
     }
 
     private boolean checkForPermission() {
         if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             return true;
         } else {
-            Log.d("DEBUG", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
+            Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
             ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
             return false;
         }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        setUserLatLng();
+        connected = true;
     }
 
     @Override
@@ -163,6 +183,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mMapView != null) {
             mMapView.onDestroy();
         }
+        connected = false;
     }
 
     @Override
@@ -175,6 +196,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnectionSuspended(int i) {
+        connected = false;
     }
 
     @Override
