@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,7 +36,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private MapView mMapView;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    private GoogleMap googleMap;
+    private GoogleMap mMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,39 +78,37 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         longitude = -0.2838810;
 
         // create marker
-        MarkerOptions marker = new MarkerOptions().position(
-                new LatLng(latitude, longitude)).title("Hello Maps");
-
+        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("Current Position");
         // Changing marker icon
-        marker.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-
+        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
         // adding marker
         googleMap.addMarker(marker);
 
         moveCamera(googleMap, latitude, longitude);
 
-        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (checkForPermission()) {
             googleMap.setMyLocationEnabled(true);
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        } else {
-            Log.d("DEBUG", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
         }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d("DEBUG", "onConnected");
-//        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-//            latitude = mLastLocation.getLatitude();
-//            longitude = mLastLocation.getLongitude();
-//            moveCamera(googleMap, latitude, longitude);
-//        } else {
-//            Log.d("DEBUG", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
-//            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-//        }
+        if (checkForPermission()) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            latitude = mLastLocation.getLatitude();
+            longitude = mLastLocation.getLongitude();
+        }
+    }
+
+    private boolean checkForPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            Log.d("DEBUG", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
+            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+            return false;
+        }
     }
 
     @Override
@@ -146,5 +145,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            checkForPermission();
+        }
     }
 }
