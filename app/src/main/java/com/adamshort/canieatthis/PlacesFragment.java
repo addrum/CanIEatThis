@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +25,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
+
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
@@ -35,8 +40,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private MapView mMapView;
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
-    private GoogleMap mMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,21 +70,17 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void moveCamera(GoogleMap googleMap, double latitude, double longitude) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude)).zoom(12).build();
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         // latitude and longitude
         latitude = 51.5572700;
         longitude = -0.2838810;
 
-        // create marker
-        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("Current Position");
-        // Changing marker icon
+        MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude));
         marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-        // adding marker
         googleMap.addMarker(marker);
 
         moveCamera(googleMap, latitude, longitude);
@@ -90,12 +89,43 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             googleMap.setMyLocationEnabled(true);
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+        String radius = "1000";
+        String apiKey = getResources().getString(R.string.server_key);
+        String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+                + latitude + "," + longitude + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+
+        RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), null, new RequestHandler.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                try {
+                    JSONObject response = new JSONObject(output);
+                    JSONArray results = response.getJSONArray("results");
+
+                    for(int i = 0; i < results.length(); i++) {
+                        JSONObject location = results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location");
+                        double lat = location.getDouble("lat");
+                        double lng = location.getDouble("lng");
+
+                        LatLng latlng = new LatLng(lat, lng);
+                        MarkerOptions marker = new MarkerOptions().position(latlng);
+                        marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                        googleMap.addMarker(marker);
+                        Log.d("DEBUG", "lat " + lat + " lng " + lng);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        rh.execute(placesUrl);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (checkForPermission()) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             latitude = mLastLocation.getLatitude();
             longitude = mLastLocation.getLongitude();
         }

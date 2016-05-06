@@ -63,17 +63,23 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String response) {
         if (response == null) {
             Log.d("DEBUG", "Response was null");
-            progressBar.setVisibility(View.INVISIBLE);
+            if (progressBar != null) {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
             Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
         }
         if (response.equals("")) {
             Log.d("DEBUG", "Couldn't find matching barcode in local csv");
-            progressBar.setVisibility(View.INVISIBLE);
+            if (progressBar != null) {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
             Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
         }
-        progressBar.setVisibility(View.INVISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
         Log.i("INFO", response);
         delegate.processFinish(response);
     }
