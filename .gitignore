@@ -37,3 +37,4 @@ captures/
 # ignore csv's as they're too large for git
 *.csv
 *.iml
+*.stackdump
