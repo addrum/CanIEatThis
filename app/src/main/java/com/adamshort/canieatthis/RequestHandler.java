@@ -39,7 +39,7 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... urls) {
         try {
             URL url = new URL(urls[0]);
-            Log.d("Response", "Executing response at " + url);
+            Log.d("doInBackground", "Executing response at " + url);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             try {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -62,7 +62,7 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String response) {
         if (response == null) {
-            Log.d("DEBUG", "Response was null");
+            Log.d("onPostExecute", "Response was null");
             if (progressBar != null) {
                 progressBar.setVisibility(View.INVISIBLE);
             }
@@ -70,7 +70,7 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
             return;
         }
         if (response.equals("")) {
-            Log.d("DEBUG", "Couldn't find matching barcode in local csv");
+            Log.d("onPostExecute", "Couldn't find matching barcode in local csv");
             if (progressBar != null) {
                 progressBar.setVisibility(View.INVISIBLE);
             }
@@ -80,7 +80,7 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
         if (progressBar != null) {
             progressBar.setVisibility(View.INVISIBLE);
         }
-        Log.i("INFO", response);
+        Log.i("onPostExecute", response);
         delegate.processFinish(response);
     }
 

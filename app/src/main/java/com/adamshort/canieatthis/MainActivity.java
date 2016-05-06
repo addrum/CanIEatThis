@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createBroadcastCompleteReceiver() {
-        Log.d("DEBUG", "Registering download complete receiver");
+        Log.d("createBroadcast", "Registering download complete receiver");
         IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
         downloadCompleteReceiver = new BroadcastReceiver() {
             @Override
@@ -227,12 +227,12 @@ public class MainActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                 boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
-                Log.d("DEBUG", "Should download database: " + downloadDatabasePref);
+                Log.d("showDownloadPrompt", "Should download database: " + downloadDatabasePref);
 
                 if (downloadDatabasePref) {
                     SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
                     String status = prefs.getString("download_status", "null");
-                    Log.d("DEBUG", "Download Status: " + status);
+                    Log.d("showDownloadPrompt", "Download Status: " + status);
                     if (!status.equals("downloading")) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                         dialog.setTitle("Database Update Available");
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             } else {
-                Log.d("DEBUG", "Didn't have needed permission, requesting WRITE_EXTERNAL_STORAGE");
+                Log.d("showDownloadPrompt", "Didn't have needed permission, requesting WRITE_EXTERNAL_STORAGE");
                 ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
             }
         }
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean hasInternetConnection() {
         ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        Log.d("DEBUG", "Network state: " + activeNetwork.isConnectedOrConnecting());
+        Log.d("hasInternetConnection", "Network state: " + activeNetwork.isConnectedOrConnecting());
         return activeNetwork.isConnectedOrConnecting();
     }
 
@@ -287,13 +287,13 @@ public class MainActivity extends AppCompatActivity {
         }
         Timestamp last = new Timestamp(lastPref);
 
-        Log.d("DEBUG", "Current: " + current.getTime() + " - Last: " + last.getTime());
+        Log.d("timeForUpdatePrompt", "Current: " + current.getTime() + " - Last: " + last.getTime());
 
         String frequency = prefs.getString("frequency_list_pref", "0");
-        Log.d("DEBUG", "Frequency is " + frequency);
+        Log.d("timeForUpdatePrompt", "Frequency is " + frequency);
 
         long days = TimeUnit.MILLISECONDS.toDays(current.getTime() - last.getTime());
-        Log.d("DEBUG", "Days is " + days);
+        Log.d("timeForUpdatePrompt", "Days is " + days);
 
         switch (frequency) {
             case "0":
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
         long current = System.currentTimeMillis();
         Timestamp cur = new Timestamp(current);
         if (timeForUpdatePrompt(cur)) {
-            Log.d("DEBUG", "Time for update prompt was true");
+            Log.d("onResume", "Time for update prompt was true");
             showDownloadPrompt();
         }
     }

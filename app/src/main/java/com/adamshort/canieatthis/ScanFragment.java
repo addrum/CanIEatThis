@@ -35,7 +35,7 @@ public class ScanFragment extends Fragment {
     public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
 
     private static boolean fragmentCreated = false;
-    
+
     private static String barcode = "";
 
     private static Switch dairyFreeSwitch;
@@ -53,16 +53,16 @@ public class ScanFragment extends Fragment {
     private TextView tracesResponseView;
 
     private ProgressBar progressBar;
-    
+
     private DataPasser dataPasser;
 
     private ResponseQuerier responseQuerier;
 
     public void SetItemsFromDataPasser() {
         if (dataPasser == null) dataPasser = DataPasser.getInstance();
-        
+
         SetAllergenSwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
-        
+
         if (dataPasser.areSwitchesVisible()) {
             SetSwitchesVisibility(View.VISIBLE);
         } else {
@@ -143,7 +143,7 @@ public class ScanFragment extends Fragment {
         fragmentCreated = true;
 
         DEBUG = android.os.Debug.isDebuggerConnected();
-        
+
         dataPasser = DataPasser.getInstance();
 
         responseQuerier = ResponseQuerier.getInstance(getActivity());
@@ -156,11 +156,11 @@ public class ScanFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            Log.d("ScanFragment", "Fragment is visible.");
-            Log.d("FragmentCreated", Boolean.toString(fragmentCreated));
+            Log.d("setUserVisibleHint", "Fragment is visible.");
+            Log.d("setUserVisibleHint", Boolean.toString(fragmentCreated));
             if (fragmentCreated) SetItemsFromDataPasser();
         } else {
-            Log.d("ScanFragment", "Fragment is not visible.");
+            Log.d("setUserVisibleHint", "Fragment is not visible.");
         }
     }
 
@@ -203,7 +203,7 @@ public class ScanFragment extends Fragment {
                     try {
                         act.startActivity(intent);
                     } catch (ActivityNotFoundException anfe) {
-                        Log.d("ERROR", anfe.toString());
+                        Log.e("showDialog", anfe.toString());
                     }
                 }
             });
@@ -223,10 +223,10 @@ public class ScanFragment extends Fragment {
                         try {
                             act.startActivity(intent);
                         } catch (ActivityNotFoundException anfe) {
-                            Log.d("ERROR", anfe.toString());
+                            Log.e("showDialog", anfe.toString());
                         }
                     } catch (Exception e) {
-                        Log.d("PRODUCT Yes", "Couldn't start new AddProductActivity");
+                        Log.e("showDialog", "Couldn't start new AddProductActivity");
                     }
                 }
             });
@@ -275,7 +275,7 @@ public class ScanFragment extends Fragment {
     }
 
     public void ProcessResponse(JSONObject product) {
-        Log.d("DEBUG", "Product: " + product);
+        Log.d("ProcessResponse", "Product: " + product);
 
         try {
             if (product != null) {
@@ -304,7 +304,7 @@ public class ScanFragment extends Fragment {
                 showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
             }
         } catch (JSONException e) {
-            Log.e("ERROR", "Issue ParseIntoJSON(response)");
+            Log.e("ProcessResponse", "Issue ParseIntoJSON(response)");
         }
     }
 

@@ -45,13 +45,13 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
         try {
             File file = new File(context.getExternalFilesDir(null).getPath(), "products.csv");
             if (file.exists()) {
-                Log.d("DEBUG", "Using file in externalFilesDir");
+                Log.d("doInBackground", "Using file in externalFilesDir");
                 return parseCSV(new InputStreamReader(new FileInputStream(file)), params[0]);
             }
-            Log.d("DEBUG", "Using file in assets folder");
+            Log.d("doInBackground", "Using file in assets folder");
             return parseCSV(new InputStreamReader(context.getAssets().open("products.csv")), params[0]);
         } catch (IOException e) {
-            Log.e("ERROR", "Couldn't parse CSV");
+            Log.e("doInBackground", "Couldn't parse CSV");
         }
         return null;
     }
@@ -59,7 +59,7 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
     @Override
     protected void onPostExecute(JSONObject response) {
         if (response == null) {
-            Log.d("DEBUG", "Response was null");
+            Log.d("onPostExecute", "Response was null");
             progressBar.setVisibility(View.INVISIBLE);
             Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
@@ -83,7 +83,7 @@ public class CSVReader extends AsyncTask<String, Void, JSONObject> {
             }
             return convertedResponse;
         } catch (JSONException | NullPointerException e1) {
-            Log.e("ERROR", "Error setting json object with product data from csv: " + e1);
+            Log.e("ArrayToJSON", "Error setting json object with product data from csv: " + e1);
         }
         return null;
     }

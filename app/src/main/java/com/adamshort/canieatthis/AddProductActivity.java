@@ -188,7 +188,7 @@ public class AddProductActivity extends Activity {
 
                 try {
                     String url = BASE_URL + params;
-                    Log.d("DEBUG", "Url to execute at is: " + url);
+                    Log.d("onCreate", "Url to execute at is: " + url);
                     rh.execute(url);
 
                 } catch (Exception e) {

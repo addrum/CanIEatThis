@@ -26,7 +26,7 @@ public class IngredientsList {
     public static List<String> RemoveUnwantedCharacters(List<String> ingredients, String regex, String replaceWith) {
         for (int i = 0; i < ingredients.size(); i++) {
             ingredients.set(i, ingredients.get(i).replaceAll(regex, replaceWith));
-            Log.i("INFO", ingredients.get(i));
+            Log.i("UnwantedCharacters", ingredients.get(i));
         }
         return ingredients;
     }

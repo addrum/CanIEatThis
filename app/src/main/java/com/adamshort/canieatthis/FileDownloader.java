@@ -16,7 +16,7 @@ public class FileDownloader {
     private long downloadReference;
 
     public FileDownloader(Activity activity, DownloadManager downloadManager, String url, String filename) {
-        Log.d("DEBUG", "Download file at: " + url);
+        Log.d("FileDownloader", "Download file at: " + url);
         Uri uri = Uri.parse(url);
 
         String storageState = Environment.getExternalStorageState();
@@ -24,9 +24,9 @@ public class FileDownloader {
 
             File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
             if (file.exists()) {
-                Log.d("DEBUG", "File exists!");
+                Log.d("FileDownloader", "File exists!");
                 boolean delete = file.delete();
-                Log.d("DEBUG", "Deleted: " + delete);
+                Log.d("FileDownloader", "Deleted: " + delete);
             }
 
             DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -42,7 +42,7 @@ public class FileDownloader {
             editor.apply();
         } else {
             Toast.makeText(activity, "Storage device not available", Toast.LENGTH_LONG).show();
-            Log.e("ERROR", "Storage device was not available, state was: " + storageState);
+            Log.e("FileDownloader", "Storage device was not available, state was: " + storageState);
         }
     }
 
