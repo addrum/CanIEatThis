@@ -2,7 +2,6 @@ package com.adamshort.canieatthis;
 
 import android.app.AlertDialog;
 import android.app.DownloadManager;
-import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,15 +9,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -37,23 +35,18 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE = 1;
-
     private static final String CSV_URL = "http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv";
 
     private int position;
 
     private List<Fragment> fragments;
-
     private ViewPager viewPager;
     private DataQuerier dataQuerier;
     private DataPasser dataPasser;
-
     private DownloadManager downloadManager;
-
     private BroadcastReceiver downloadCompleteReceiver;
-
     private FileDownloader fileDownloader;
+    private PlacesFragment placesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +55,12 @@ public class MainActivity extends AppCompatActivity {
 
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
+        placesFragment = new PlacesFragment();
+        fragments.add(placesFragment);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        FragmentHandler fragmentHandler = new FragmentHandler(getFragmentManager(), fragments);
+        FragmentHandler fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(fragmentHandler);
 
         position = 0;
@@ -227,36 +222,31 @@ public class MainActivity extends AppCompatActivity {
 
     private void showDownloadPrompt() {
         if (hasInternetConnection()) {
-            if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-                boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
-                Log.d("showDownloadPrompt", "Should download database: " + downloadDatabasePref);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+            boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
+            Log.d("showDownloadPrompt", "Should download database: " + downloadDatabasePref);
 
-                if (downloadDatabasePref) {
-                    SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-                    String status = prefs.getString("download_status", "null");
-                    Log.d("showDownloadPrompt", "Download Status: " + status);
-                    if (!status.equals("downloading")) {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                        dialog.setTitle("Database Update Available");
-                        dialog.setMessage("A new database update is available for download. Download now?");
-                        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                downloadDatabase();
-                            }
-                        });
-                        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        });
-                        dialog.show();
-                    }
+            if (downloadDatabasePref) {
+                SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                String status = prefs.getString("download_status", "null");
+                Log.d("showDownloadPrompt", "Download Status: " + status);
+                if (!status.equals("downloading")) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setTitle("Database Update Available");
+                    dialog.setMessage("A new database update is available for download. Download now?");
+                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            downloadDatabase();
+                        }
+                    });
+                    dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    dialog.show();
                 }
-            } else {
-                Log.d("showDownloadPrompt", "Didn't have needed permission, requesting WRITE_EXTERNAL_STORAGE");
-                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_ACCESS_WRITE_EXTERNAL_STORAGE);
             }
         }
     }
@@ -316,6 +306,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (placesFragment != null) {
+            placesFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     @Override

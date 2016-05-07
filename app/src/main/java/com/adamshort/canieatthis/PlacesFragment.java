@@ -1,12 +1,12 @@
 package com.adamshort.canieatthis;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +31,7 @@ import org.json.JSONObject;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
 
     private boolean connected;
     private boolean mapReady;
@@ -80,7 +80,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mapReady = true;
         mMap = googleMap;
         if (connected) {
-            setUserLatLng();
+            getUserLatLng();
         }
         moveCamera(googleMap, new LatLng(lat, lng));
 
@@ -94,7 +94,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             @Override
             public boolean onMyLocationButtonClick() {
                 LatLng old = new LatLng(lat, lng);
-                LatLng current = setUserLatLng();
+                LatLng current = getUserLatLng();
                 if (old != current) {
                     createNearbyMarkers(googleMap);
                 }
@@ -107,7 +107,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         final GoogleMap mMap = googleMap;
         if (checkForPermission()) {
             if (connected) {
-                setUserLatLng();
+                getUserLatLng();
             }
             String radius = "1000";
             String apiKey = getResources().getString(R.string.server_key);
@@ -159,7 +159,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
-    private LatLng setUserLatLng() {
+    private LatLng getUserLatLng() {
         if (checkForPermission()) {
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             lat = mLastLocation.getLatitude();
@@ -174,18 +174,45 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             return true;
         } else {
             Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
-            ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+            if (connected && mapReady) {
+                moveCamera(mMap, getUserLatLng());
+            }
             return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.d("onRequestPermissions", "Permissions have been requested");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSION_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    if (connected) {
+                        if (checkForPermission()) {
+                            moveCamera(mMap, getUserLatLng());
+                            mMap.setMyLocationEnabled(true);
+                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                            createNearbyMarkers(mMap);
+                        }
+                    }
+                }
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d("onConnected", "APIClient connected");
-        setUserLatLng();
         connected = true;
         if (mapReady && mMap != null) {
-            moveCamera(mMap, new LatLng(lat, lng));
+            moveCamera(mMap, getUserLatLng());
         }
     }
 
