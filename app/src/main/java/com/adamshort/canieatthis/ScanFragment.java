@@ -353,7 +353,7 @@ public class ScanFragment extends Fragment {
     }
 
     public void SetItemTitleText(String item) {
-        itemTextView.setText(String.format(getString(R.string.product), item));
+        itemTextView.setText(item);
         itemTextView.setVisibility(View.VISIBLE);
     }
 
