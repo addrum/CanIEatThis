@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -23,13 +24,15 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
+public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener  {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
 
@@ -93,10 +96,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                createNearbyMarkers(googleMap);
+                LatLng old = new LatLng(lat, lng);
+                LatLng current = setUserLatLng();
+                if (old != current) {
+                    createNearbyMarkers(googleMap);
+                }
                 return false;
             }
         });
+
+        googleMap.setOnInfoWindowClickListener(this);
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
@@ -118,12 +127,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         JSONArray results = response.getJSONArray("results");
 
                         for (int i = 0; i < results.length(); i++) {
-                            JSONObject location = results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location");
-                            double lat = location.getDouble("lat");
-                            double lng = location.getDouble("lng");
+                            JSONObject location = results.getJSONObject(i);
+                            String name = location.getString("name");
+                            JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
+                            double lat = geometry.getDouble("lat");
+                            double lng = geometry.getDouble("lng");
 
                             LatLng latlng = new LatLng(lat, lng);
-                            MarkerOptions marker = new MarkerOptions().position(latlng);
+                            MarkerOptions marker = new MarkerOptions().position(latlng).title(name);
                             marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                             mMap.addMarker(marker);
                             Log.d("DEBUG", "lat " + lat + " lng " + lng);
@@ -157,6 +168,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
             return false;
         }
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Toast.makeText(getActivity().getBaseContext(), "Info window clicked", Toast.LENGTH_SHORT).show();
     }
 
     @Override
