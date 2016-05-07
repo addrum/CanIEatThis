@@ -31,73 +31,69 @@ public class ScanFragment extends Fragment {
     public static final int PRODUCT = 1;
 
     public static boolean DEBUG;
-
-    public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
-
     private static boolean fragmentCreated = false;
-
+    public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     private static String barcode = "";
+
+    private boolean resetIntro = false;
 
     private static Switch dairyFreeSwitch;
     private static Switch vegetarianSwitch;
     private static Switch veganSwitch;
     private static Switch glutenFreeSwitch;
-
     private TableLayout switchesTableLayout;
-
     private TextView introTextView;
     private TextView itemTextView;
     private TextView ingredientsTitleText;
     private TextView ingredientResponseView;
     private TextView tracesTitleText;
     private TextView tracesResponseView;
-
     private ProgressBar progressBar;
-
     private DataPasser dataPasser;
-
     private DataQuerier dataQuerier;
 
     public void SetItemsFromDataPasser() {
-        if (dataPasser == null) dataPasser = DataPasser.getInstance();
+        if (!resetIntro) {
+            if (dataPasser == null) dataPasser = DataPasser.getInstance();
 
-        SetDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
+            SetDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
 
-        if (dataPasser.areSwitchesVisible()) {
-            SetSwitchesVisibility(View.VISIBLE);
-        } else {
-            SetSwitchesVisibility(View.INVISIBLE);
-        }
-
-        if (itemTextView != null) {
-            itemTextView.setText(dataPasser.getQuery());
-            if (dataPasser.isItemVisible()) {
-                itemTextView.setVisibility(View.VISIBLE);
+            if (dataPasser.areSwitchesVisible()) {
+                SetSwitchesVisibility(View.VISIBLE);
             } else {
-                itemTextView.setVisibility(View.INVISIBLE);
+                SetSwitchesVisibility(View.INVISIBLE);
             }
-        }
 
-        if (introTextView != null) {
-            if (dataPasser.isIntroVisible()) {
-                introTextView.setVisibility(View.VISIBLE);
+            if (itemTextView != null) {
+                itemTextView.setText(dataPasser.getQuery());
+                if (dataPasser.isItemVisible()) {
+                    itemTextView.setVisibility(View.VISIBLE);
+                } else {
+                    itemTextView.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            if (introTextView != null) {
+                if (dataPasser.isIntroVisible()) {
+                    introTextView.setVisibility(View.VISIBLE);
+                } else {
+                    introTextView.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            if (dataPasser.isResponseVisible()) {
+                SetResponseItemsVisibility(View.VISIBLE);
             } else {
-                introTextView.setVisibility(View.INVISIBLE);
+                SetResponseItemsVisibility(View.INVISIBLE);
             }
-        }
 
-        if (dataPasser.isResponseVisible()) {
-            SetResponseItemsVisibility(View.VISIBLE);
-        } else {
-            SetResponseItemsVisibility(View.INVISIBLE);
-        }
-
-        if (!dataPasser.isFromSearch()) {
-            if (ingredientResponseView != null) {
-                ingredientResponseView.setText(dataPasser.getIngredients());
-            }
-            if (tracesResponseView != null) {
-                tracesResponseView.setText(dataPasser.getTraces());
+            if (!dataPasser.isFromSearch()) {
+                if (ingredientResponseView != null) {
+                    ingredientResponseView.setText(dataPasser.getIngredients());
+                }
+                if (tracesResponseView != null) {
+                    tracesResponseView.setText(dataPasser.getTraces());
+                }
             }
         }
     }
@@ -159,8 +155,18 @@ public class ScanFragment extends Fragment {
             Log.d("setUserVisibleHint", "Fragment is visible.");
             Log.d("setUserVisibleHint", Boolean.toString(fragmentCreated));
             if (fragmentCreated) SetItemsFromDataPasser();
+            resetIntro = false;
         } else {
             Log.d("setUserVisibleHint", "Fragment is not visible.");
+            SetSwitchesVisibility(View.INVISIBLE);
+            SetResponseItemsVisibility(View.INVISIBLE);
+            if (itemTextView != null) {
+                itemTextView.setVisibility(View.INVISIBLE);
+            }
+            if (introTextView != null) {
+                introTextView.setVisibility(View.VISIBLE);
+            }
+            resetIntro = true;
         }
     }
 
