@@ -61,7 +61,7 @@ public class ScanFragment extends Fragment {
     public void SetItemsFromDataPasser() {
         if (dataPasser == null) dataPasser = DataPasser.getInstance();
 
-        SetAllergenSwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
+        SetDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
 
         if (dataPasser.areSwitchesVisible()) {
             SetSwitchesVisibility(View.VISIBLE);
@@ -176,12 +176,12 @@ public class ScanFragment extends Fragment {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            if (DEBUG) {
-                GetBarcodeInformation("5000168183732");
+//            if (DEBUG) {
+//                GetBarcodeInformation("5000168183732");
 //                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
-            } else {
+//            } else {
                 startActivityForResult(intent, 0);
-            }
+//            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
@@ -289,15 +289,34 @@ public class ScanFragment extends Fragment {
 
                 boolean dairy = dataQuerier.IsDairyFree(editedIngredients);
                 boolean vegan = dataQuerier.IsVegan(editedIngredients);
-                boolean vegetarian = false;
+                boolean vegetarian = true;
                 // if something is vegan it is 100% vegetarian
                 if (!vegan) {
                     vegetarian = dataQuerier.IsVegetarian(editedIngredients);
                 }
                 boolean gluten = dataQuerier.IsGlutenFree(editedIngredients);
 
+                for (String trace : editedTraces) {
+                    boolean d = dataQuerier.IsDairyFree(trace);
+                    if (!d) {
+                        dairy = false;
+                    }
+                    boolean v = dataQuerier.IsVegan(trace);
+                    if (!v) {
+                        vegan = false;
+                    }
+                    boolean ve = dataQuerier.IsVegetarian(trace);
+                    if (!ve) {
+                        vegetarian = false;
+                    }
+                    boolean g = dataQuerier.IsGlutenFree(trace);
+                    if (!g) {
+                        gluten = false;
+                    }
+                }
+
                 SetItemTitleText(item);
-                SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
+                SetDietarySwitches(dairy, vegetarian, vegan, gluten);
                 SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]",""));
                 SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
 
@@ -357,7 +376,7 @@ public class ScanFragment extends Fragment {
         itemTextView.setVisibility(View.VISIBLE);
     }
 
-    public void SetAllergenSwitches(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
+    public void SetDietarySwitches(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
         dairyFreeSwitch.setChecked(dairy);
         vegetarianSwitch.setChecked(vegetarian);
         veganSwitch.setChecked(vegan);

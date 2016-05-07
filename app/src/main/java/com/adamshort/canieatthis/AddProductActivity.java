@@ -88,7 +88,7 @@ public class AddProductActivity extends Activity {
 
                 boolean dairy = dataQuerier.IsDairyFree(writtenIngredients);
                 boolean vegan = dataQuerier.IsVegan(writtenIngredients);
-                boolean vegetarian = false;
+                boolean vegetarian = true;
                 // if something is vegan it is 100% vegetarian
                 if (!vegan) {
                     vegetarian = dataQuerier.IsVegetarian(writtenIngredients);
