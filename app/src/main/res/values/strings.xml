@@ -28,4 +28,5 @@
     <string name="productSubmitButtonText">SUBMIT</string>
     <string name="tracesHint">Traces</string>
     <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find it\'s information</string>
+    <string name="searchViewQueryHint">Search for an ingredient</string>
 </resources>

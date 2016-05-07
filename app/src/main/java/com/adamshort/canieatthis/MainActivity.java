@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.tab_layout);
+        setContentView(R.layout.activity_main);
 
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
@@ -99,13 +99,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final Menu actionMenu = menu;
-        getMenuInflater().inflate(R.menu.main, actionMenu);
+        getMenuInflater().inflate(R.menu.menu, actionMenu);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) actionMenu.findItem(R.id.action_search).getActionView();
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint(getString(R.string.searchViewQueryHint));
         }
 
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
