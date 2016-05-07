@@ -178,14 +178,14 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                GetBarcodeInformation("5000168001142");
-//                startActivity(new Intent(context, AddProductActivity.class));
+//                GetBarcodeInformation("5000168001142");
+                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
             }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
-            showDialog(this.getActivity(), "No Scanner Found", "Download a scanner code activity?", "Yes", "No", DOWNLOAD).show();
+            showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
         }
     }
 

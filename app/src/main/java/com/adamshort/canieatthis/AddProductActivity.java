@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -64,6 +65,10 @@ public class AddProductActivity extends Activity {
         energyPerServingTextView = (TextView) findViewById(R.id.input_energy_per_serving);
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
+
+        if(productNameTextView.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
 
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
