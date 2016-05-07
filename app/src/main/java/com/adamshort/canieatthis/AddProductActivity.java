@@ -192,7 +192,11 @@ public class AddProductActivity extends Activity {
                 ingredients = ingredients.replace("+", "%20");
                 ingredients = ingredients.replace("_", "%5F");
 
-                String params = "code=" + barcodeText + "&product_name=" + productNameText + "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText + "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
+                String params = "user_id=" + getString(R.string.open_food_facts_username) +
+                        "&password=" + getString(R.string.open_food_facts_password) +
+                        "&code=" + barcodeText + "&product_name=" + productNameText +
+                        "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText +
+                        "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
                         "&ingredients_text=" + ingredients + "&traces=" + tracesText;
 
                 try {
