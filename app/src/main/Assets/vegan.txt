@@ -18,8 +18,11 @@ arachidonic acid
 arachidyl proprionate
 bee pollen
 bee products
-beeswax. honeycomb
-biotin. vitamin h. vitamin b factor
+beeswax
+honeycomb
+biotin
+vitamin h
+vitamin b factor
 blood
 boar bristles
 bone char
@@ -137,7 +140,6 @@ lipids
 marine oil
 methionine
 milk protein
-milk
 mink oil
 monoglycerides.
 glycerides
@@ -256,3 +258,14 @@ whey
 wool
 wool fat
 wool wax
+chicken
+veal
+beef
+pork
+bacon
+lamb
+venison
+salami
+fish
+cheese
+parmesan

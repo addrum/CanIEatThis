@@ -15,7 +15,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Fragment> fragments;
 
     private ViewPager viewPager;
-    private ResponseQuerier responseQuerier;
+    private DataQuerier dataQuerier;
     private DataPasser dataPasser;
 
     private DownloadManager downloadManager;
@@ -59,11 +58,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.tab_layout);
+        setContentView(R.layout.activity_main);
 
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
-        fragments.add(new PlacesFragment());
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -94,20 +92,21 @@ public class MainActivity extends AppCompatActivity {
             tabLayout.setupWithViewPager(viewPager);
         }
 
-        responseQuerier = ResponseQuerier.getInstance(this);
+        dataQuerier = DataQuerier.getInstance(this);
         dataPasser = DataPasser.getInstance();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final Menu actionMenu = menu;
-        getMenuInflater().inflate(R.menu.main, actionMenu);
+        getMenuInflater().inflate(R.menu.menu, actionMenu);
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         final SearchView searchView = (SearchView) actionMenu.findItem(R.id.action_search).getActionView();
         if (null != searchView) {
             searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint(getString(R.string.searchViewQueryHint));
         }
 
         SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
@@ -119,10 +118,14 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
                     // query is the value entered into the search bar
-                    boolean dairy = responseQuerier.IsDairyFree(query);
-                    boolean vegetarian = responseQuerier.IsVegetarian(query);
-                    boolean vegan = responseQuerier.IsVegan(query);
-                    boolean gluten = responseQuerier.IsGlutenFree(query);
+                    boolean dairy = dataQuerier.IsDairyFree(query);
+                    boolean vegan = dataQuerier.IsVegan(query);
+                    boolean vegetarian = false;
+                    // if something is vegan it is 100% vegetarian
+                    if (!vegan) {
+                        vegetarian = dataQuerier.IsVegetarian(query);
+                    }
+                    boolean gluten = dataQuerier.IsGlutenFree(query);
 
                     dataPasser.setQuery(query);
 

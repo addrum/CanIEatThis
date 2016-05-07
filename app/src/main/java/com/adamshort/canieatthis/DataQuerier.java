@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResponseQuerier {
+public class DataQuerier {
 
     //http://www.godairyfree.org/dairy-free-grocery-shopping-guide/dairy-ingredient-list-2
     public List<String> dairy;
@@ -23,15 +23,15 @@ public class ResponseQuerier {
     public List<String> gluten;
     public List<String> traces;
 
-    private static ResponseQuerier mInstance = null;
+    private static DataQuerier mInstance = null;
 
-    private ResponseQuerier(Activity activity) {
+    private DataQuerier(Activity activity) {
         SetDatabasesFromFiles(activity);
     }
 
-    public static ResponseQuerier getInstance(Activity activity) {
+    public static DataQuerier getInstance(Activity activity) {
         if (mInstance == null) {
-            mInstance = new ResponseQuerier(activity);
+            mInstance = new DataQuerier(activity);
         }
         return mInstance;
     }
@@ -138,7 +138,8 @@ public class ResponseQuerier {
 
     public boolean IsDairyFree(String ingredient) {
         for (String dairyIngredient : dairy) {
-            if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase())) {
+            if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase()) ||
+                    dairyIngredient.contains(ingredient.toLowerCase())) {
                 return false;
             }
         }
@@ -158,7 +159,8 @@ public class ResponseQuerier {
 
     public boolean IsVegetarian(String ingredient) {
         for (String vegetarianIngredient : vegetarian) {
-            if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase())) {
+            if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase()) ||
+                    vegetarianIngredient.contains(ingredient.toLowerCase())) {
                 return false;
             }
         }
@@ -178,7 +180,8 @@ public class ResponseQuerier {
 
     public boolean IsVegan(String ingredient) {
         for (String veganIngredient : vegan) {
-            if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase())) {
+            if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase()) ||
+                    veganIngredient.contains(ingredient.toLowerCase())) {
                 return false;
             }
         }
@@ -198,7 +201,8 @@ public class ResponseQuerier {
 
     public boolean IsGlutenFree(String ingredient) {
         for (String glutenIngredient : gluten) {
-            if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase())) {
+            if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase()) ||
+                    glutenIngredient.contains(ingredient.toLowerCase())) {
                 return false;
             }
         }

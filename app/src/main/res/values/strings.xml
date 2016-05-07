@@ -23,9 +23,10 @@
     <string name="productNameHint">Product Name</string>
     <string name="quantityHint">Quantity</string>
     <string name="energyPerServingHint">Energy Per Serving (kJ)</string>
-    <string name="ingredientsHint">Ingredients (separate with commas)</string>
+    <string name="ingredientsHint">Ingredients (As they appear on the packet)</string>
     <string name="productImageButtonText">PRODUCT IMAGE</string>
     <string name="productSubmitButtonText">SUBMIT</string>
-    <string name="tracesHint">Traces</string>
+    <string name="tracesHint">Traces (e.g. Nuts, Wheat, Milk)</string>
     <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find it\'s information</string>
+    <string name="searchViewQueryHint">Search for an ingredient</string>
 </resources>

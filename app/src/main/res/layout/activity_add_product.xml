@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
+    android:id="@+id/addProductRelativeLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,8 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.adamshort.canieatthis.AddProductActivity"
-    android:id="@+id/addProductRelativeLayout">
+    tools:context="com.adamshort.canieatthis.AddProductActivity">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_layout_barcode_number"
@@ -21,8 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/barcodeNumberHint"
-            android:maxLength="13"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:maxLength="13"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -36,7 +36,7 @@
             android:id="@+id/input_product_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/productNameHint" />
+            android:hint="@string/productNameHint"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -50,7 +50,7 @@
             android:id="@+id/input_quantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/quantityHint" />
+            android:hint="@string/quantityHint"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -64,13 +64,13 @@
             android:id="@+id/input_energy_per_serving"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/energyPerServingHint" />
+            android:hint="@string/energyPerServingHint"/>
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_layout_ingredients"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/input_layout_energy_per_serving">
 
@@ -78,59 +78,39 @@
             android:id="@+id/input_ingredients"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/ingredientsHint" />
+            android:hint="@string/ingredientsHint"/>
 
     </android.support.design.widget.TextInputLayout>
 
-    <!--<LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/input_layout_ingredients"
-        android:layout_marginTop="10dp"
-        android:gravity="center">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/productImageButtonText"
-            android:id="@+id/product_image_button"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            style="@style/Widget.AppCompat.Button.Colored" />
-    </LinearLayout>-->
-
     <android.support.design.widget.TextInputLayout
         android:id="@+id/input_layout_traces"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/input_layout_ingredients">
 
         <EditText
             android:id="@+id/input_traces"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/tracesHint" />
+            android:layout_height="match_parent"
+            android:hint="@string/tracesHint"/>
 
     </android.support.design.widget.TextInputLayout>
 
     <LinearLayout
         android:id="@+id/submit_button_linear_layout"
-        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/input_layout_traces"
         android:layout_marginTop="10dp"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <Button
+            android:id="@+id/product_submit_button"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/productSubmitButtonText"
-            android:id="@+id/product_submit_button"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            style="@style/Widget.AppCompat.Button.Colored" />
+            android:text="@string/productSubmitButtonText"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -151,7 +131,7 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:gravity="center"
-            android:visibility="invisible" />
+            android:visibility="invisible"/>
 
     </RelativeLayout>
 

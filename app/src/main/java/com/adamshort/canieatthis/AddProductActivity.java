@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,7 +43,7 @@ public class AddProductActivity extends Activity {
 
     private List<String> writtenIngredients, writtenTraces;
 
-    private ResponseQuerier responseQuerier;
+    private DataQuerier dataQuerier;
 
     private RequestHandler rh;
 
@@ -65,13 +66,17 @@ public class AddProductActivity extends Activity {
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
 
+        if(productNameTextView.requestFocus()) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
         barcodeNumberTextView.setText(barcode);
 
-        responseQuerier = ResponseQuerier.getInstance(this);
+        dataQuerier = DataQuerier.getInstance(this);
 
         rh = new RequestHandler(this.getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
             @Override
@@ -81,10 +86,14 @@ public class AddProductActivity extends Activity {
 
                 writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
 
-                boolean dairy = responseQuerier.IsDairyFree(writtenIngredients);
-                boolean vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
-                boolean vegan = responseQuerier.IsVegan(writtenIngredients);
-                boolean gluten = responseQuerier.IsGlutenFree(writtenIngredients);
+                boolean dairy = dataQuerier.IsDairyFree(writtenIngredients);
+                boolean vegan = dataQuerier.IsVegan(writtenIngredients);
+                boolean vegetarian = false;
+                // if something is vegan it is 100% vegetarian
+                if (!vegan) {
+                    vegetarian = dataQuerier.IsVegetarian(writtenIngredients);
+                }
+                boolean gluten = dataQuerier.IsGlutenFree(writtenIngredients);
 
                 DataPasser.getInstance().setQuery(itemTitle);
 
@@ -143,7 +152,7 @@ public class AddProductActivity extends Activity {
                 writtenIngredients = editedIngredients;
                 writtenTraces = IngredientsList.StringToList(tracesText);
 
-                List<String> traces = ResponseQuerier.getInstance(AddProductActivity.this).getTraces();
+                List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
                 for (int i = 0; i < editedIngredients.size(); i++) {
                     String ing = editedIngredients.get(i).toLowerCase();

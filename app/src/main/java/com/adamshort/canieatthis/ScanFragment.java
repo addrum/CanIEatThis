@@ -56,7 +56,7 @@ public class ScanFragment extends Fragment {
 
     private DataPasser dataPasser;
 
-    private ResponseQuerier responseQuerier;
+    private DataQuerier dataQuerier;
 
     public void SetItemsFromDataPasser() {
         if (dataPasser == null) dataPasser = DataPasser.getInstance();
@@ -146,7 +146,7 @@ public class ScanFragment extends Fragment {
 
         dataPasser = DataPasser.getInstance();
 
-        responseQuerier = ResponseQuerier.getInstance(getActivity());
+        dataQuerier = DataQuerier.getInstance(getActivity());
 
         return view;
     }
@@ -178,14 +178,14 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                GetBarcodeInformation("000000000");
-//                startActivity(new Intent(context, AddProductActivity.class));
+//                GetBarcodeInformation("5000168001142");
+                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
             }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
-            showDialog(this.getActivity(), "No Scanner Found", "Download a scanner code activity?", "Yes", "No", DOWNLOAD).show();
+            showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
         }
     }
 
@@ -258,7 +258,7 @@ public class ScanFragment extends Fragment {
             RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
-                    JSONObject product = responseQuerier.ParseIntoJSON(output);
+                    JSONObject product = dataQuerier.ParseIntoJSON(output);
                     ProcessResponse(product);
                 }
             });
@@ -288,10 +288,14 @@ public class ScanFragment extends Fragment {
                 List<String> editedTraces = IngredientsList.StringToList(traces);
                 editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
-                boolean dairy = responseQuerier.IsDairyFree(editedIngredients);
-                boolean vegetarian = responseQuerier.IsVegetarian(editedIngredients);
-                boolean vegan = responseQuerier.IsVegan(editedIngredients);
-                boolean gluten = responseQuerier.IsGlutenFree(editedIngredients);
+                boolean dairy = dataQuerier.IsDairyFree(editedIngredients);
+                boolean vegan = dataQuerier.IsVegan(editedIngredients);
+                boolean vegetarian = false;
+                // if something is vegan it is 100% vegetarian
+                if (!vegan) {
+                    vegetarian = dataQuerier.IsVegetarian(editedIngredients);
+                }
+                boolean gluten = dataQuerier.IsGlutenFree(editedIngredients);
 
                 SetItemTitleText(item);
                 SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
