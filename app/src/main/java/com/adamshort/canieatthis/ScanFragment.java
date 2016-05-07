@@ -92,7 +92,11 @@ public class ScanFragment extends Fragment {
                     ingredientResponseView.setText(dataPasser.getIngredients());
                 }
                 if (tracesResponseView != null) {
-                    tracesResponseView.setText(dataPasser.getTraces());
+                    if (dataPasser.getTraces() != null) {
+                        if (!dataPasser.getTraces().equals("")) {
+                            tracesResponseView.setText(dataPasser.getTraces());
+                        }
+                    }
                 }
             }
         }
@@ -186,7 +190,7 @@ public class ScanFragment extends Fragment {
 //                GetBarcodeInformation("5000168183732");
 //                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
 //            } else {
-                startActivityForResult(intent, 0);
+            startActivityForResult(intent, 0);
 //            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
@@ -302,28 +306,30 @@ public class ScanFragment extends Fragment {
                 }
                 boolean gluten = dataQuerier.IsGlutenFree(editedIngredients);
 
-                for (String trace : editedTraces) {
-                    boolean d = dataQuerier.IsDairyFree(trace);
-                    if (!d) {
-                        dairy = false;
-                    }
-                    boolean v = dataQuerier.IsVegan(trace);
-                    if (!v) {
-                        vegan = false;
-                    }
-                    boolean ve = dataQuerier.IsVegetarian(trace);
-                    if (!ve) {
-                        vegetarian = false;
-                    }
-                    boolean g = dataQuerier.IsGlutenFree(trace);
-                    if (!g) {
-                        gluten = false;
+                if (!traces.equals("")) {
+                    for (String trace : editedTraces) {
+                        boolean d = dataQuerier.IsDairyFree(trace);
+                        if (!d) {
+                            dairy = false;
+                        }
+                        boolean v = dataQuerier.IsVegan(trace);
+                        if (!v) {
+                            vegan = false;
+                        }
+                        boolean ve = dataQuerier.IsVegetarian(trace);
+                        if (!ve) {
+                            vegetarian = false;
+                        }
+                        boolean g = dataQuerier.IsGlutenFree(trace);
+                        if (!g) {
+                            gluten = false;
+                        }
                     }
                 }
 
                 SetItemTitleText(item);
                 SetDietarySwitches(dairy, vegetarian, vegan, gluten);
-                SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]",""));
+                SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
                 SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
 
                 SetSwitchesVisibility(View.VISIBLE);

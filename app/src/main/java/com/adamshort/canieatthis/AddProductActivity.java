@@ -95,6 +95,27 @@ public class AddProductActivity extends Activity {
                 }
                 boolean gluten = dataQuerier.IsGlutenFree(writtenIngredients);
 
+                if (!writtenTraces.equals("")) {
+                    for (String trace : writtenTraces) {
+                        boolean d = dataQuerier.IsDairyFree(trace);
+                        if (!d) {
+                            dairy = false;
+                        }
+                        boolean v = dataQuerier.IsVegan(trace);
+                        if (!v) {
+                            vegan = false;
+                        }
+                        boolean ve = dataQuerier.IsVegetarian(trace);
+                        if (!ve) {
+                            vegetarian = false;
+                        }
+                        boolean g = dataQuerier.IsGlutenFree(trace);
+                        if (!g) {
+                            gluten = false;
+                        }
+                    }
+                }
+
                 DataPasser.getInstance().setQuery(itemTitle);
 
                 DataPasser.getInstance().setDairy(dairy);
@@ -165,17 +186,20 @@ public class AddProductActivity extends Activity {
 
                 String ingredients = IngredientsList.ListToString(editedIngredients);
 
-                if (DEBUG) {
-                    barcodeText = "072417136160";
-                    productNameText = "Maryland Choc Chip";
-                    itemTitle = productNameText;
-                    quantityText = "230g";
-                    energyPerServingText = "450";
-                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                    writtenIngredients = IngredientsList.StringToList(ingredients);
-                    tracesText = "Milk, Soya, Nuts, Wheat";
-                    writtenTraces = IngredientsList.StringToList(tracesText);
-                }
+//                if (DEBUG) {
+//                    barcodeText = "072417136160";
+//                    productNameText = "Maryland Choc Chip";
+//                    itemTitle = productNameText;
+//                    quantityText = "230g";
+//                    energyPerServingText = "450";
+//                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+//                    writtenIngredients = IngredientsList.StringToList(ingredients);
+//                    tracesText = "Milk, Soya, Nuts, Wheat";
+//                    writtenTraces = IngredientsList.StringToList(tracesText);
+//                }
+
+                String user_id = getString(R.string.open_food_facts_username);
+                String password = getString(R.string.open_food_facts_password);
 
                 try {
                     productNameText = URLEncoder.encode(productNameText, "UTF-8");
@@ -183,6 +207,8 @@ public class AddProductActivity extends Activity {
                     energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
                     ingredients = URLEncoder.encode(ingredients, "UTF-8");
                     tracesText = URLEncoder.encode(tracesText, "UTF-8");
+                    user_id = URLEncoder.encode(user_id, "UTF-8");
+                    password = URLEncoder.encode(password, "UTF-8");
                 } catch (UnsupportedEncodingException e) {
                     Log.e("ERROR", "Couldn't encode params properly");
                     e.printStackTrace();
@@ -192,8 +218,8 @@ public class AddProductActivity extends Activity {
                 ingredients = ingredients.replace("+", "%20");
                 ingredients = ingredients.replace("_", "%5F");
 
-                String params = "user_id=" + getString(R.string.open_food_facts_username) +
-                        "&password=" + getString(R.string.open_food_facts_password) +
+                String params = "user_id=" + user_id +
+                        "&password=" + password +
                         "&code=" + barcodeText + "&product_name=" + productNameText +
                         "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText +
                         "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
@@ -203,7 +229,6 @@ public class AddProductActivity extends Activity {
                     String url = BASE_URL + params;
                     Log.d("onCreate", "Url to execute at is: " + url);
                     rh.execute(url);
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
