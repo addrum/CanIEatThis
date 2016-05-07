@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -24,15 +23,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener  {
+public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
 
@@ -104,8 +101,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 return false;
             }
         });
-
-        googleMap.setOnInfoWindowClickListener(this);
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
@@ -129,12 +124,26 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         for (int i = 0; i < results.length(); i++) {
                             JSONObject location = results.getJSONObject(i);
                             String name = location.getString("name");
+
                             JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
                             double lat = geometry.getDouble("lat");
                             double lng = geometry.getDouble("lng");
 
                             LatLng latlng = new LatLng(lat, lng);
-                            MarkerOptions marker = new MarkerOptions().position(latlng).title(name);
+                            MarkerOptions marker = new MarkerOptions().position(latlng)
+                                    .title(name);
+
+                            try {
+                                boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
+                                if (openNow) {
+                                    marker.snippet("Open Now: Yes");
+                                } else {
+                                    marker.snippet("Open Now: No");
+                                }
+                            } catch (JSONException e) {
+                                Log.e("processFinish", "No value for opening_hours or open_now");
+                            }
+
                             marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                             mMap.addMarker(marker);
                             Log.d("DEBUG", "lat " + lat + " lng " + lng);
@@ -168,11 +177,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
             return false;
         }
-    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        Toast.makeText(getActivity().getBaseContext(), "Info window clicked", Toast.LENGTH_SHORT).show();
     }
 
     @Override
