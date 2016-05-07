@@ -42,7 +42,7 @@ public class AddProductActivity extends Activity {
 
     private List<String> writtenIngredients, writtenTraces;
 
-    private ResponseQuerier responseQuerier;
+    private DataQuerier dataQuerier;
 
     private RequestHandler rh;
 
@@ -71,7 +71,7 @@ public class AddProductActivity extends Activity {
 
         barcodeNumberTextView.setText(barcode);
 
-        responseQuerier = ResponseQuerier.getInstance(this);
+        dataQuerier = DataQuerier.getInstance(this);
 
         rh = new RequestHandler(this.getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
             @Override
@@ -81,14 +81,14 @@ public class AddProductActivity extends Activity {
 
                 writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
 
-                boolean dairy = responseQuerier.IsDairyFree(writtenIngredients);
-                boolean vegan = responseQuerier.IsVegan(writtenIngredients);
+                boolean dairy = dataQuerier.IsDairyFree(writtenIngredients);
+                boolean vegan = dataQuerier.IsVegan(writtenIngredients);
                 boolean vegetarian = false;
                 // if something is vegan it is 100% vegetarian
                 if (!vegan) {
-                    vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
+                    vegetarian = dataQuerier.IsVegetarian(writtenIngredients);
                 }
-                boolean gluten = responseQuerier.IsGlutenFree(writtenIngredients);
+                boolean gluten = dataQuerier.IsGlutenFree(writtenIngredients);
 
                 DataPasser.getInstance().setQuery(itemTitle);
 
@@ -147,7 +147,7 @@ public class AddProductActivity extends Activity {
                 writtenIngredients = editedIngredients;
                 writtenTraces = IngredientsList.StringToList(tracesText);
 
-                List<String> traces = ResponseQuerier.getInstance(AddProductActivity.this).getTraces();
+                List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
                 for (int i = 0; i < editedIngredients.size(); i++) {
                     String ing = editedIngredients.get(i).toLowerCase();

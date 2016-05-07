@@ -18,8 +18,11 @@ arachidonic acid
 arachidyl proprionate
 bee pollen
 bee products
-beeswax. honeycomb
-biotin. vitamin h. vitamin b factor
+beeswax
+honeycomb
+biotin
+vitamin h
+vitamin b factor
 blood
 boar bristles
 bone char
@@ -255,3 +258,14 @@ whey
 wool
 wool fat
 wool wax
+chicken
+veal
+beef
+pork
+bacon
+lamb
+venison
+salami
+fish
+cheese
+parmesan

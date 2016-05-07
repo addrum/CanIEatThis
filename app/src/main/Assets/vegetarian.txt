@@ -18,3 +18,13 @@ suet
 tallow
 tallow flakes
 trypsin
+chicken
+veal
+beef
+pork
+bacon
+lamb
+venison
+salami
+fish
+parmesan

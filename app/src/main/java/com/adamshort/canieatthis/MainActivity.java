@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Fragment> fragments;
 
     private ViewPager viewPager;
-    private ResponseQuerier responseQuerier;
+    private DataQuerier dataQuerier;
     private DataPasser dataPasser;
 
     private DownloadManager downloadManager;
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             tabLayout.setupWithViewPager(viewPager);
         }
 
-        responseQuerier = ResponseQuerier.getInstance(this);
+        dataQuerier = DataQuerier.getInstance(this);
         dataPasser = DataPasser.getInstance();
     }
 
@@ -117,10 +117,14 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
                     // query is the value entered into the search bar
-                    boolean dairy = responseQuerier.IsDairyFree(query);
-                    boolean vegetarian = responseQuerier.IsVegetarian(query);
-                    boolean vegan = responseQuerier.IsVegan(query);
-                    boolean gluten = responseQuerier.IsGlutenFree(query);
+                    boolean dairy = dataQuerier.IsDairyFree(query);
+                    boolean vegan = dataQuerier.IsVegan(query);
+                    boolean vegetarian = false;
+                    // if something is vegan it is 100% vegetarian
+                    if (!vegan) {
+                        vegetarian = dataQuerier.IsVegetarian(query);
+                    }
+                    boolean gluten = dataQuerier.IsGlutenFree(query);
 
                     dataPasser.setQuery(query);
 
