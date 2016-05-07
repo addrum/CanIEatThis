@@ -13,7 +13,7 @@
     <string name="ingredientsTextViewText">Ingredients will be appear here</string>
     <string name="tracesTitleText">Traces</string>
     <string name="tracesTextViewText">Traces will be appear here</string>
-    <string name="bottomButtonText">Bar Code</string>
+    <string name="bottomButtonText">Barcode</string>
     <string name="action_search">Search Ingredient</string>
     <string name="search_hint">Search for an ingredient</string>
     <string name="itemTitleText">Item</string>
@@ -27,6 +27,6 @@
     <string name="productImageButtonText">PRODUCT IMAGE</string>
     <string name="productSubmitButtonText">SUBMIT</string>
     <string name="tracesHint">Traces (e.g. Nuts, Wheat, Milk)</string>
-    <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find it\'s information</string>
+    <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find its information</string>
     <string name="searchViewQueryHint">Search for an ingredient</string>
 </resources>
