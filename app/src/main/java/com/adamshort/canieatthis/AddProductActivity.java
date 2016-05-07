@@ -82,8 +82,12 @@ public class AddProductActivity extends Activity {
                 writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
 
                 boolean dairy = responseQuerier.IsDairyFree(writtenIngredients);
-                boolean vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
                 boolean vegan = responseQuerier.IsVegan(writtenIngredients);
+                boolean vegetarian = false;
+                // if something is vegan it is 100% vegetarian
+                if (!vegan) {
+                    vegetarian = responseQuerier.IsVegetarian(writtenIngredients);
+                }
                 boolean gluten = responseQuerier.IsGlutenFree(writtenIngredients);
 
                 DataPasser.getInstance().setQuery(itemTitle);

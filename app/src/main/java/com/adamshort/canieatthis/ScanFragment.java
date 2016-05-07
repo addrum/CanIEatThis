@@ -289,8 +289,12 @@ public class ScanFragment extends Fragment {
                 editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
                 boolean dairy = responseQuerier.IsDairyFree(editedIngredients);
-                boolean vegetarian = responseQuerier.IsVegetarian(editedIngredients);
                 boolean vegan = responseQuerier.IsVegan(editedIngredients);
+                boolean vegetarian = false;
+                // if something is vegan it is 100% vegetarian
+                if (!vegan) {
+                    vegetarian = responseQuerier.IsVegetarian(editedIngredients);
+                }
                 boolean gluten = responseQuerier.IsGlutenFree(editedIngredients);
 
                 SetItemTitleText(item);
