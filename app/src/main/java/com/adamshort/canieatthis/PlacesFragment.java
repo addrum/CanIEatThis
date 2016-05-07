@@ -34,11 +34,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
 
     private boolean connected;
+    private boolean mapReady;
     private double lat;
     private double lng;
 
-    private MapView mMapView;
     private GoogleApiClient mGoogleApiClient;
+    private GoogleMap mMap;
+    private MapView mMapView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +76,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+        Log.d("onMapReady", "Map is ready");
+        mapReady = true;
+        mMap = googleMap;
         if (connected) {
             setUserLatLng();
         }
@@ -84,7 +89,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             createNearbyMarkers(googleMap);
         }
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
 
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
@@ -157,8 +161,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d("onConnected", "APIClient connected");
         setUserLatLng();
         connected = true;
+        if (mapReady && mMap != null) {
+            moveCamera(mMap, new LatLng(lat, lng));
+        }
     }
 
     @Override
@@ -175,6 +183,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mMapView != null) {
             mMapView.onPause();
         }
+        mapReady = false;
     }
 
     @Override
@@ -184,6 +193,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mMapView.onDestroy();
         }
         connected = false;
+        mapReady = false;
     }
 
     @Override
@@ -197,6 +207,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onConnectionSuspended(int i) {
         connected = false;
+        mapReady = false;
     }
 
     @Override
