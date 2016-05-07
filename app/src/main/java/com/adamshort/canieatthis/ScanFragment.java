@@ -167,7 +167,6 @@ public class ScanFragment extends Fragment {
     @Override
     public void onViewStateRestored(Bundle inState) {
         super.onViewStateRestored(inState);
-
         SetItemsFromDataPasser();
     }
 
@@ -178,8 +177,8 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-//                GetBarcodeInformation("5000168001142");
-                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
+                GetBarcodeInformation("5000168183732");
+//                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
             }
@@ -299,11 +298,19 @@ public class ScanFragment extends Fragment {
 
                 SetItemTitleText(item);
                 SetAllergenSwitches(dairy, vegetarian, vegan, gluten);
-                SetIngredientsResponseTextBox(editedIngredients.toString());
-                SetTracesResponseTextBox(editedTraces.toString());
+                SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]",""));
+                SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
+
                 SetSwitchesVisibility(View.VISIBLE);
                 introTextView.setVisibility(View.INVISIBLE);
                 SetResponseItemsVisibility(View.VISIBLE);
+
+                if (editedIngredients.size() < 1 || editedIngredients.get(0).equals("")) {
+                    SetIngredientsResponseTextBox("No ingredients found");
+                }
+                if (editedTraces.size() < 1 || editedTraces.get(0).equals("")) {
+                    SetTracesResponseTextBox("No traces found");
+                }
             } else {
                 showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
             }
