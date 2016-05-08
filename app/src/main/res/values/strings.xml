@@ -30,7 +30,7 @@
     <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find its information</string>
     <string name="searchViewQueryHint">Search for an ingredient</string>
     <string name="unitSpinnerPrompt">Unit</string>
-    <string name="energyPer100gHint">Per 100g (kj)</string>
+    <string name="energyPer100gHint">Per 100g/ml (kj)</string>
     <string name="energyLabelText">Energy</string>
     <string name="action_about">About</string>
 </resources>
