@@ -45,12 +45,13 @@
         </android.support.design.widget.TextInputLayout>
 
         <LinearLayout
+            android:id="@+id/quantity_unit_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/input_layout_product_name"
             android:layout_gravity="center_horizontal"
-            android:id="@+id/quantity_unit_layout"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/input_layout_quantity"
@@ -61,9 +62,9 @@
                 <EditText
                     android:id="@+id/input_quantity"
                     android:layout_width="match_parent"
-                    android:inputType="number"
                     android:layout_height="wrap_content"
-                    android:hint="@string/quantityHint"/>
+                    android:hint="@string/quantityHint"
+                    android:inputType="number"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -75,9 +76,9 @@
 
                 <Spinner
                     android:id="@+id/input_unit"
-                    android:prompt="@string/unitSpinnerPrompt"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/unitSpinnerPrompt">
                 </Spinner>
 
             </android.support.design.widget.TextInputLayout>
@@ -94,7 +95,8 @@
                 android:id="@+id/input_energy_per_serving"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/energyPerServingHint"/>
+                android:hint="@string/energyPerServingHint"
+                android:inputType="number"/>
 
         </android.support.design.widget.TextInputLayout>
 

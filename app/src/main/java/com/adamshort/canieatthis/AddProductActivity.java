@@ -69,7 +69,7 @@ public class AddProductActivity extends Activity {
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
 
-        if(productNameTextView.requestFocus() && !barcodeNumberTextView.getText().equals("")) {
+        if (productNameTextView.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
 
@@ -213,7 +213,10 @@ public class AddProductActivity extends Activity {
 
                 try {
                     productNameText = URLEncoder.encode(productNameText, "UTF-8");
-                    quantityText = URLEncoder.encode(quantityText + unitText, "UTF-8");
+                    if (!quantityText.equals("")) {
+                        quantityText = quantityText + unitText;
+                    }
+                    quantityText = URLEncoder.encode(quantityText, "UTF-8");
                     energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
                     ingredients = URLEncoder.encode(ingredients, "UTF-8");
                     tracesText = URLEncoder.encode(tracesText, "UTF-8");
@@ -248,7 +251,7 @@ public class AddProductActivity extends Activity {
     }
 
     private void SetErrorHints(TextView tv) {
-       tv.setError(END_ERROR_MSG);
+        tv.setError(END_ERROR_MSG);
     }
 
 }

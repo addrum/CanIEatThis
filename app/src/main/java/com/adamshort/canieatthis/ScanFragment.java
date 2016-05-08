@@ -186,12 +186,12 @@ public class ScanFragment extends Fragment {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-//            if (DEBUG) {
+            if (DEBUG) {
 //                GetBarcodeInformation("5000168183732");
-//                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
-//            } else {
+                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
+            } else {
             startActivityForResult(intent, 0);
-//            }
+            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
