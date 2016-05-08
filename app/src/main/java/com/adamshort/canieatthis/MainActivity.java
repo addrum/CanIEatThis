@@ -265,8 +265,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean hasInternetConnection() {
         ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        Log.d("hasInternetConnection", "Network state: " + activeNetwork.isConnectedOrConnecting());
-        return activeNetwork.isConnectedOrConnecting();
+        if (activeNetwork != null) {
+            return activeNetwork.isConnected();
+        }
+        return false;
     }
 
     public boolean timeForUpdatePrompt(Timestamp current) {
