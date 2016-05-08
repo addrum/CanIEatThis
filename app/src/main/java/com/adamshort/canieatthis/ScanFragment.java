@@ -187,8 +187,8 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-//                GetBarcodeInformation("5000168183732");
-                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
+                GetBarcodeInformation("7622210307668");
+//                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
             } else {
             startActivityForResult(intent, 0);
             }
@@ -330,6 +330,9 @@ public class ScanFragment extends Fragment {
                 }
 
                 SetItemTitleText(item);
+                if (item.equals("")) {
+                    SetItemTitleText("Product name not found");
+                }
                 SetDietarySwitches(dairy, vegetarian, vegan, gluten);
                 SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
                 SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
