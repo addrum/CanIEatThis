@@ -306,23 +306,25 @@ public class ScanFragment extends Fragment {
                 }
                 boolean gluten = dataQuerier.IsGlutenFree(editedIngredients);
 
-                if (!traces.equals("")) {
-                    for (String trace : editedTraces) {
-                        boolean d = dataQuerier.IsDairyFree(trace);
-                        if (!d) {
-                            dairy = false;
-                        }
-                        boolean v = dataQuerier.IsVegan(trace);
-                        if (!v) {
-                            vegan = false;
-                        }
-                        boolean ve = dataQuerier.IsVegetarian(trace);
-                        if (!ve) {
-                            vegetarian = false;
-                        }
-                        boolean g = dataQuerier.IsGlutenFree(trace);
-                        if (!g) {
-                            gluten = false;
+                if (editedTraces.size() > 0) {
+                    if (!editedTraces.get(0).equals("")) {
+                        for (String trace : editedTraces) {
+                            boolean d = dataQuerier.IsDairyFree(trace);
+                            if (!d) {
+                                dairy = false;
+                            }
+                            boolean v = dataQuerier.IsVegan(trace);
+                            if (!v) {
+                                vegan = false;
+                            }
+                            boolean ve = dataQuerier.IsVegetarian(trace);
+                            if (!ve) {
+                                vegetarian = false;
+                            }
+                            boolean g = dataQuerier.IsGlutenFree(trace);
+                            if (!g) {
+                                gluten = false;
+                            }
                         }
                     }
                 }

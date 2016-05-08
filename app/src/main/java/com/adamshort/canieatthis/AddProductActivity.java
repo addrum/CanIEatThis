@@ -95,23 +95,25 @@ public class AddProductActivity extends Activity {
                 }
                 boolean gluten = dataQuerier.IsGlutenFree(writtenIngredients);
 
-                if (!writtenTraces.equals("")) {
-                    for (String trace : writtenTraces) {
-                        boolean d = dataQuerier.IsDairyFree(trace);
-                        if (!d) {
-                            dairy = false;
-                        }
-                        boolean v = dataQuerier.IsVegan(trace);
-                        if (!v) {
-                            vegan = false;
-                        }
-                        boolean ve = dataQuerier.IsVegetarian(trace);
-                        if (!ve) {
-                            vegetarian = false;
-                        }
-                        boolean g = dataQuerier.IsGlutenFree(trace);
-                        if (!g) {
-                            gluten = false;
+                if (writtenTraces.size() > 0) {
+                    if (!writtenTraces.get(0).equals("")) {
+                        for (String trace : writtenTraces) {
+                            boolean d = dataQuerier.IsDairyFree(trace);
+                            if (!d) {
+                                dairy = false;
+                            }
+                            boolean v = dataQuerier.IsVegan(trace);
+                            if (!v) {
+                                vegan = false;
+                            }
+                            boolean ve = dataQuerier.IsVegetarian(trace);
+                            if (!ve) {
+                                vegetarian = false;
+                            }
+                            boolean g = dataQuerier.IsGlutenFree(trace);
+                            if (!g) {
+                                gluten = false;
+                            }
                         }
                     }
                 }
