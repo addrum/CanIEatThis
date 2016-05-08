@@ -27,4 +27,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.github.medyo:android-about-page:1.0.7'
+    compile 'com.firebase:firebase-client-android:2.5.2'
 }
