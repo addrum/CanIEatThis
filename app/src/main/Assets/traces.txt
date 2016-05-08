@@ -24,6 +24,7 @@ rye
 barley
 oats
 soya
+soy
 celery
 mustard
 sulphur dioxide

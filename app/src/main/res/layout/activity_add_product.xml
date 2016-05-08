@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            xmlns:tools="http://schemas.android.com/tools"
             android:orientation="vertical"
             tools:context="com.adamshort.canieatthis.AddProductActivity">
 
@@ -44,25 +44,51 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_quantity"
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/input_layout_product_name">
+            android:layout_below="@+id/input_layout_product_name"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/quantity_unit_layout"
+            android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/input_quantity"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_quantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/quantityHint"/>
+                android:layout_weight="1">
 
-        </android.support.design.widget.TextInputLayout>
+                <EditText
+                    android:id="@+id/input_quantity"
+                    android:layout_width="match_parent"
+                    android:inputType="number"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/quantityHint"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_unit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Spinner
+                    android:id="@+id/input_unit"
+                    android:prompt="@string/unitSpinnerPrompt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                </Spinner>
+
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_energy_per_serving"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/input_layout_quantity">
+            android:layout_below="@+id/quantity_unit_layout">
 
             <EditText
                 android:id="@+id/input_energy_per_serving"

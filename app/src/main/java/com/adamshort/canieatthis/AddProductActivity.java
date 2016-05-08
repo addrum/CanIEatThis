@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ public class AddProductActivity extends Activity {
     private String barcodeText;
     private String productNameText;
     private String quantityText;
+    private String unitText;
     private String energyPerServingText;
     private String ingredientsText;
     private String tracesText;
@@ -66,9 +69,13 @@ public class AddProductActivity extends Activity {
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
 
-        if(productNameTextView.requestFocus()) {
+        if(productNameTextView.requestFocus() && !barcodeNumberTextView.getText().equals("")) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+
+        final Spinner unitSpinner = (Spinner) findViewById(R.id.input_unit);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.unitValues, android.R.layout.simple_spinner_dropdown_item);
+        unitSpinner.setAdapter(adapter);
 
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
@@ -148,6 +155,7 @@ public class AddProductActivity extends Activity {
                 barcodeText = barcodeNumberTextView.getText().toString();
                 productNameText = productNameTextView.getText().toString();
                 quantityText = quantityTextView.getText().toString();
+                unitText = unitSpinner.getSelectedItem().toString();
                 energyPerServingText = energyPerServingTextView.getText().toString();
                 ingredientsText = ingredientsTextView.getText().toString();
                 tracesText = tracesTextView.getText().toString();
@@ -205,7 +213,7 @@ public class AddProductActivity extends Activity {
 
                 try {
                     productNameText = URLEncoder.encode(productNameText, "UTF-8");
-                    quantityText = URLEncoder.encode(quantityText, "UTF-8");
+                    quantityText = URLEncoder.encode(quantityText + unitText, "UTF-8");
                     energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
                     ingredients = URLEncoder.encode(ingredients, "UTF-8");
                     tracesText = URLEncoder.encode(tracesText, "UTF-8");

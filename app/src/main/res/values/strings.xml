@@ -29,4 +29,5 @@
     <string name="tracesHint">Traces (e.g. Nuts, Wheat, Milk)</string>
     <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find its information</string>
     <string name="searchViewQueryHint">Search for an ingredient</string>
+    <string name="unitSpinnerPrompt">Unit</string>
 </resources>
