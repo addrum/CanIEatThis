@@ -85,26 +85,62 @@
 
         </LinearLayout>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_energy_per_serving"
-            android:layout_width="fill_parent"
+        <TextView
+            android:id="@+id/energyLabel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/quantity_unit_layout">
+            android:layout_below="@+id/quantity_unit_layout"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/energyLabelText"/>
 
-            <EditText
-                android:id="@+id/input_energy_per_serving"
+        <LinearLayout
+            android:id="@+id/energy_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/energyLabel"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="-15dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_energy_per_serving"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/energyPerServingHint"
-                android:inputType="number"/>
+                android:layout_weight="1">
 
-        </android.support.design.widget.TextInputLayout>
+                <EditText
+                    android:id="@+id/input_energy_per_serving"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/energyPerServingHint"
+                    android:inputType="number"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_energy_per_100g"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <EditText
+                    android:id="@+id/input_energy_per_100g"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/energyPer100gHint"
+                    android:inputType="number"/>
+
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_ingredients"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/input_layout_energy_per_serving">
+            android:layout_below="@+id/energy_layout">
 
             <EditText
                 android:id="@+id/input_ingredients"

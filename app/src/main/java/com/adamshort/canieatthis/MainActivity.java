@@ -320,9 +320,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                this.startActivity(intent);
+                this.startActivity(new Intent(this, SettingsActivity.class));
                 break;
+            case R.id.action_about:
+                this.startActivity(new Intent(this, AboutActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }
