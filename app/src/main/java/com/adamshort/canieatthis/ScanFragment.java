@@ -28,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 public class ScanFragment extends Fragment {
 
@@ -114,8 +115,8 @@ public class ScanFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
 
-        Firebase.setAndroidContext(getActivity().getBaseContext());
         Firebase.getDefaultConfig().setPersistenceEnabled(true);
+        Firebase.setAndroidContext(getActivity().getBaseContext());
 
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
@@ -198,7 +199,12 @@ public class ScanFragment extends Fragment {
             if (DEBUG) {
 //                GetBarcodeInformation("5000168183732");
 //                GetBarcodeInformation("7622210307668");
-                GetBarcodeInformation("5000168001142");
+//                GetBarcodeInformation("5000168001142");
+//                GetBarcodeInformation("5051140367282");
+                // Muller Corner Choco Digestives
+//                GetBarcodeInformation("4025500165574");
+                // Jammie Dodgers
+                GetBarcodeInformation("072417143700");
 //                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
@@ -438,7 +444,7 @@ public class ScanFragment extends Fragment {
         }
 
         @Override
-        protected String doInBackground(JSONObject...params) {
+        protected String doInBackground(JSONObject... params) {
             Log.d("ProcessResponse", "Product: " + params[0]);
             final JSONObject response = params[0];
             Firebase ref = new Firebase(getString(R.string.firebase_url));
@@ -457,22 +463,51 @@ public class ScanFragment extends Fragment {
                             List<String> editedTraces = IngredientsList.StringToList(traces);
                             editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
-                            boolean dairy_free = false;
-                            boolean vegetarian = false;
-                            boolean vegan = false;
-                            boolean gluten_free = false;
+                            boolean dairy_free = true;
+                            boolean daiFalse = false;
+                            boolean vegetarian = true;
+                            boolean vegFalse = false;
+                            boolean vegan = true;
+                            boolean veganFalse = false;
+                            boolean gluten_free = true;
+                            boolean glutFalse = false;
 
                             if (editedIngredients.size() > 0 && !editedIngredients.get(0).equals("")) {
                                 for (String resIngredient : editedIngredients) {
                                     String lowerResIngredient = resIngredient.toLowerCase();
                                     for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
-                                        Ingredient ingredient = ingredientSnapshot.getValue(Ingredient.class);
+                                        @SuppressWarnings("unchecked")
+                                        Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
                                         String name = ingredientSnapshot.getKey().toLowerCase();
                                         if (name.contains(lowerResIngredient) || lowerResIngredient.contains(name)) {
-                                            dairy_free = ingredient.getDairyFree();
-                                            vegetarian = ingredient.getVegetarian();
-                                            vegan = ingredient.getVegan();
-                                            gluten_free = ingredient.getGlutenFree();
+                                            if (!daiFalse) {
+                                                boolean dai = (Boolean) ing.get("dairy_free");
+                                                if (!dai) {
+                                                    dairy_free = false;
+                                                    daiFalse = true;
+                                                }
+                                            }
+                                            if (!vegFalse) {
+                                                boolean veg = (Boolean) ing.get("vegetarian");
+                                                if (!veg) {
+                                                    vegetarian = false;
+                                                    vegFalse = true;
+                                                }
+                                            }
+                                            if (!veganFalse) {
+                                                boolean veg = (Boolean) ing.get("vegan");
+                                                if (!veg) {
+                                                    vegan = false;
+                                                    veganFalse = true;
+                                                }
+                                            }
+                                            if (!glutFalse) {
+                                                boolean glu = (Boolean) ing.get("gluten_free");
+                                                if (!glu) {
+                                                    gluten_free = false;
+                                                    glutFalse = true;
+                                                }
+                                            }
                                             Log.d("onDataChange", name + " " + dairy_free + " " + vegetarian +
                                                     " " + vegan + " " + gluten_free);
                                         }
@@ -483,21 +518,33 @@ public class ScanFragment extends Fragment {
                             if (editedTraces.size() > 0 && !editedTraces.get(0).equals("")) {
                                 if (!editedTraces.get(0).equals("")) {
                                     for (String trace : editedTraces) {
-                                        boolean d = dataQuerier.IsDairyFree(trace);
-                                        if (!d) {
-                                            dairy_free = false;
+                                        if (!daiFalse) {
+                                            boolean d = dataQuerier.IsDairyFree(trace);
+                                            if (!d) {
+                                                dairy_free = false;
+                                                daiFalse = true;
+                                            }
                                         }
-                                        boolean v = dataQuerier.IsVegan(trace);
-                                        if (!v) {
-                                            vegan = false;
+                                        if (!veganFalse) {
+                                            boolean v = dataQuerier.IsVegan(trace);
+                                            if (!v) {
+                                                vegan = false;
+                                                veganFalse = true;
+                                            }
                                         }
-                                        boolean ve = dataQuerier.IsVegetarian(trace);
-                                        if (!ve) {
-                                            vegetarian = false;
+                                        if (!vegFalse) {
+                                            boolean ve = dataQuerier.IsVegetarian(trace);
+                                            if (!ve) {
+                                                vegetarian = false;
+                                                veganFalse = true;
+                                            }
                                         }
-                                        boolean g = dataQuerier.IsGlutenFree(trace);
-                                        if (!g) {
-                                            gluten_free = false;
+                                        if (glutFalse) {
+                                            boolean g = dataQuerier.IsGlutenFree(trace);
+                                            if (!g) {
+                                                gluten_free = false;
+                                                glutFalse = true;
+                                            }
                                         }
                                     }
                                 }
