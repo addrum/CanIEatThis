@@ -30,12 +30,14 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
         this.delegate = delegate;
     }
 
+    @Override
     protected void onPreExecute() {
         if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
     }
 
+    @Override
     protected String doInBackground(String... urls) {
         try {
             URL url = new URL(urls[0]);

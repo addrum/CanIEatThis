@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,6 +18,11 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -108,6 +114,9 @@ public class ScanFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
 
+        Firebase.setAndroidContext(getActivity().getBaseContext());
+        Firebase.getDefaultConfig().setPersistenceEnabled(true);
+
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
         introTextView = (TextView) view.findViewById(R.id.introTextView);
@@ -187,10 +196,12 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                GetBarcodeInformation("7622210307668");
+//                GetBarcodeInformation("5000168183732");
+//                GetBarcodeInformation("7622210307668");
+                GetBarcodeInformation("5000168001142");
 //                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
             } else {
-            startActivityForResult(intent, 0);
+                startActivityForResult(intent, 0);
             }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
@@ -256,31 +267,41 @@ public class ScanFragment extends Fragment {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 
-                GetBarcodeInformation(contents);
-                barcode = contents;
+                if (!barcode.equals(contents)) {
+                    GetBarcodeInformation(contents);
+                    barcode = contents;
+                }
             }
         }
     }
 
     public void GetBarcodeInformation(String barcode) {
-        if (((MainActivity) getActivity()).hasInternetConnection()) {
-            RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
-                @Override
-                public void processFinish(String output) {
-                    JSONObject product = dataQuerier.ParseIntoJSON(output);
-                    ProcessResponse(product);
-                }
-            });
-            rh.execute(BASE_URL + barcode + EXTENSION);
-        } else {
-            CSVReader csvReader = new CSVReader(getActivity().getBaseContext(), progressBar, new CSVReader.AsyncResponse() {
-                @Override
-                public void processFinish(JSONObject output) {
-                    ProcessResponse(output);
-                }
-            });
-            csvReader.execute(barcode);
+        if (!ScanFragment.barcode.equals(barcode)) {
+            if (((MainActivity) getActivity()).hasInternetConnection()) {
+                RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
+                    @Override
+                    public void processFinish(String output) {
+                        JSONObject product = dataQuerier.ParseIntoJSON(output);
+//                    ProcessResponse(product);
+                        ProcessResponseFirebase(product);
+                    }
+                });
+                rh.execute(BASE_URL + barcode + EXTENSION);
+            } else {
+                CSVReader csvReader = new CSVReader(getActivity().getBaseContext(), progressBar, new CSVReader.AsyncResponse() {
+                    @Override
+                    public void processFinish(JSONObject output) {
+                        ProcessResponse(output);
+                    }
+                });
+                csvReader.execute(barcode);
+            }
         }
+    }
+
+    public void ProcessResponseFirebase(JSONObject product) {
+        FirebaseAsyncRequest fbar = new FirebaseAsyncRequest();
+        fbar.execute(product);
     }
 
     public void ProcessResponse(JSONObject product) {
@@ -408,5 +429,116 @@ public class ScanFragment extends Fragment {
     public void SetTracesResponseTextBox(String response) {
         tracesResponseView.setText(response);
         tracesResponseView.setVisibility(View.VISIBLE);
+    }
+
+    private class FirebaseAsyncRequest extends AsyncTask<JSONObject, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(JSONObject...params) {
+            Log.d("ProcessResponse", "Product: " + params[0]);
+            final JSONObject response = params[0];
+            Firebase ref = new Firebase(getString(R.string.firebase_url));
+            ref.keepSynced(true);
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    try {
+                        if (response != null) {
+                            String item = response.getString("product_name");
+                            String ingredients = response.getString("ingredients_text");
+                            String traces = response.getString("traces");
+
+                            List<String> editedIngredients = IngredientsList.StringToList(ingredients);
+                            editedIngredients = IngredientsList.RemoveUnwantedCharacters(editedIngredients, "[_]|\\s+$\"", "");
+                            List<String> editedTraces = IngredientsList.StringToList(traces);
+                            editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
+
+                            boolean dairy_free = false;
+                            boolean vegetarian = false;
+                            boolean vegan = false;
+                            boolean gluten_free = false;
+
+                            if (editedIngredients.size() > 0 && !editedIngredients.get(0).equals("")) {
+                                for (String resIngredient : editedIngredients) {
+                                    String lowerResIngredient = resIngredient.toLowerCase();
+                                    for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
+                                        Ingredient ingredient = ingredientSnapshot.getValue(Ingredient.class);
+                                        String name = ingredientSnapshot.getKey().toLowerCase();
+                                        if (name.contains(lowerResIngredient) || lowerResIngredient.contains(name)) {
+                                            dairy_free = ingredient.getDairyFree();
+                                            vegetarian = ingredient.getVegetarian();
+                                            vegan = ingredient.getVegan();
+                                            gluten_free = ingredient.getGlutenFree();
+                                            Log.d("onDataChange", name + " " + dairy_free + " " + vegetarian +
+                                                    " " + vegan + " " + gluten_free);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (editedTraces.size() > 0 && !editedTraces.get(0).equals("")) {
+                                if (!editedTraces.get(0).equals("")) {
+                                    for (String trace : editedTraces) {
+                                        boolean d = dataQuerier.IsDairyFree(trace);
+                                        if (!d) {
+                                            dairy_free = false;
+                                        }
+                                        boolean v = dataQuerier.IsVegan(trace);
+                                        if (!v) {
+                                            vegan = false;
+                                        }
+                                        boolean ve = dataQuerier.IsVegetarian(trace);
+                                        if (!ve) {
+                                            vegetarian = false;
+                                        }
+                                        boolean g = dataQuerier.IsGlutenFree(trace);
+                                        if (!g) {
+                                            gluten_free = false;
+                                        }
+                                    }
+                                }
+                            }
+
+                            SetItemTitleText(item);
+                            if (item.equals("")) {
+                                SetItemTitleText("Product name not found");
+                            }
+                            SetDietarySwitches(dairy_free, vegetarian, vegan, gluten_free);
+                            SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
+                            SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
+
+                            SetSwitchesVisibility(View.VISIBLE);
+                            introTextView.setVisibility(View.INVISIBLE);
+                            SetResponseItemsVisibility(View.VISIBLE);
+
+                            if (editedIngredients.size() < 1 || editedIngredients.get(0).equals("")) {
+                                SetIngredientsResponseTextBox("No ingredients found");
+                            }
+                            if (editedTraces.size() < 1 || editedTraces.get(0).equals("")) {
+                                SetTracesResponseTextBox("No traces found");
+                            }
+                        } else {
+                            showDialog(getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
+                        }
+                    } catch (JSONException e) {
+                        Log.e("ProcessResponse", "Issue ParseIntoJSON(response)");
+                    }
+                }
+
+                @Override
+                public void onCancelled(FirebaseError error) {
+                }
+            });
+            return "Successful firebase request";
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 }
