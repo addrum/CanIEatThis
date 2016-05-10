@@ -1,8 +1,10 @@
 package com.adamshort.canieatthis;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,7 +14,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,11 +30,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
@@ -100,11 +110,20 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         });
 
         googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater(getArguments())));
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Intent intent = new Intent(getActivity().getBaseContext(), AddPlacesInfo.class);
+                intent.putExtra("name", marker.getTitle());
+                intent.putExtra("latlng", marker.getPosition().toString());
+                startActivity(intent);
+            }
+        });
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        final GoogleMap mMap = googleMap;
-        mMap.clear();
+        googleMap.clear();
         if (checkForPermission()) {
             if (connected) {
                 getUserLatLng();
@@ -154,7 +173,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
                             marker.snippet(snippetText);
                             marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-                            mMap.addMarker(marker);
+
+                            FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
+                            fb.execute(marker);
+
                             Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
                         }
                     } catch (JSONException e) {
@@ -277,6 +299,79 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             checkForPermission();
+        }
+    }
+
+    private class FirebaseAsyncRequest extends AsyncTask<MarkerOptions, Void, String> {
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected String doInBackground(MarkerOptions... params) {
+            final MarkerOptions marker = params[0];
+            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/places");
+            ref.keepSynced(true);
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    LatLng markeyLatLng = marker.getPosition();
+                    String snippet = marker.getSnippet();
+                    for (DataSnapshot location : snapshot.getChildren()) {
+                        // Firebase doesn't allow . in key's so had to submit as ,
+                        // so now we need to replace it so we can get it back to latlng
+                        String[] key = location.getKey().replace(",", ".").split(" ");
+                        LatLng locLatLng = null;
+                        try {
+                            locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
+                        } catch (NumberFormatException e) {
+                            Log.e("onDataChange", e.toString());
+                        }
+
+                        if (locLatLng != null) {
+                            if (markeyLatLng.equals(locLatLng)) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, Object> loc = (Map<String, Object>) location.getValue();
+                                snippet += ",Dairy Free: ";
+                                if ((boolean) loc.get("dairy_free")) {
+                                    snippet += "Yes";
+                                } else {
+                                    snippet += "No";
+                                }
+                                snippet += ",Vegetarian: ";
+                                if ((boolean) loc.get("vegetarian")) {
+                                    snippet += "Yes";
+                                } else {
+                                    snippet += "No";
+                                }
+                                snippet += ",Vegan: ";
+                                if ((boolean) loc.get("vegan")) {
+                                    snippet += "Yes";
+                                } else {
+                                    snippet += "No";
+                                }
+                                snippet += ",Gluten Free: ";
+                                if ((boolean) loc.get("gluten_free")) {
+                                    snippet += "Yes";
+                                } else {
+                                    snippet += "No";
+                                }
+                            }
+                        }
+                    }
+                    marker.snippet(snippet);
+                    mMap.addMarker(marker);
+                }
+
+                @Override
+                public void onCancelled(FirebaseError error) {
+                }
+            });
+            return "Successful firebase request";
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
         }
     }
 }

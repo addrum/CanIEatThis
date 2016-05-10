@@ -40,6 +40,7 @@
             <Switch
                 android:id="@+id/vegetarianSwitch"
                 android:layout_marginEnd="20dp"
+                android:theme="@style/Switch"
                 android:layout_marginStart="10dp"
                 android:checked="false"
                 android:text="@string/vegetarianSwitchText"/>
@@ -162,7 +163,7 @@
             android:layout_gravity="center"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="#00a400"
+            android:background="@color/colorButton"
             android:text="@string/bottomButtonText"
             android:textColor="#ffffff"
             android:textSize="18sp"/>

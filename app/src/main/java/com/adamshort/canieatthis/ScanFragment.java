@@ -115,9 +115,6 @@ public class ScanFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
 
-        Firebase.getDefaultConfig().setPersistenceEnabled(true);
-        Firebase.setAndroidContext(getActivity().getBaseContext());
-
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
         introTextView = (TextView) view.findViewById(R.id.introTextView);
@@ -437,6 +434,128 @@ public class ScanFragment extends Fragment {
         tracesResponseView.setVisibility(View.VISIBLE);
     }
 
+    private void queryData(DataSnapshot snapshot, JSONObject response) {
+        try {
+            String item = response.getString("product_name");
+            String ingredients = response.getString("ingredients_text");
+            String traces = response.getString("traces");
+
+            List<String> editedIngredients = IngredientsList.StringToList(ingredients);
+            editedIngredients = IngredientsList.RemoveUnwantedCharacters(editedIngredients, "[_]|\\s+$\"", "");
+            List<String> editedTraces = IngredientsList.StringToList(traces);
+            editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
+
+            boolean dairy_free = true;
+            boolean daiFalse = false;
+            boolean vegetarian = true;
+            boolean vegFalse = false;
+            boolean vegan = true;
+            boolean veganFalse = false;
+            boolean gluten_free = true;
+            boolean glutFalse = false;
+
+            if (editedIngredients.size() > 0 && !editedIngredients.get(0).equals("")) {
+                for (String resIngredient : editedIngredients) {
+                    String lowerResIngredient = resIngredient.toLowerCase();
+                    for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
+                        String name = ingredientSnapshot.getKey().toLowerCase();
+                        if (name.contains(lowerResIngredient) || lowerResIngredient.contains(name)) {
+                            if (!daiFalse) {
+                                boolean dai = (Boolean) ing.get("dairy_free");
+                                if (!dai) {
+                                    dairy_free = false;
+                                    daiFalse = true;
+                                }
+                            }
+                            if (!vegFalse) {
+                                boolean veg = (Boolean) ing.get("vegetarian");
+                                if (!veg) {
+                                    vegetarian = false;
+                                    vegFalse = true;
+                                }
+                            }
+                            if (!veganFalse) {
+                                boolean veg = (Boolean) ing.get("vegan");
+                                if (!veg) {
+                                    vegan = false;
+                                    veganFalse = true;
+                                }
+                            }
+                            if (!glutFalse) {
+                                boolean glu = (Boolean) ing.get("gluten_free");
+                                if (!glu) {
+                                    gluten_free = false;
+                                    glutFalse = true;
+                                }
+                            }
+                            Log.d("onDataChange", name + " " + dairy_free + " " + vegetarian +
+                                    " " + vegan + " " + gluten_free);
+                        }
+                    }
+                }
+            }
+
+            if (editedTraces.size() > 0 && !editedTraces.get(0).equals("")) {
+                if (!editedTraces.get(0).equals("")) {
+                    for (String trace : editedTraces) {
+                        if (!daiFalse) {
+                            boolean d = dataQuerier.IsDairyFree(trace);
+                            if (!d) {
+                                dairy_free = false;
+                                daiFalse = true;
+                            }
+                        }
+                        if (!veganFalse) {
+                            boolean v = dataQuerier.IsVegan(trace);
+                            if (!v) {
+                                vegan = false;
+                                veganFalse = true;
+                            }
+                        }
+                        if (!vegFalse) {
+                            boolean ve = dataQuerier.IsVegetarian(trace);
+                            if (!ve) {
+                                vegetarian = false;
+                                veganFalse = true;
+                            }
+                        }
+                        if (glutFalse) {
+                            boolean g = dataQuerier.IsGlutenFree(trace);
+                            if (!g) {
+                                gluten_free = false;
+                                glutFalse = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            SetItemTitleText(item);
+            if (item.equals("")) {
+                SetItemTitleText("Product name not found");
+            }
+            SetDietarySwitches(dairy_free, vegetarian, vegan, gluten_free);
+            SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
+            SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
+
+            SetSwitchesVisibility(View.VISIBLE);
+            introTextView.setVisibility(View.INVISIBLE);
+            SetResponseItemsVisibility(View.VISIBLE);
+
+            if (editedIngredients.size() < 1 || editedIngredients.get(0).equals("")) {
+                SetIngredientsResponseTextBox("No ingredients found");
+            }
+            if (editedTraces.size() < 1 || editedTraces.get(0).equals("")) {
+                SetTracesResponseTextBox("No traces found");
+            }
+
+        } catch (JSONException e) {
+            Log.e("ProcessResponse", "Issue ParseIntoJSON(response)");
+        }
+    }
+
     private class FirebaseAsyncRequest extends AsyncTask<JSONObject, Void, String> {
         @Override
         protected void onPreExecute() {
@@ -447,132 +566,15 @@ public class ScanFragment extends Fragment {
         protected String doInBackground(JSONObject... params) {
             Log.d("ProcessResponse", "Product: " + params[0]);
             final JSONObject response = params[0];
-            Firebase ref = new Firebase(getString(R.string.firebase_url));
+            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
             ref.keepSynced(true);
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    try {
-                        if (response != null) {
-                            String item = response.getString("product_name");
-                            String ingredients = response.getString("ingredients_text");
-                            String traces = response.getString("traces");
-
-                            List<String> editedIngredients = IngredientsList.StringToList(ingredients);
-                            editedIngredients = IngredientsList.RemoveUnwantedCharacters(editedIngredients, "[_]|\\s+$\"", "");
-                            List<String> editedTraces = IngredientsList.StringToList(traces);
-                            editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
-
-                            boolean dairy_free = true;
-                            boolean daiFalse = false;
-                            boolean vegetarian = true;
-                            boolean vegFalse = false;
-                            boolean vegan = true;
-                            boolean veganFalse = false;
-                            boolean gluten_free = true;
-                            boolean glutFalse = false;
-
-                            if (editedIngredients.size() > 0 && !editedIngredients.get(0).equals("")) {
-                                for (String resIngredient : editedIngredients) {
-                                    String lowerResIngredient = resIngredient.toLowerCase();
-                                    for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
-                                        @SuppressWarnings("unchecked")
-                                        Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
-                                        String name = ingredientSnapshot.getKey().toLowerCase();
-                                        if (name.contains(lowerResIngredient) || lowerResIngredient.contains(name)) {
-                                            if (!daiFalse) {
-                                                boolean dai = (Boolean) ing.get("dairy_free");
-                                                if (!dai) {
-                                                    dairy_free = false;
-                                                    daiFalse = true;
-                                                }
-                                            }
-                                            if (!vegFalse) {
-                                                boolean veg = (Boolean) ing.get("vegetarian");
-                                                if (!veg) {
-                                                    vegetarian = false;
-                                                    vegFalse = true;
-                                                }
-                                            }
-                                            if (!veganFalse) {
-                                                boolean veg = (Boolean) ing.get("vegan");
-                                                if (!veg) {
-                                                    vegan = false;
-                                                    veganFalse = true;
-                                                }
-                                            }
-                                            if (!glutFalse) {
-                                                boolean glu = (Boolean) ing.get("gluten_free");
-                                                if (!glu) {
-                                                    gluten_free = false;
-                                                    glutFalse = true;
-                                                }
-                                            }
-                                            Log.d("onDataChange", name + " " + dairy_free + " " + vegetarian +
-                                                    " " + vegan + " " + gluten_free);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (editedTraces.size() > 0 && !editedTraces.get(0).equals("")) {
-                                if (!editedTraces.get(0).equals("")) {
-                                    for (String trace : editedTraces) {
-                                        if (!daiFalse) {
-                                            boolean d = dataQuerier.IsDairyFree(trace);
-                                            if (!d) {
-                                                dairy_free = false;
-                                                daiFalse = true;
-                                            }
-                                        }
-                                        if (!veganFalse) {
-                                            boolean v = dataQuerier.IsVegan(trace);
-                                            if (!v) {
-                                                vegan = false;
-                                                veganFalse = true;
-                                            }
-                                        }
-                                        if (!vegFalse) {
-                                            boolean ve = dataQuerier.IsVegetarian(trace);
-                                            if (!ve) {
-                                                vegetarian = false;
-                                                veganFalse = true;
-                                            }
-                                        }
-                                        if (glutFalse) {
-                                            boolean g = dataQuerier.IsGlutenFree(trace);
-                                            if (!g) {
-                                                gluten_free = false;
-                                                glutFalse = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            SetItemTitleText(item);
-                            if (item.equals("")) {
-                                SetItemTitleText("Product name not found");
-                            }
-                            SetDietarySwitches(dairy_free, vegetarian, vegan, gluten_free);
-                            SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
-                            SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
-
-                            SetSwitchesVisibility(View.VISIBLE);
-                            introTextView.setVisibility(View.INVISIBLE);
-                            SetResponseItemsVisibility(View.VISIBLE);
-
-                            if (editedIngredients.size() < 1 || editedIngredients.get(0).equals("")) {
-                                SetIngredientsResponseTextBox("No ingredients found");
-                            }
-                            if (editedTraces.size() < 1 || editedTraces.get(0).equals("")) {
-                                SetTracesResponseTextBox("No traces found");
-                            }
-                        } else {
-                            showDialog(getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
-                        }
-                    } catch (JSONException e) {
-                        Log.e("ProcessResponse", "Issue ParseIntoJSON(response)");
+                    if (response != null) {
+                        queryData(snapshot, response);
+                    } else {
+                        showDialog(getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
                     }
                 }
 

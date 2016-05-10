@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="2.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            xmlns:tools="http://schemas.android.com/tools"
             android:orientation="vertical"
             tools:context="com.adamshort.canieatthis.AddProductActivity">
 
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/energyLabel"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="-15dp"
+            android:layout_marginTop="0dp"
             android:baselineAligned="false"
             android:orientation="horizontal">
 
@@ -177,10 +177,11 @@
 
             <Button
                 android:id="@+id/product_submit_button"
-                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/productSubmitButtonText"/>
+                android:background="@color/colorButton"
+                android:text="@string/productSubmitButtonText"
+                android:textColor="#ffffff"/>
         </LinearLayout>
 
         <RelativeLayout

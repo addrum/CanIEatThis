@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -53,6 +55,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (!Firebase.getDefaultConfig().isPersistenceEnabled()) {
+            Firebase.getDefaultConfig().setPersistenceEnabled(true);
+        }
+        Firebase.setAndroidContext(getBaseContext());
+
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
         placesFragment = new PlacesFragment();
@@ -63,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
         FragmentHandler fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(fragmentHandler);
 
-        position = 0;
+        Intent intent = getIntent();
+        position = intent.getIntExtra("position", 0);
+        viewPager.setCurrentItem(position);
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

@@ -49,7 +49,11 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".AboutActivity"
+        <activity
+            android:name=".AboutActivity"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".AddPlacesInfo"
             android:screenOrientation="portrait">
         </activity>
     </application>

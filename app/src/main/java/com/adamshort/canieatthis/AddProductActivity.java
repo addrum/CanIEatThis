@@ -1,8 +1,8 @@
 package com.adamshort.canieatthis;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddProductActivity extends Activity {
+public class AddProductActivity extends AppCompatActivity {
 
     public static boolean DEBUG;
 
@@ -75,7 +75,9 @@ public class AddProductActivity extends Activity {
 
         final Spinner unitSpinner = (Spinner) findViewById(R.id.input_unit);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.unitValues, android.R.layout.simple_spinner_dropdown_item);
-        unitSpinner.setAdapter(adapter);
+        if (unitSpinner != null) {
+            unitSpinner.setAdapter(adapter);
+        }
 
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
@@ -149,105 +151,109 @@ public class AddProductActivity extends Activity {
             }
         });
 
-        submitProductButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                barcodeText = barcodeNumberTextView.getText().toString();
-                productNameText = productNameTextView.getText().toString();
-                quantityText = quantityTextView.getText().toString();
-                unitText = unitSpinner.getSelectedItem().toString();
-                energyPerServingText = energyPerServingTextView.getText().toString();
-                ingredientsText = ingredientsTextView.getText().toString();
-                tracesText = tracesTextView.getText().toString();
-
-                List<TextView> required = new ArrayList<>();
-                required.add(barcodeNumberTextView);
-                required.add(productNameTextView);
-                required.add(ingredientsTextView);
-
-                boolean wereErrors = false;
-
-                for (TextView req : required) {
-                    if (req.getText().toString().isEmpty()) {
-                        SetErrorHints(req);
-                        wereErrors = true;
+        if (submitProductButton != null) {
+            submitProductButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    barcodeText = barcodeNumberTextView.getText().toString();
+                    productNameText = productNameTextView.getText().toString();
+                    quantityText = quantityTextView.getText().toString();
+                    if (unitSpinner != null) {
+                        unitText = unitSpinner.getSelectedItem().toString();
                     }
-                }
+                    energyPerServingText = energyPerServingTextView.getText().toString();
+                    ingredientsText = ingredientsTextView.getText().toString();
+                    tracesText = tracesTextView.getText().toString();
 
-                if (wereErrors && !DEBUG) return;
+                    List<TextView> required = new ArrayList<>();
+                    required.add(barcodeNumberTextView);
+                    required.add(productNameTextView);
+                    required.add(ingredientsTextView);
 
-                List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
+                    boolean wereErrors = false;
 
-                // Set values for passing back to scan fragment
-                itemTitle = productNameText;
-                writtenIngredients = editedIngredients;
-                writtenTraces = IngredientsList.StringToList(tracesText);
-
-                List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
-
-                for (int i = 0; i < editedIngredients.size(); i++) {
-                    String ing = editedIngredients.get(i).toLowerCase();
-                    for (int j = 0; j < traces.size(); j++) {
-                        if (ing.contains(traces.get(j))) {
-                            editedIngredients.set(i, WordUtils.capitalize(ing.replace(traces.get(j), "_" + traces.get(j) + "_")));
+                    for (TextView req : required) {
+                        if (req.getText().toString().isEmpty()) {
+                            SetErrorHints(req);
+                            wereErrors = true;
                         }
                     }
-                }
 
-                String ingredients = IngredientsList.ListToString(editedIngredients);
+                    if (wereErrors && !DEBUG) return;
 
-//                if (DEBUG) {
-//                    barcodeText = "072417136160";
-//                    productNameText = "Maryland Choc Chip";
-//                    itemTitle = productNameText;
-//                    quantityText = "230g";
-//                    energyPerServingText = "450";
-//                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-//                    writtenIngredients = IngredientsList.StringToList(ingredients);
-//                    tracesText = "Milk, Soya, Nuts, Wheat";
-//                    writtenTraces = IngredientsList.StringToList(tracesText);
-//                }
+                    List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
 
-                String user_id = getString(R.string.open_food_facts_username);
-                String password = getString(R.string.open_food_facts_password);
+                    // Set values for passing back to scan fragment
+                    itemTitle = productNameText;
+                    writtenIngredients = editedIngredients;
+                    writtenTraces = IngredientsList.StringToList(tracesText);
 
-                try {
-                    productNameText = URLEncoder.encode(productNameText, "UTF-8");
-                    if (!quantityText.equals("")) {
-                        quantityText = quantityText + unitText;
+                    List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
+
+                    for (int i = 0; i < editedIngredients.size(); i++) {
+                        String ing = editedIngredients.get(i).toLowerCase();
+                        for (int j = 0; j < traces.size(); j++) {
+                            if (ing.contains(traces.get(j))) {
+                                editedIngredients.set(i, WordUtils.capitalize(ing.replace(traces.get(j), "_" + traces.get(j) + "_")));
+                            }
+                        }
                     }
-                    quantityText = URLEncoder.encode(quantityText, "UTF-8");
-                    energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
-                    ingredients = URLEncoder.encode(ingredients, "UTF-8");
-                    tracesText = URLEncoder.encode(tracesText, "UTF-8");
-                    user_id = URLEncoder.encode(user_id, "UTF-8");
-                    password = URLEncoder.encode(password, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    Log.e("ERROR", "Couldn't encode params properly");
-                    e.printStackTrace();
+
+                    String ingredients = IngredientsList.ListToString(editedIngredients);
+
+    //                if (DEBUG) {
+    //                    barcodeText = "072417136160";
+    //                    productNameText = "Maryland Choc Chip";
+    //                    itemTitle = productNameText;
+    //                    quantityText = "230g";
+    //                    energyPerServingText = "450";
+    //                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+    //                    writtenIngredients = IngredientsList.StringToList(ingredients);
+    //                    tracesText = "Milk, Soya, Nuts, Wheat";
+    //                    writtenTraces = IngredientsList.StringToList(tracesText);
+    //                }
+
+                    String user_id = getString(R.string.open_food_facts_username);
+                    String password = getString(R.string.open_food_facts_password);
+
+                    try {
+                        productNameText = URLEncoder.encode(productNameText, "UTF-8");
+                        if (!quantityText.equals("")) {
+                            quantityText = quantityText + unitText;
+                        }
+                        quantityText = URLEncoder.encode(quantityText, "UTF-8");
+                        energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
+                        ingredients = URLEncoder.encode(ingredients, "UTF-8");
+                        tracesText = URLEncoder.encode(tracesText, "UTF-8");
+                        user_id = URLEncoder.encode(user_id, "UTF-8");
+                        password = URLEncoder.encode(password, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e("ERROR", "Couldn't encode params properly");
+                        e.printStackTrace();
+                    }
+
+                    productNameText = productNameText.replace("+", "%20");
+                    ingredients = ingredients.replace("+", "%20");
+                    ingredients = ingredients.replace("_", "%5F");
+
+                    String params = "user_id=" + user_id +
+                            "&password=" + password +
+                            "&code=" + barcodeText + "&product_name=" + productNameText +
+                            "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText +
+                            "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
+                            "&ingredients_text=" + ingredients + "&traces=" + tracesText;
+
+                    try {
+                        String url = BASE_URL + params;
+                        Log.d("onCreate", "Url to execute at is: " + url);
+                        rh.execute(url);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 }
-
-                productNameText = productNameText.replace("+", "%20");
-                ingredients = ingredients.replace("+", "%20");
-                ingredients = ingredients.replace("_", "%5F");
-
-                String params = "user_id=" + user_id +
-                        "&password=" + password +
-                        "&code=" + barcodeText + "&product_name=" + productNameText +
-                        "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText +
-                        "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
-                        "&ingredients_text=" + ingredients + "&traces=" + tracesText;
-
-                try {
-                    String url = BASE_URL + params;
-                    Log.d("onCreate", "Url to execute at is: " + url);
-                    rh.execute(url);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
+            });
+        }
     }
 
     private void SetErrorHints(TextView tv) {

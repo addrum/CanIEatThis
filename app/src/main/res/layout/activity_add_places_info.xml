@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.adamshort.canieatthis.AddPlacesInfo">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:id="@+id/name_view"/>
+
+    <TableLayout
+        android:id="@+id/switchesTableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_below="@+id/name_view"
+        android:stretchColumns="0,1">
+
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <CheckBox
+                android:id="@+id/dairyFreeCheckBox"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="20dp"
+                android:checked="false"
+                android:text="@string/dairySwitchText"/>
+
+            <CheckBox
+                android:id="@+id/vegetarianCheckBox"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="10dp"
+                android:checked="false"
+                android:text="@string/vegetarianSwitchText"/>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <CheckBox
+                android:id="@+id/veganCheckBox"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="20dp"
+                android:checked="false"
+                android:text="@string/veganSwitchText"/>
+
+            <CheckBox
+                android:id="@+id/glutenFreeCheckBox"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="10dp"
+                android:checked="false"
+                android:text="@string/glutenFreeSwitchText"/>
+
+        </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:id="@+id/submit_button_linear_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/switchesTableLayout"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/place_submit_button"
+            android:background="@color/colorButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="@string/productSubmitButtonText"/>
+    </LinearLayout>
+
+</RelativeLayout>
