@@ -98,6 +98,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 return false;
             }
         });
+
+        googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater(getArguments())));
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
@@ -131,20 +133,29 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             MarkerOptions marker = new MarkerOptions().position(latlng)
                                     .title(name);
 
+                            String snippetText = "";
                             try {
                                 boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
                                 if (openNow) {
-                                    marker.snippet("Open Now: Yes");
+                                    snippetText += "Open Now: Yes";
                                 } else {
-                                    marker.snippet("Open Now: No");
+                                    snippetText += "Open Now: No";
                                 }
                             } catch (JSONException e) {
                                 Log.e("processFinish", "No value for opening_hours or open_now");
                             }
 
+                            try {
+                                String rating = location.getString("rating");
+                                snippetText += ",Rating: " + rating;
+                            } catch (JSONException e) {
+                                Log.e("processFinish", "No value for rating");
+                            }
+
+                            marker.snippet(snippetText);
                             marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                             mMap.addMarker(marker);
-                            Log.d("DEBUG", "lat " + lat + " lng " + lng);
+                            Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -228,6 +239,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mMapView != null) {
             mMapView.onPause();
         }
+        if (mMap != null) {
+            mMap.clear();
+        }
         mapReady = false;
     }
 
@@ -236,6 +250,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onDestroy();
         if (mMapView != null) {
             mMapView.onDestroy();
+        }
+        if (mMap != null) {
+            mMap.clear();
         }
         connected = false;
         mapReady = false;
