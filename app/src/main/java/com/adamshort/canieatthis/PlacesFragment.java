@@ -93,11 +93,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                LatLng old = new LatLng(lat, lng);
-                LatLng current = getUserLatLng();
-                if (old != current) {
-                    createNearbyMarkers(googleMap);
-                }
+                getUserLatLng();
+                createNearbyMarkers(googleMap);
                 return false;
             }
         });
@@ -105,6 +102,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private void createNearbyMarkers(GoogleMap googleMap) {
         final GoogleMap mMap = googleMap;
+        mMap.clear();
         if (checkForPermission()) {
             if (connected) {
                 getUserLatLng();
