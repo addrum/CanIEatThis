@@ -35,15 +35,16 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="20dp"
                 android:checked="false"
-                android:text="@string/dairySwitchText"/>
+                android:text="@string/dairySwitchText"
+                android:theme="@style/Switch"/>
 
             <Switch
                 android:id="@+id/vegetarianSwitch"
                 android:layout_marginEnd="20dp"
-                android:theme="@style/Switch"
                 android:layout_marginStart="10dp"
                 android:checked="false"
-                android:text="@string/vegetarianSwitchText"/>
+                android:text="@string/vegetarianSwitchText"
+                android:theme="@style/Switch"/>
 
         </TableRow>
 
@@ -56,14 +57,16 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="20dp"
                 android:checked="false"
-                android:text="@string/veganSwitchText"/>
+                android:text="@string/veganSwitchText"
+                android:theme="@style/Switch"/>
 
             <Switch
                 android:id="@+id/glutenFreeSwitch"
                 android:layout_marginEnd="20dp"
                 android:layout_marginStart="10dp"
                 android:checked="false"
-                android:text="@string/glutenFreeSwitchText"/>
+                android:text="@string/glutenFreeSwitchText"
+                android:theme="@style/Switch"/>
 
         </TableRow>
     </TableLayout>
