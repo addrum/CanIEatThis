@@ -11,17 +11,20 @@
     tools:context="com.adamshort.canieatthis.AddPlacesInfo">
 
     <TextView
+        android:id="@+id/name_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:id="@+id/name_view"/>
+        android:gravity="center"
+        android:textSize="40sp"
+        android:textStyle="bold"/>
 
     <TableLayout
         android:id="@+id/switchesTableLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         android:layout_below="@+id/name_view"
+        android:layout_margin="10dp"
         android:stretchColumns="0,1">
 
         <TableRow
@@ -70,17 +73,17 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/switchesTableLayout"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:orientation="vertical">
 
         <Button
             android:id="@+id/place_submit_button"
-            android:background="@color/colorButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:text="@string/productSubmitButtonText"/>
+            android:background="@color/colorButton"
+            android:text="@string/productSubmitButtonText"
+            android:textColor="#ffffff"/>
     </LinearLayout>
 
 </RelativeLayout>

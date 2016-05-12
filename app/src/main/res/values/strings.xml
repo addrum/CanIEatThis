@@ -33,4 +33,6 @@
     <string name="energyPer100gHint">Per 100g/ml (kj)</string>
     <string name="energyLabelText">Energy</string>
     <string name="action_about">About</string>
+    <string name="infoWindowProvideInfoText">Have you been here?\nClick here to provide information!</string>
+    <string name="ratingLabel">Rating:</string>
 </resources>

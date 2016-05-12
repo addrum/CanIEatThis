@@ -2,8 +2,8 @@ package com.adamshort.canieatthis;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,10 +16,6 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +45,6 @@ public class AddPlacesInfo extends AppCompatActivity {
         final CheckBox vegan_checkbox = (CheckBox) findViewById(R.id.veganCheckBox);
         final CheckBox gluten_free_checkbox = (CheckBox) findViewById(R.id.glutenFreeCheckBox);
 
-
         Button submit = (Button) findViewById(R.id.place_submit_button);
         if (submit != null) {
             submit.setOnClickListener(new View.OnClickListener() {
@@ -65,10 +60,6 @@ public class AddPlacesInfo extends AppCompatActivity {
 
                             FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
                             fb.execute(values);
-
-                            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                            intent.putExtra("position", 1);
-                            startActivity(intent);
                         }
                     } catch (Exception e) {
                         Log.e("onClick", e.toString());
@@ -78,8 +69,8 @@ public class AddPlacesInfo extends AppCompatActivity {
         }
     }
 
-    private Map<String, Boolean> setLocationMap(boolean[] data) {
-        Map<String, Boolean> values = new HashMap<>();
+    private Map<String, Object> setLocationMap(boolean[] data) {
+        Map<String, Object> values = new HashMap<>();
         values.put("dairy_free", data[0]);
         values.put("vegetarian", data[1]);
         values.put("vegan", data[2]);
@@ -100,38 +91,34 @@ public class AddPlacesInfo extends AppCompatActivity {
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    boolean submitted = false;
                     for (DataSnapshot location : snapshot.getChildren()) {
-                        if (!submitted) {
-                            // Firebase doesn't allow . in key's so had to submit as ,
-                            // so now we need to replace it so we can get it back to latlng
-                            String[] key = location.getKey().replace(",", ".").split(" ");
-                            LatLng locLatLng = null;
-                            try {
-                                locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
-                            } catch (NumberFormatException e) {
-                                Log.e("onDataChange", e.toString());
-                            }
+                        // Firebase doesn't allow . in key's so had to submit as ,
+                        // so now we need to replace it so we can get it back to latlng
+                        String[] key = location.getKey().replace(",", ".").split(" ");
+                        LatLng locLatLng = null;
+                        try {
+                            locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
+                        } catch (NumberFormatException e) {
+                            Log.e("onDataChange", e.toString());
+                        }
 
+                        if (locLatLng != null) {
                             if (latLng.equals(locLatLng)) {
                                 try {
                                     ref.child(location.getKey()).setValue(setLocationMap(data));
                                     Log.d("onDataChange", "Submitted new info");
-                                    submitted = true;
-                                } catch (ArrayIndexOutOfBoundsException e) {
-                                    Log.e("onDataChange", e.toString());
+                                } catch (ArrayIndexOutOfBoundsException | NullPointerException | ClassCastException e) {
+                                    Log.d("onDataChange", "Submitted new info");
                                 }
+                                return;
                             }
                         }
                     }
-                    if (!submitted) {
-                        try {
-
-                            ref.child((latLng.latitude + " " + latLng.longitude)
-                                    .replace(".", ",")).setValue(setLocationMap(data));
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            Log.e("onDataChange", e.toString());
-                        }
+                    try {
+                        ref.child((latLng.latitude + " " + latLng.longitude)
+                                .replace(".", ",")).setValue(setLocationMap(data));
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        Log.e("onDataChange", e.toString());
                     }
                 }
 
@@ -155,6 +142,9 @@ public class AddPlacesInfo extends AppCompatActivity {
                 return;
             }
             Toast.makeText(getBaseContext(), "Places data submitted successfully", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+            intent.putExtra("position", 1);
+            startActivity(intent);
         }
     }
 }

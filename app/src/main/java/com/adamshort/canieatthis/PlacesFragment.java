@@ -3,6 +3,7 @@ package com.adamshort.canieatthis;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -117,6 +119,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 intent.putExtra("name", marker.getTitle());
                 intent.putExtra("latlng", marker.getPosition().toString());
                 startActivity(intent);
+            }
+        });
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
             }
         });
     }
@@ -251,6 +260,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         connected = true;
         if (mapReady && mMap != null) {
             moveCamera(mMap, getUserLatLng());
+            createNearbyMarkers(mMap);
         }
     }
 
@@ -322,7 +332,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    LatLng markeyLatLng = marker.getPosition();
+                    LatLng markerLatLng = marker.getPosition();
                     String snippet = marker.getSnippet();
                     for (DataSnapshot location : snapshot.getChildren()) {
                         // Firebase doesn't allow . in key's so had to submit as ,
@@ -336,32 +346,36 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         }
 
                         if (locLatLng != null) {
-                            if (markeyLatLng.equals(locLatLng)) {
+                            if (markerLatLng.equals(locLatLng)) {
                                 @SuppressWarnings("unchecked")
                                 Map<String, Object> loc = (Map<String, Object>) location.getValue();
-                                snippet += ",Dairy Free: ";
-                                if ((boolean) loc.get("dairy_free")) {
-                                    snippet += "Yes";
-                                } else {
-                                    snippet += "No";
-                                }
-                                snippet += ",Vegetarian: ";
-                                if ((boolean) loc.get("vegetarian")) {
-                                    snippet += "Yes";
-                                } else {
-                                    snippet += "No";
-                                }
-                                snippet += ",Vegan: ";
-                                if ((boolean) loc.get("vegan")) {
-                                    snippet += "Yes";
-                                } else {
-                                    snippet += "No";
-                                }
-                                snippet += ",Gluten Free: ";
-                                if ((boolean) loc.get("gluten_free")) {
-                                    snippet += "Yes";
-                                } else {
-                                    snippet += "No";
+                                try {
+                                    snippet += ",Dairy Free: ";
+                                    if ((boolean) loc.get("dairy_free")) {
+                                        snippet += "Yes";
+                                    } else {
+                                        snippet += "No";
+                                    }
+                                    snippet += ",Vegetarian: ";
+                                    if ((boolean) loc.get("vegetarian")) {
+                                        snippet += "Yes";
+                                    } else {
+                                        snippet += "No";
+                                    }
+                                    snippet += ",Vegan: ";
+                                    if ((boolean) loc.get("vegan")) {
+                                        snippet += "Yes";
+                                    } else {
+                                        snippet += "No";
+                                    }
+                                    snippet += ",Gluten Free: ";
+                                    if ((boolean) loc.get("gluten_free")) {
+                                        snippet += "Yes";
+                                    } else {
+                                        snippet += "No";
+                                    }
+                                } catch (Exception e) {
+                                    Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
                                 }
                             }
                         }
