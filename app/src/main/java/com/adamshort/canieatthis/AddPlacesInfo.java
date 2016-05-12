@@ -78,6 +78,15 @@ public class AddPlacesInfo extends AppCompatActivity {
         }
     }
 
+    private Map<String, Boolean> setLocationMap(boolean[] data) {
+        Map<String, Boolean> values = new HashMap<>();
+        values.put("dairy_free", data[0]);
+        values.put("vegetarian", data[1]);
+        values.put("vegan", data[2]);
+        values.put("gluten_free", data[3]);
+        return values;
+    }
+
     private class FirebaseAsyncRequest extends AsyncTask<boolean[], Void, String> {
         @Override
         protected void onPreExecute() {
@@ -106,12 +115,7 @@ public class AddPlacesInfo extends AppCompatActivity {
 
                             if (latLng.equals(locLatLng)) {
                                 try {
-                                    Map<String, Boolean> values = new HashMap<>();
-                                    values.put("dairy_free", data[0]);
-                                    values.put("vegetarian", data[1]);
-                                    values.put("vegan", data[2]);
-                                    values.put("gluten_free", data[3]);
-                                    ref.child(location.getKey()).setValue(values);
+                                    ref.child(location.getKey()).setValue(setLocationMap(data));
                                     Log.d("onDataChange", "Submitted new info");
                                     submitted = true;
                                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -122,12 +126,9 @@ public class AddPlacesInfo extends AppCompatActivity {
                     }
                     if (!submitted) {
                         try {
-                            Map<String, Boolean> values = new HashMap<>();
-                            values.put("dairy_free", data[0]);
-                            values.put("vegetarian", data[1]);
-                            values.put("vegan", data[2]);
-                            values.put("gluten_free", data[3]);
-                            ref.child((latLng.latitude + " " + latLng.longitude).replace(".", ",")).setValue(values);
+
+                            ref.child((latLng.latitude + " " + latLng.longitude)
+                                    .replace(".", ",")).setValue(setLocationMap(data));
                         } catch (ArrayIndexOutOfBoundsException e) {
                             Log.e("onDataChange", e.toString());
                         }

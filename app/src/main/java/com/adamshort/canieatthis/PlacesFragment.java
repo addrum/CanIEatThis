@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -142,42 +141,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
                         for (int i = 0; i < results.length(); i++) {
                             JSONObject location = results.getJSONObject(i);
-                            String name = location.getString("name");
-
-                            JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
-                            double lat = geometry.getDouble("lat");
-                            double lng = geometry.getDouble("lng");
-
-                            LatLng latlng = new LatLng(lat, lng);
-                            MarkerOptions marker = new MarkerOptions().position(latlng)
-                                    .title(name);
-
-                            String snippetText = "";
-                            try {
-                                boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
-                                if (openNow) {
-                                    snippetText += "Open Now: Yes";
-                                } else {
-                                    snippetText += "Open Now: No";
-                                }
-                            } catch (JSONException e) {
-                                Log.e("processFinish", "No value for opening_hours or open_now");
-                            }
-
-                            try {
-                                String rating = location.getString("rating");
-                                snippetText += ",Rating: " + rating;
-                            } catch (JSONException e) {
-                                Log.e("processFinish", "No value for rating");
-                            }
-
-                            marker.snippet(snippetText);
-                            marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-
-                            FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
-                            fb.execute(marker);
-
-                            Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
+                            createMarker(location);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -187,6 +151,49 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             rh.execute(placesUrl);
         } else {
             Log.d("createNearbyMarkers", "LatLng was null so won't make places request");
+        }
+    }
+
+    private void createMarker(JSONObject location) {
+        try {
+            String name = location.getString("name");
+
+            JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
+            double lat = geometry.getDouble("lat");
+            double lng = geometry.getDouble("lng");
+
+            LatLng latlng = new LatLng(lat, lng);
+            MarkerOptions marker = new MarkerOptions().position(latlng)
+                    .title(name);
+
+            String snippetText = "";
+            try {
+                boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
+                if (openNow) {
+                    snippetText += "Open Now: Yes";
+                } else {
+                    snippetText += "Open Now: No";
+                }
+            } catch (JSONException e) {
+                Log.e("processFinish", "No value for opening_hours or open_now");
+            }
+
+            try {
+                String rating = location.getString("rating");
+                snippetText += ",Rating: " + rating;
+            } catch (JSONException e) {
+                Log.e("processFinish", "No value for rating");
+            }
+
+            marker.snippet(snippetText);
+            marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+            FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
+            fb.execute(marker);
+
+            Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
+        } catch (JSONException e) {
+            Log.e("createMarker", e.toString());
         }
     }
 

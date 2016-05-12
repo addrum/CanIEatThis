@@ -127,22 +127,7 @@ public class AddProductActivity extends AppCompatActivity {
                     }
                 }
 
-                DataPasser.getInstance().setQuery(itemTitle);
-
-                DataPasser.getInstance().setDairy(dairy);
-                DataPasser.getInstance().setVegetarian(vegetarian);
-                DataPasser.getInstance().setVegan(vegan);
-                DataPasser.getInstance().setGluten(gluten);
-
-                DataPasser.getInstance().setSwitchesVisible(true);
-                DataPasser.getInstance().setItemVisible(true);
-                DataPasser.getInstance().setIntroVisible(false);
-                DataPasser.getInstance().setResponseVisible(true);
-
-                DataPasser.getInstance().setFromSearch(false);
-
-                DataPasser.getInstance().setIngredients(IngredientsList.ListToString(writtenIngredients));
-                DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
+                setDataPasser(dairy, vegetarian, vegan, gluten);
 
                 Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
 
@@ -190,16 +175,7 @@ public class AddProductActivity extends AppCompatActivity {
 
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
-                    for (int i = 0; i < editedIngredients.size(); i++) {
-                        String ing = editedIngredients.get(i).toLowerCase();
-                        for (int j = 0; j < traces.size(); j++) {
-                            if (ing.contains(traces.get(j))) {
-                                editedIngredients.set(i, WordUtils.capitalize(ing.replace(traces.get(j), "_" + traces.get(j) + "_")));
-                            }
-                        }
-                    }
-
-                    String ingredients = IngredientsList.ListToString(editedIngredients);
+                    String ingredients = IngredientsList.ListToString(compareTwoLists(editedIngredients, traces));
 
     //                if (DEBUG) {
     //                    barcodeText = "072417136160";
@@ -254,6 +230,37 @@ public class AddProductActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private List<String> compareTwoLists(List<String> list1, List<String> list2) {
+        for (int i = 0; i < list1.size(); i++) {
+            String ing = list1.get(i).toLowerCase();
+            for (int j = 0; j < list2.size(); j++) {
+                if (ing.contains(list2.get(j))) {
+                    list1.set(i, WordUtils.capitalize(ing.replace(list2.get(j), "_" + list2.get(j) + "_")));
+                }
+            }
+        }
+        return list1;
+    }
+
+    private void setDataPasser(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
+        DataPasser.getInstance().setQuery(itemTitle);
+
+        DataPasser.getInstance().setDairy(dairy);
+        DataPasser.getInstance().setVegetarian(vegetarian);
+        DataPasser.getInstance().setVegan(vegan);
+        DataPasser.getInstance().setGluten(gluten);
+
+        DataPasser.getInstance().setSwitchesVisible(true);
+        DataPasser.getInstance().setItemVisible(true);
+        DataPasser.getInstance().setIntroVisible(false);
+        DataPasser.getInstance().setResponseVisible(true);
+
+        DataPasser.getInstance().setFromSearch(false);
+
+        DataPasser.getInstance().setIngredients(IngredientsList.ListToString(writtenIngredients));
+        DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
     }
 
     private void SetErrorHints(TextView tv) {
