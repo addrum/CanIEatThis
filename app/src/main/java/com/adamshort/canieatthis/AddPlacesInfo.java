@@ -218,55 +218,7 @@ public class AddPlacesInfo extends AppCompatActivity {
             String gluten = partial + "/gluten_free/";
             fRef = new Firebase(gluten + Boolean.toString(data[3]));
             doFirebaseTransaction(fRef);
-//            final Firebase ref = new Firebase(getString(R.string.firebase_url) + "/places");
-//            ref.keepSynced(true);
-//            ref.addValueEventListener(new ValueEventListener() {
-//                @SuppressWarnings("unchecked")
-//                @Override
-//                public void onDataChange(DataSnapshot snapshot) {
-//                    for (DataSnapshot location : snapshot.getChildren()) {
-//                        // Firebase doesn't allow . in key's so had to submit as ,
-//                        // so now we need to replace it so we can get it back to latlng
-//                        String[] key = location.getKey().replace(",", ".").split(" ");
-//                        LatLng locLatLng = null;
-//                        try {
-//                            locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
-//                        } catch (NumberFormatException e) {
-//                            Log.e("onDataChange", e.toString());
-//                        }
-//
-//                        if (locLatLng != null) {
-//                            if (latLng.equals(locLatLng)) {
-//                                try {
-//                                    ref.child(location.getKey()).setValue(setLocationMap(data,
-//                                            (Map<String, Map<String, Object>>) location.getValue()));
-//                                    Log.d("onDataChange", "Submitted new info");
-//                                } catch (ArrayIndexOutOfBoundsException | NullPointerException | ClassCastException e) {
-//                                    Log.d("onDataChange", "Submitted new info");
-//                                }
-//                                return;
-//                            }
-//                        }
-//                    }
-//                    try {
-//                        ref.child((latLng.latitude + " " + latLng.longitude)
-//                                .replace(".", ",")).setValue(setNewLocationMap(data));
-//                    } catch (ArrayIndexOutOfBoundsException e) {
-//                        Log.e("onDataChange", e.toString());
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(FirebaseError error) {
-//                }
-//            });
-
-//            try {
-//                ref.child(key).setValue(setLocationMap(data, (Map<String, Map<String, Object>>) key.getValue()));
-//                Log.d("onDataChange", "Submitted new info");
-//            } catch (ArrayIndexOutOfBoundsException | NullPointerException | ClassCastException e) {
-//                Log.d("onDataChange", "Submitted new info");
-//            }
+            
             return "Successful firebase request";
         }
 
