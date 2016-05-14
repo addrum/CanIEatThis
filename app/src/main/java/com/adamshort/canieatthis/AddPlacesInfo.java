@@ -71,101 +71,6 @@ public class AddPlacesInfo extends AppCompatActivity {
         }
     }
 
-    private Map<String, Map<String, Object>> setLocationMap(boolean[] data, Map<String, Map<String, Object>> snapshot) {
-        try {
-            Map<String, Object> lactose = snapshot.get("lactose_free");
-            if (data[0]) {
-                long lactose_true = (long) lactose.get("true") + 1;
-                lactose.put("true", lactose_true);
-            } else {
-                long lactose_false = (long) lactose.get("false") + 1;
-                lactose.put("false", lactose_false);
-            }
-
-            Map<String, Object> vegetarian = snapshot.get("vegetarian");
-            if (data[1]) {
-                long vegetarian_true = (long) vegetarian.get("true") + 1;
-                vegetarian.put("true", vegetarian_true);
-            } else {
-                long vegetarian_false = (long) vegetarian.get("false") + 1;
-                vegetarian.put("false", vegetarian_false);
-            }
-
-            Map<String, Object> vegan = snapshot.get("vegan");
-            if (data[2]) {
-                long vegan_true = (long) vegan.get("true") + 1;
-                vegan.put("true", vegan_true);
-            } else {
-                long vegan_false = (long) vegan.get("false") + 1;
-                vegan.put("false", vegan_false);
-            }
-
-            Map<String, Object> gluten = snapshot.get("gluten_free");
-            if (data[3]) {
-                long gluten_true = (long) gluten.get("true") + 1;
-                gluten.put("true", gluten_true);
-            } else {
-                long gluten_false = (long) gluten.get("false") + 1;
-                gluten.put("false", gluten_false);
-            }
-        } catch (Exception e) {
-            Log.e("setLocationMap", e.toString());
-        }
-
-        return snapshot;
-    }
-
-    private Map<String, Map<String, Object>> setNewLocationMap(boolean[] data) {
-        Map<String, Map<String, Object>> newLocation = new HashMap<>();
-
-        try {
-            Map<String, Object> lactose = new HashMap<>();
-            if (data[0]) {
-                lactose.put("true", (long) 1);
-                lactose.put("false", (long) 0);
-            } else {
-                lactose.put("true", (long) 0);
-                lactose.put("false", (long) 1);
-            }
-            newLocation.put("lactose_free", lactose);
-
-            Map<String, Object> vegetarian = new HashMap<>();
-            if (data[1]) {
-                vegetarian.put("true", (long) 1);
-                vegetarian.put("false", (long) 0);
-            } else {
-                vegetarian.put("true", (long) 0);
-                vegetarian.put("false", (long) 1);
-            }
-            newLocation.put("vegetarian", vegetarian);
-
-            Map<String, Object> vegan = new HashMap<>();
-            if (data[2]) {
-                vegan.put("true", (long) 1);
-                vegan.put("false", (long) 0);
-            } else {
-                vegan.put("true", (long) 0);
-                vegan.put("false", (long) 1);
-            }
-            newLocation.put("vegan", vegan);
-
-            Map<String, Object> gluten = new HashMap<>();
-            if (data[3]) {
-                gluten.put("true", (long) 1);
-                gluten.put("false", (long) 0);
-            } else {
-                gluten.put("true", (long) 0);
-                gluten.put("false", (long) 1);
-            }
-            newLocation.put("gluten_free", gluten);
-        } catch (Exception e) {
-            Log.e("setLocationMap", e.toString());
-        }
-
-        Log.d("setNewLocationMap", newLocation.toString());
-        return newLocation;
-    }
-
     private void doFirebaseTransaction(Firebase ref) {
         if (ref != null) {
             ref.runTransaction(new Transaction.Handler() {
@@ -218,7 +123,7 @@ public class AddPlacesInfo extends AppCompatActivity {
             String gluten = partial + "/gluten_free/";
             fRef = new Firebase(gluten + Boolean.toString(data[3]));
             doFirebaseTransaction(fRef);
-            
+
             return "Successful firebase request";
         }
 
