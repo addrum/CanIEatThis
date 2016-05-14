@@ -3,7 +3,6 @@ package com.adamshort.canieatthis;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -319,6 +317,43 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    private boolean shouldShowInfo(double true_value, double false_value) {
+        double ratio = 1;
+        if (true_value > 0 && false_value > 0) {
+            if (true_value < false_value) {
+                ratio = true_value / false_value;
+            } else {
+                ratio = false_value / true_value;
+            }
+        } else if (!(true_value == 0 && false_value == 0)) {
+            if (true_value == 0) {
+                if (ratio < false_value) {
+                    ratio /= false_value;
+                } else {
+                    false_value /= ratio;
+                }
+            } else {
+                if (ratio < true_value) {
+                    ratio /= true_value;
+                } else {
+                    true_value /= ratio;
+                }
+            }
+        }
+        Log.d("shouldShowInfo", "ratio: " + ratio);
+        return ratio < 0.2 && (true_value > 5 || false_value > 5);
+    }
+
+    private long getKeyValue(Map<String, Object> dietary, String key) {
+        long value = 0;
+        try {
+            value = (long) dietary.get(key);
+        } catch (Exception e) {
+            Log.e("getKeyValue", "Issue getting " + key + "from dietary requirement");
+        }
+        return value;
+    }
+
     private class FirebaseAsyncRequest extends AsyncTask<MarkerOptions, Void, String> {
         @Override
         protected void onPreExecute() {
@@ -330,6 +365,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             Firebase ref = new Firebase(getString(R.string.firebase_url) + "/places");
             ref.keepSynced(true);
             ref.addValueEventListener(new ValueEventListener() {
+                @SuppressWarnings("unchecked")
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     LatLng markerLatLng = marker.getPosition();
@@ -347,32 +383,55 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
                         if (locLatLng != null) {
                             if (markerLatLng.equals(locLatLng)) {
-                                @SuppressWarnings("unchecked")
-                                Map<String, Object> loc = (Map<String, Object>) location.getValue();
+                                Map<String, Map<String, Object>> loc = (Map<String, Map<String, Object>>) location.getValue();
+                                Log.d("onDataChange", loc.toString());
                                 try {
-                                    snippet += ",Dairy Free: ";
-                                    if ((boolean) loc.get("dairy_free")) {
-                                        snippet += "Yes";
-                                    } else {
-                                        snippet += "No";
+                                    Map<String, Object> lactose = loc.get("lactose_free");
+                                    long lactose_true = getKeyValue(lactose, "true");
+                                    long lactose_false = getKeyValue(lactose, "false");
+                                    if (shouldShowInfo(lactose_true, lactose_false)) {
+                                        snippet += ",Lactose Free: ";
+                                        if (lactose_true > lactose_false) {
+                                            snippet += "Yes";
+                                        } else {
+                                            snippet += "No";
+                                        }
                                     }
-                                    snippet += ",Vegetarian: ";
-                                    if ((boolean) loc.get("vegetarian")) {
-                                        snippet += "Yes";
-                                    } else {
-                                        snippet += "No";
+
+                                    Map<String, Object> vegetarian = loc.get("vegetarian");
+                                    long vegetarian_true = getKeyValue(vegetarian, "true");
+                                    long vegetarian_false = getKeyValue(vegetarian, "false");
+                                    if (shouldShowInfo(vegetarian_true, vegetarian_false)) {
+                                        snippet += ",Vegetarian: ";
+                                        if (vegetarian_true > vegetarian_false) {
+                                            snippet += "Yes";
+                                        } else {
+                                            snippet += "No";
+                                        }
                                     }
-                                    snippet += ",Vegan: ";
-                                    if ((boolean) loc.get("vegan")) {
-                                        snippet += "Yes";
-                                    } else {
-                                        snippet += "No";
+
+                                    Map<String, Object> vegan = loc.get("vegan");
+                                    long vegan_true = getKeyValue(vegan, "true");
+                                    long vegan_false = getKeyValue(vegan, "false");
+                                    if (shouldShowInfo(vegan_true, vegan_false)) {
+                                        snippet += ",Vegan: ";
+                                        if (vegan_true > vegan_false) {
+                                            snippet += "Yes";
+                                        } else {
+                                            snippet += "No";
+                                        }
                                     }
-                                    snippet += ",Gluten Free: ";
-                                    if ((boolean) loc.get("gluten_free")) {
-                                        snippet += "Yes";
-                                    } else {
-                                        snippet += "No";
+
+                                    Map<String, Object> gluten = loc.get("gluten_free");
+                                    long gluten_true = getKeyValue(gluten, "true");
+                                    long gluten_false = getKeyValue(gluten, "false");
+                                    if (shouldShowInfo(gluten_true, gluten_false)) {
+                                        snippet += ",Gluten Free: ";
+                                        if (gluten_true > gluten_false) {
+                                            snippet += "Yes";
+                                        } else {
+                                            snippet += "No";
+                                        }
                                     }
                                 } catch (Exception e) {
                                     Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
