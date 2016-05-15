@@ -23,10 +23,17 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -144,6 +151,7 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
+                // Digestivees
 //                GetBarcodeInformation("5000168183732");
 //                GetBarcodeInformation("7622210307668");
 //                GetBarcodeInformation("5000168001142");
@@ -151,8 +159,9 @@ public class ScanFragment extends Fragment {
                 // Muller Corner Choco Digestives
 //                GetBarcodeInformation("4025500165574");
                 // Jammie Dodgers
-                GetBarcodeInformation("072417143700");
-//                startActivity(new Intent(getActivity().getBaseContext(), AddProductActivity.class));
+//                GetBarcodeInformation("072417143700");
+                GetBarcodeInformation("790310020");
+//                startActivity(new Intent(getContext(), AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
             }
@@ -229,25 +238,83 @@ public class ScanFragment extends Fragment {
     }
 
     public void GetBarcodeInformation(String barcode) {
+        // 2nd param is output length, 3rd param is padding char
+        barcode = StringUtils.leftPad(barcode, 13, "0");
         if (!ScanFragment.barcode.equals(barcode)) {
             if (((MainActivity) getActivity()).hasInternetConnection()) {
-                RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
+                RequestHandler rh = new RequestHandler(getContext(), progressBar, new RequestHandler.AsyncResponse() {
                     @Override
                     public void processFinish(String output) {
                         JSONObject product = dataQuerier.ParseIntoJSON(output);
-//                    ProcessResponse(product);
                         ProcessResponseFirebase(product);
                     }
                 });
                 rh.execute(BASE_URL + barcode + EXTENSION);
             } else {
-                CSVReader csvReader = new CSVReader(getActivity().getBaseContext(), progressBar, new CSVReader.AsyncResponse() {
-                    @Override
-                    public void processFinish(JSONObject output) {
-                        ProcessResponse(output);
+
+                File products = null;
+                try {
+                    products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
+                } catch (NullPointerException e) {
+                    Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
+                }
+                try {
+                    if (products != null) {
+                        CsvParserSettings settings = new CsvParserSettings();
+                        settings.getFormat().setDelimiter('\t');
+                        settings.setMaxCharsPerColumn(10000);
+                        // limits to barcode, name, ingredients and traces
+                        settings.selectIndexes(0, 7, 34, 35);
+
+                        CsvParser parser = new CsvParser(settings);
+
+                        // call beginParsing to read records one by one, iterator-style.
+                        parser.beginParsing(new FileReader(products));
+
+                        String[] info = null;
+                        String[] row;
+                        while ((row = parser.parseNext()) != null) {
+                            if (StringUtils.leftPad(row[0], 13, "0").equals(barcode)) {
+                                info = row;
+                                parser.stopParsing();
+                            }
+                        }
+                        if (info != null) {
+                            Log.d("getBarcodeInformation", Arrays.toString(info));
+                            JSONObject product = new JSONObject();
+                            try {
+                                int length = info.length;
+                                if (length > 0 && info[0] != null) {
+                                    product.put("barcode", info[0]);
+                                } else {
+                                    product.put("barcode", "");
+                                }
+                                if (length > 1 && info[1] != null) {
+                                    product.put("product_name", info[1]);
+                                } else {
+                                    product.put("product_name", "");
+                                }
+                                if (length > 2 && info[2] != null) {
+                                    product.put("ingredients_text", info[2]);
+                                } else {
+                                    product.put("ingredients_text", "");
+                                }
+                                if (length > 3 && info[3] != null) {
+                                    product.put("traces", info[3]);
+                                } else {
+                                    product.put("traces", "");
+                                }
+                            } catch (JSONException e) {
+                                Log.e("getBarcodeInformation", "Couldn't create jsonobject: " + e.toString());
+                            }
+                            ProcessResponse(product);
+                        } else {
+                            ProcessResponse(null);
+                        }
                     }
-                });
-                csvReader.execute(barcode);
+                } catch (FileNotFoundException e) {
+                    Log.e("getBarcodeInformation", "Couldn't find file: " + e.toString());
+                }
             }
         }
     }
@@ -418,7 +485,8 @@ public class ScanFragment extends Fragment {
         itemTextView.setVisibility(View.VISIBLE);
     }
 
-    public void SetDietarySwitches(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
+    public void SetDietarySwitches(boolean dairy, boolean vegetarian, boolean vegan,
+                                   boolean gluten) {
         dairyFreeSwitch.setChecked(dairy);
         vegetarianSwitch.setChecked(vegetarian);
         veganSwitch.setChecked(vegan);

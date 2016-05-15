@@ -29,4 +29,5 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.github.medyo:android-about-page:1.0.7'
     compile 'com.firebase:firebase-client-android:2.5.2'
+    compile files('libs/univocity-parsers-2.1.1.jar')
 }

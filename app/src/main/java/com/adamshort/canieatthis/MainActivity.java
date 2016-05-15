@@ -356,10 +356,10 @@ public class MainActivity extends AppCompatActivity {
         createBroadcastCompleteReceiver();
         long current = System.currentTimeMillis();
         Timestamp cur = new Timestamp(current);
-//        if (timeForUpdatePrompt(cur)) {
+        if (timeForUpdatePrompt(cur)) {
             Log.d("onResume", "Time for update prompt was true");
             showDownloadPrompt();
-//        }
+        }
     }
 
     @Override
