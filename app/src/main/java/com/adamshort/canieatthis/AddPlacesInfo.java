@@ -50,7 +50,7 @@ public class AddPlacesInfo extends AppCompatActivity {
             nameView.setText(name);
         }
 
-        final CheckBox dairy_free_checkbox = (CheckBox) findViewById(R.id.dairyFreeCheckBox);
+        final CheckBox dairy_free_checkbox = (CheckBox) findViewById(R.id.lactoseFreeCheckBox);
         final CheckBox vegetarian_checkbox = (CheckBox) findViewById(R.id.vegetarianCheckBox);
         final CheckBox vegan_checkbox = (CheckBox) findViewById(R.id.veganCheckBox);
         final CheckBox gluten_free_checkbox = (CheckBox) findViewById(R.id.glutenFreeCheckBox);
