@@ -31,7 +31,7 @@
             android:layout_marginRight="10dp">
 
             <Switch
-                android:id="@+id/dairyFreeSwitch"
+                android:id="@+id/lactoseFreeSwitch"
                 android:layout_marginEnd="10dp"
                 android:layout_marginStart="20dp"
                 android:checked="false"

@@ -51,7 +51,7 @@ public class ScanFragment extends Fragment {
 
     private boolean resetIntro = false;
 
-    private static Switch dairyFreeSwitch;
+    private static Switch lactoseFreeSwitch;
     private static Switch vegetarianSwitch;
     private static Switch veganSwitch;
     private static Switch glutenFreeSwitch;
@@ -83,12 +83,12 @@ public class ScanFragment extends Fragment {
 
         Button scanButton = (Button) view.findViewById(R.id.scanButton);
 
-        dairyFreeSwitch = (Switch) view.findViewById(R.id.dairyFreeSwitch);
+        lactoseFreeSwitch = (Switch) view.findViewById(R.id.lactoseFreeSwitch);
         vegetarianSwitch = (Switch) view.findViewById(R.id.vegetarianSwitch);
         veganSwitch = (Switch) view.findViewById(R.id.veganSwitch);
         glutenFreeSwitch = (Switch) view.findViewById(R.id.glutenFreeSwitch);
 
-        dairyFreeSwitch.setClickable(false);
+        lactoseFreeSwitch.setClickable(false);
         vegetarianSwitch.setClickable(false);
         veganSwitch.setClickable(false);
         glutenFreeSwitch.setClickable(false);
@@ -338,7 +338,7 @@ public class ScanFragment extends Fragment {
                 List<String> editedTraces = IngredientsList.StringToList(traces);
                 editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
-                boolean dairy = dataQuerier.IsDairyFree(editedIngredients);
+                boolean lactose = dataQuerier.IsLactoseFree(editedIngredients);
                 boolean vegan = dataQuerier.IsVegan(editedIngredients);
                 boolean vegetarian = true;
                 // if something is vegan it is 100% vegetarian
@@ -350,9 +350,9 @@ public class ScanFragment extends Fragment {
                 if (editedTraces.size() > 0) {
                     if (!editedTraces.get(0).equals("")) {
                         for (String trace : editedTraces) {
-                            boolean d = dataQuerier.IsDairyFree(trace);
+                            boolean d = dataQuerier.IsLactoseFree(trace);
                             if (!d) {
-                                dairy = false;
+                                lactose = false;
                             }
                             boolean v = dataQuerier.IsVegan(trace);
                             if (!v) {
@@ -374,7 +374,7 @@ public class ScanFragment extends Fragment {
                 if (item.equals("")) {
                     SetItemTitleText("Product name not found");
                 }
-                SetDietarySwitches(dairy, vegetarian, vegan, gluten);
+                SetDietarySwitches(lactose, vegetarian, vegan, gluten);
                 SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
                 SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
 
@@ -451,8 +451,8 @@ public class ScanFragment extends Fragment {
         if (switchesTableLayout != null) {
             switchesTableLayout.setVisibility(visibility);
         }
-        if (dairyFreeSwitch != null) {
-            dairyFreeSwitch.setVisibility(visibility);
+        if (lactoseFreeSwitch != null) {
+            lactoseFreeSwitch.setVisibility(visibility);
         }
         if (vegetarianSwitch != null) {
             vegetarianSwitch.setVisibility(visibility);
@@ -485,9 +485,9 @@ public class ScanFragment extends Fragment {
         itemTextView.setVisibility(View.VISIBLE);
     }
 
-    public void SetDietarySwitches(boolean dairy, boolean vegetarian, boolean vegan,
+    public void SetDietarySwitches(boolean lactose, boolean vegetarian, boolean vegan,
                                    boolean gluten) {
-        dairyFreeSwitch.setChecked(dairy);
+        lactoseFreeSwitch.setChecked(lactose);
         vegetarianSwitch.setChecked(vegetarian);
         veganSwitch.setChecked(vegan);
         glutenFreeSwitch.setChecked(gluten);
@@ -530,7 +530,7 @@ public class ScanFragment extends Fragment {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
                         String name = ingredientSnapshot.getKey().toLowerCase();
-                        if (name.contains(lowerResIngredient) || lowerResIngredient.contains(name)) {
+                        if (name.equals(lowerResIngredient)) {
                             if (!daiFalse) {
                                 boolean dai = (Boolean) ing.get("lactose_free");
                                 if (!dai) {
@@ -570,7 +570,7 @@ public class ScanFragment extends Fragment {
                 if (!editedTraces.get(0).equals("")) {
                     for (String trace : editedTraces) {
                         if (!daiFalse) {
-                            boolean d = dataQuerier.IsDairyFree(trace);
+                            boolean d = dataQuerier.IsLactoseFree(trace);
                             if (!d) {
                                 lactose_free = false;
                                 daiFalse = true;

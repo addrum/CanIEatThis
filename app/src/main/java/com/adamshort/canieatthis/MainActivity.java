@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
                     // query is the value entered into the search bar
-                    boolean dairy = dataQuerier.IsDairyFree(query);
+                    boolean dairy = dataQuerier.IsLactoseFree(query);
                     boolean vegan = dataQuerier.IsVegan(query);
                     boolean vegetarian = false;
                     // if something is vegan it is 100% vegetarian

@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -99,7 +98,7 @@ public class AddProductActivity extends AppCompatActivity {
 
                 writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
 
-                boolean dairy = dataQuerier.IsDairyFree(writtenIngredients);
+                boolean dairy = dataQuerier.IsLactoseFree(writtenIngredients);
                 boolean vegan = dataQuerier.IsVegan(writtenIngredients);
                 boolean vegetarian = true;
                 // if something is vegan it is 100% vegetarian
@@ -111,7 +110,7 @@ public class AddProductActivity extends AppCompatActivity {
                 if (writtenTraces.size() > 0) {
                     if (!writtenTraces.get(0).equals("")) {
                         for (String trace : writtenTraces) {
-                            boolean d = dataQuerier.IsDairyFree(trace);
+                            boolean d = dataQuerier.IsLactoseFree(trace);
                             if (!d) {
                                 dairy = false;
                             }
