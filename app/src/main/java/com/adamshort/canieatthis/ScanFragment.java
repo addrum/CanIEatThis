@@ -59,55 +59,6 @@ public class ScanFragment extends Fragment {
     private DataPasser dataPasser;
     private DataQuerier dataQuerier;
 
-    public void SetItemsFromDataPasser() {
-        if (!resetIntro) {
-            if (dataPasser == null) dataPasser = DataPasser.getInstance();
-
-            SetDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
-
-            if (dataPasser.areSwitchesVisible()) {
-                SetSwitchesVisibility(View.VISIBLE);
-            } else {
-                SetSwitchesVisibility(View.INVISIBLE);
-            }
-
-            if (itemTextView != null) {
-                itemTextView.setText(dataPasser.getQuery());
-                if (dataPasser.isItemVisible()) {
-                    itemTextView.setVisibility(View.VISIBLE);
-                } else {
-                    itemTextView.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            if (introTextView != null) {
-                if (dataPasser.isIntroVisible()) {
-                    introTextView.setVisibility(View.VISIBLE);
-                } else {
-                    introTextView.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            if (dataPasser.isResponseVisible()) {
-                SetResponseItemsVisibility(View.VISIBLE);
-            } else {
-                SetResponseItemsVisibility(View.INVISIBLE);
-            }
-
-            if (!dataPasser.isFromSearch()) {
-                if (ingredientResponseView != null) {
-                    ingredientResponseView.setText(dataPasser.getIngredients());
-                }
-                if (tracesResponseView != null) {
-                    if (dataPasser.getTraces() != null) {
-                        if (!dataPasser.getTraces().equals("")) {
-                            tracesResponseView.setText(dataPasser.getTraces());
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     @SuppressWarnings("ResourceType")
     @Override
@@ -378,6 +329,57 @@ public class ScanFragment extends Fragment {
             Log.e("ProcessResponse", "Issue ParseIntoJSON(response)");
         }
     }
+
+    public void SetItemsFromDataPasser() {
+        if (!resetIntro) {
+            if (dataPasser == null) dataPasser = DataPasser.getInstance();
+
+            SetDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
+
+            if (dataPasser.areSwitchesVisible()) {
+                SetSwitchesVisibility(View.VISIBLE);
+            } else {
+                SetSwitchesVisibility(View.INVISIBLE);
+            }
+
+            if (itemTextView != null) {
+                itemTextView.setText(dataPasser.getQuery());
+                if (dataPasser.isItemVisible()) {
+                    itemTextView.setVisibility(View.VISIBLE);
+                } else {
+                    itemTextView.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            if (introTextView != null) {
+                if (dataPasser.isIntroVisible()) {
+                    introTextView.setVisibility(View.VISIBLE);
+                } else {
+                    introTextView.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            if (dataPasser.isResponseVisible()) {
+                SetResponseItemsVisibility(View.VISIBLE);
+            } else {
+                SetResponseItemsVisibility(View.INVISIBLE);
+            }
+
+            if (!dataPasser.isFromSearch()) {
+                if (ingredientResponseView != null) {
+                    ingredientResponseView.setText(dataPasser.getIngredients());
+                }
+                if (tracesResponseView != null) {
+                    if (dataPasser.getTraces() != null) {
+                        if (!dataPasser.getTraces().equals("")) {
+                            tracesResponseView.setText(dataPasser.getTraces());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     public void SetSwitchesVisibility(int visibility) {
         if (switchesTableLayout != null) {
