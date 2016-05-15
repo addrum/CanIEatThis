@@ -70,12 +70,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMapView.getMapAsync(this);
 
         try {
-            MapsInitializer.initialize(getActivity().getApplicationContext());
+            MapsInitializer.initialize(getContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getBaseContext())
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .build();
@@ -123,9 +123,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             public void onInfoWindowClick(Marker marker) {
                 try {
                     Installation.id(getContext());
-                    if (!Installation.isInInstallationFile(getActivity().getBaseContext(),
+                    if (!Installation.isInInstallationFile(getContext(),
                             marker.getPosition().toString())) {
-                        Intent intent = new Intent(getActivity().getBaseContext(), AddPlacesInfo.class);
+                        Intent intent = new Intent(getContext(), AddPlacesInfo.class);
                         intent.putExtra("name", marker.getTitle());
                         intent.putExtra("latlng", marker.getPosition().toString());
                         startActivityForResult(intent, FORM_REQUEST_CODE);
@@ -159,7 +159,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
 
-            RequestHandler rh = new RequestHandler(getActivity().getBaseContext(), null, new RequestHandler.AsyncResponse() {
+            RequestHandler rh = new RequestHandler(getContext(), null, new RequestHandler.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
                     try {
@@ -235,7 +235,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private boolean checkForPermission() {
-        if (ContextCompat.checkSelfPermission(getActivity().getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             return true;
         } else {
             Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
