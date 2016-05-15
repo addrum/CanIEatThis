@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -36,6 +38,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
@@ -50,12 +53,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
+    private CoordinatorLayout coordinatorLayout
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // inflat and return the layout
-        View v = inflater.inflate(R.layout.fragment_places, container,
-                false);
+        View v = inflater.inflate(R.layout.fragment_places, container, false);
+
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();// needed to get the map to display immediately
@@ -113,10 +117,21 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                Intent intent = new Intent(getActivity().getBaseContext(), AddPlacesInfo.class);
-                intent.putExtra("name", marker.getTitle());
-                intent.putExtra("latlng", marker.getPosition().toString());
-                startActivity(intent);
+                try {
+                    if (!Installation.isInInstallationFile(getActivity().getBaseContext(),
+                            marker.getPosition().toString())) {
+                        Intent intent = new Intent(getActivity().getBaseContext(), AddPlacesInfo.class);
+                        intent.putExtra("name", marker.getTitle());
+                        intent.putExtra("latlng", marker.getPosition().toString());
+                        startActivity(intent);
+                    } else {
+//                        Snackbar.make(coordinatorLayout, "You have already submitted information about this place"
+//                                , Snackbar.LENGTH_LONG)
+//                                .show();
+                    }
+                } catch (IOException e) {
+                    Log.e("onInfoWindowClick", "issue checking if latlng is in install file: " + e.toString());
+                }
             }
         });
 

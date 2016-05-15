@@ -1,8 +1,11 @@
 package com.adamshort.canieatthis;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +22,7 @@ import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +34,8 @@ public class AddPlacesInfo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_places_info);
+
+        final Context context = getBaseContext();
 
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
@@ -62,6 +68,11 @@ public class AddPlacesInfo extends AppCompatActivity {
 
                             FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
                             fb.execute(values);
+
+                            // write latlng to install file so we know which places an installation
+                            // has submitted info for
+                            File file = new File(context.getFilesDir(), Installation.getInstallation());
+                            Installation.writeInstallationFile(file, "\n" + latLng.toString(), true);
                         }
                     } catch (Exception e) {
                         Log.e("onClick", e.toString());
