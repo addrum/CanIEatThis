@@ -1,5 +1,6 @@
 package com.adamshort.canieatthis;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -12,23 +13,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.MutableData;
 import com.firebase.client.Transaction;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AddPlacesInfo extends AppCompatActivity {
 
+    public static int RESULT_OK = 1;
+
     private LatLng latLng;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +36,8 @@ public class AddPlacesInfo extends AppCompatActivity {
         setContentView(R.layout.activity_add_places_info);
 
         final Context context = getBaseContext();
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.places_coordinator_layout);
 
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
@@ -140,20 +142,19 @@ public class AddPlacesInfo extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String response) {
-            if (response == null) {
-                Log.d("onPostExecute", "Response was null");
-                Toast.makeText(getBaseContext(), "There was an issue submitting information. Please try again.", Toast.LENGTH_LONG).show();
+            if (response == null || response.equals("")) {
+                Log.d("onPostExecute", "Response was null or empty");
+//                Toast.makeText(getBaseContext(), "There was an issue submitting information. Please try again.", Toast.LENGTH_LONG).show();
+                Snackbar.make(coordinatorLayout, "There was an issue submitting information. Please try again", Snackbar.LENGTH_LONG).show();
                 return;
             }
-            if (response.equals("")) {
-                Log.d("onPostExecute", "Couldn't post places info");
-                Toast.makeText(getBaseContext(), "There was an issue submitting information. Please try again.", Toast.LENGTH_LONG).show();
-                return;
-            }
-            Toast.makeText(getBaseContext(), "Places data submitted successfully", Toast.LENGTH_LONG).show();
+//            Toast.makeText(getBaseContext(), "Places data submitted successfully", Toast.LENGTH_LONG).show();
+
             Intent intent = new Intent(getBaseContext(), MainActivity.class);
             intent.putExtra("position", 1);
-            startActivity(intent);
+            intent.putExtra("result", RESULT_OK);
+            setResult(Activity.RESULT_OK, intent);
+            finish();
         }
     }
 }

@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -25,7 +26,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.LinearLayout;
 
 import com.firebase.client.Firebase;
 
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver downloadCompleteReceiver;
     private FileDownloader fileDownloader;
     private PlacesFragment placesFragment;
+    private LinearLayout tabLayoutLinearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(new ScanFragment());
         placesFragment = new PlacesFragment();
         fragments.add(placesFragment);
+
+        tabLayoutLinearLayout = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -197,10 +201,10 @@ public class MainActivity extends AppCompatActivity {
 
                     switch (status) {
                         case DownloadManager.STATUS_SUCCESSFUL:
-                            Toast.makeText(MainActivity.this, "Successfully downloaded database update", Toast.LENGTH_LONG).show();
+                            Snackbar.make(tabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
+//                            Toast.makeText(MainActivity.this, "Successfully downloaded database update", Toast.LENGTH_LONG).show();
                             editor.putString("download_status", "downloaded");
                             editor.apply();
-
                             String internalDir = getExternalFilesDir(null).getPath();
                             File from = new File(internalDir, "products.csv.tmp");
                             File to = new File(internalDir, "products.csv");
@@ -209,7 +213,9 @@ public class MainActivity extends AppCompatActivity {
 
                             break;
                         case DownloadManager.STATUS_FAILED:
-                            Toast.makeText(MainActivity.this, "Database update download failed: " + reason, Toast.LENGTH_LONG).show();
+                            Log.d("onReceive", "Download failed: " + reason);
+                            Snackbar.make(tabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
+//                            Toast.makeText(MainActivity.this, "Database update download failed: " + reason, Toast.LENGTH_LONG).show();
                             editor.putString("download_status", "failed");
                             break;
                         case DownloadManager.STATUS_PAUSED:
@@ -257,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
                     dialog.show();
                 }
             }
+        } else {
+            Log.d("showDownloadPrompt", "Has no internet connection");
         }
     }
 
@@ -348,10 +356,10 @@ public class MainActivity extends AppCompatActivity {
         createBroadcastCompleteReceiver();
         long current = System.currentTimeMillis();
         Timestamp cur = new Timestamp(current);
-        if (timeForUpdatePrompt(cur)) {
+//        if (timeForUpdatePrompt(cur)) {
             Log.d("onResume", "Time for update prompt was true");
             showDownloadPrompt();
-        }
+//        }
     }
 
     @Override

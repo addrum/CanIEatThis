@@ -62,7 +62,7 @@ public class Installation {
 
     public static boolean deleteInstallationFile(Context context) {
         File file = new File(context.getFilesDir(), INSTALLATION);
-        return file.delete();
+        return file.exists() && file.delete();
     }
 
     public static String getInstallation() {

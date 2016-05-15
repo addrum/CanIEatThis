@@ -1,6 +1,7 @@
 package com.adamshort.canieatthis;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -8,6 +9,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -42,6 +45,7 @@ import java.util.Map;
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
+    private static final int FORM_REQUEST_CODE = 11;
 
     private boolean connected;
     private boolean mapReady;
@@ -51,11 +55,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // inflat and return the layout
         View v = inflater.inflate(R.layout.fragment_places, container, false);
+
+        coordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
 
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -115,16 +122,17 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             @Override
             public void onInfoWindowClick(Marker marker) {
                 try {
+                    Installation.id(getContext());
                     if (!Installation.isInInstallationFile(getActivity().getBaseContext(),
                             marker.getPosition().toString())) {
                         Intent intent = new Intent(getActivity().getBaseContext(), AddPlacesInfo.class);
                         intent.putExtra("name", marker.getTitle());
                         intent.putExtra("latlng", marker.getPosition().toString());
-                        startActivity(intent);
+                        startActivityForResult(intent, FORM_REQUEST_CODE);
                     } else {
-//                        Snackbar.make(coordinatorLayout, "You have already submitted information about this place"
-//                                , Snackbar.LENGTH_LONG)
-//                                .show();
+                        Snackbar.make(coordinatorLayout, "You have already submitted information about this place"
+                                , Snackbar.LENGTH_LONG)
+                                .show();
                     }
                 } catch (IOException e) {
                     Log.e("onInfoWindowClick", "issue checking if latlng is in install file: " + e.toString());
@@ -261,6 +269,15 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
             // other 'case' lines to check for other
             // permissions this app might request
+        }
+    }
+
+    // http://stackoverflow.com/a/10407371/1860436
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 11) {
+            if (resultCode == Activity.RESULT_OK) {
+                Snackbar.make(coordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 

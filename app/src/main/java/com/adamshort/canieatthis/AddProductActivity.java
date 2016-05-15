@@ -2,6 +2,8 @@ package com.adamshort.canieatthis;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +39,7 @@ public class AddProductActivity extends AppCompatActivity {
     private String tracesText;
     private String itemTitle;
 
+    private CoordinatorLayout coordinatorLayout;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
@@ -62,6 +65,7 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.add_product_coordinator_layout);
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
         quantityTextView = (TextView) findViewById(R.id.input_quantity);
@@ -129,7 +133,8 @@ public class AddProductActivity extends AppCompatActivity {
 
                 setDataPasser(dairy, vegetarian, vegan, gluten);
 
-                Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
+                Snackbar.make(coordinatorLayout, "Product was posted successfully", Snackbar.LENGTH_LONG).show();
+//                Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(getBaseContext(), MainActivity.class);
                 startActivity(intent);

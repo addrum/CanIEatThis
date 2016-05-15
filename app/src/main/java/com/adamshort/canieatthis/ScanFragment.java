@@ -59,7 +59,6 @@ public class ScanFragment extends Fragment {
     private DataPasser dataPasser;
     private DataQuerier dataQuerier;
 
-
     @SuppressWarnings("ResourceType")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -447,7 +446,7 @@ public class ScanFragment extends Fragment {
             List<String> editedTraces = IngredientsList.StringToList(traces);
             editedTraces = IngredientsList.RemoveUnwantedCharacters(editedTraces, "[_]|\\s+$\"", "");
 
-            boolean dairy_free = true;
+            boolean lactose_free = true;
             boolean daiFalse = false;
             boolean vegetarian = true;
             boolean vegFalse = false;
@@ -465,9 +464,9 @@ public class ScanFragment extends Fragment {
                         String name = ingredientSnapshot.getKey().toLowerCase();
                         if (name.contains(lowerResIngredient) || lowerResIngredient.contains(name)) {
                             if (!daiFalse) {
-                                boolean dai = (Boolean) ing.get("dairy_free");
+                                boolean dai = (Boolean) ing.get("lactose_free");
                                 if (!dai) {
-                                    dairy_free = false;
+                                    lactose_free = false;
                                     daiFalse = true;
                                 }
                             }
@@ -492,7 +491,7 @@ public class ScanFragment extends Fragment {
                                     glutFalse = true;
                                 }
                             }
-                            Log.d("onDataChange", name + " " + dairy_free + " " + vegetarian +
+                            Log.d("onDataChange", name + " " + lactose_free + " " + vegetarian +
                                     " " + vegan + " " + gluten_free);
                         }
                     }
@@ -505,7 +504,7 @@ public class ScanFragment extends Fragment {
                         if (!daiFalse) {
                             boolean d = dataQuerier.IsDairyFree(trace);
                             if (!d) {
-                                dairy_free = false;
+                                lactose_free = false;
                                 daiFalse = true;
                             }
                         }
@@ -538,7 +537,7 @@ public class ScanFragment extends Fragment {
             if (item.equals("")) {
                 SetItemTitleText("Product name not found");
             }
-            SetDietarySwitches(dairy_free, vegetarian, vegan, gluten_free);
+            SetDietarySwitches(lactose_free, vegetarian, vegan, gluten_free);
             SetIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
             SetTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
 
