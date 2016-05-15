@@ -125,11 +125,10 @@ public class DataQuerier {
         }
     }
 
-    public boolean IsDairyFree(List<String> list) {
+    public boolean IsLactoseFree(List<String> list) {
         for (String ingredient : list) {
             for (String dairyIngredient : dairy) {
-                if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase()) ||
-                        dairyIngredient.contains(ingredient.toLowerCase())) {
+                if (ingredient.toLowerCase().equals(dairyIngredient.toLowerCase())) {
                     return false;
                 }
             }
@@ -137,10 +136,9 @@ public class DataQuerier {
         return true;
     }
 
-    public boolean IsDairyFree(String ingredient) {
+    public boolean IsLactoseFree(String ingredient) {
         for (String dairyIngredient : dairy) {
-            if (ingredient.toLowerCase().contains(dairyIngredient.toLowerCase()) ||
-                    dairyIngredient.contains(ingredient.toLowerCase())) {
+            if (ingredient.toLowerCase().equals(dairyIngredient.toLowerCase())) {
                 return false;
             }
         }
@@ -150,8 +148,7 @@ public class DataQuerier {
     public boolean IsVegetarian(List<String> list) {
         for (String ingredient : list) {
             for (String vegetarianIngredient : vegetarian) {
-                if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase()) ||
-                        vegetarianIngredient.contains(ingredient.toLowerCase())) {
+                if (ingredient.toLowerCase().equals(vegetarianIngredient.toLowerCase())) {
                     return false;
                 }
             }
@@ -161,8 +158,7 @@ public class DataQuerier {
 
     public boolean IsVegetarian(String ingredient) {
         for (String vegetarianIngredient : vegetarian) {
-            if (ingredient.toLowerCase().contains(vegetarianIngredient.toLowerCase()) ||
-                    vegetarianIngredient.contains(ingredient.toLowerCase())) {
+            if (ingredient.toLowerCase().equals(vegetarianIngredient.toLowerCase())) {
                 return false;
             }
         }
@@ -172,8 +168,7 @@ public class DataQuerier {
     public boolean IsVegan(List<String> list) {
         for (String ingredient : list) {
             for (String veganIngredient : vegan) {
-                if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase()) ||
-                        veganIngredient.contains(ingredient.toLowerCase())) {
+                if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
                     return false;
                 }
             }
@@ -183,8 +178,7 @@ public class DataQuerier {
 
     public boolean IsVegan(String ingredient) {
         for (String veganIngredient : vegan) {
-            if (ingredient.toLowerCase().contains(veganIngredient.toLowerCase()) ||
-                    veganIngredient.contains(ingredient.toLowerCase())) {
+            if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
                 return false;
             }
         }
@@ -194,8 +188,7 @@ public class DataQuerier {
     public boolean IsGlutenFree(List<String> list) {
         for (String ingredient : list) {
             for (String glutenIngredient : gluten) {
-                if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase()) ||
-                        glutenIngredient.contains(ingredient.toLowerCase())) {
+                if (ingredient.toLowerCase().equals(glutenIngredient.toLowerCase())) {
                     return false;
                 }
             }
@@ -205,8 +198,7 @@ public class DataQuerier {
 
     public boolean IsGlutenFree(String ingredient) {
         for (String glutenIngredient : gluten) {
-            if (ingredient.toLowerCase().contains(glutenIngredient.toLowerCase()) ||
-                    glutenIngredient.contains(ingredient.toLowerCase())) {
+            if (ingredient.toLowerCase().equals(glutenIngredient.toLowerCase())) {
                 return false;
             }
         }
