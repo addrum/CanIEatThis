@@ -8,8 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -53,7 +51,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
-    private CoordinatorLayout coordinatorLayout
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
