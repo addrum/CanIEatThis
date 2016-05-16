@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,25 +27,28 @@ public class AddProductActivity extends AppCompatActivity {
     public static boolean DEBUG;
 
     private static final String BASE_URL = "http://world.openfoodfacts.org/cgi/product_jqm2.pl?";
-    private static final String END_ERROR_MSG = "Required field.";
     private static String barcode = "";
 
     private String barcodeText;
     private String productNameText;
     private String quantityText;
     private String unitText;
-    private String energyPerServingText;
+    private String energyPerText;
     private String ingredientsText;
     private String tracesText;
     private String itemTitle;
+    private String portionText;
 
     private CoordinatorLayout coordinatorLayout;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
-    private TextView energyPerServingTextView;
+    private TextView energyPerTextView;
     private TextView ingredientsTextView;
     private TextView tracesTextView;
+    private CheckBox energyPerServingCheckBox;
+    private CheckBox energyPer100CheckBox;
+    private TextView portionTextView;
 
     private List<String> writtenIngredients, writtenTraces;
 
@@ -68,9 +72,34 @@ public class AddProductActivity extends AppCompatActivity {
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
         quantityTextView = (TextView) findViewById(R.id.input_quantity);
-        energyPerServingTextView = (TextView) findViewById(R.id.input_energy_per_serving);
+        energyPerTextView = (TextView) findViewById(R.id.input_energy_per);
         ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
         tracesTextView = (TextView) findViewById(R.id.input_traces);
+        energyPerServingCheckBox = (CheckBox) findViewById(R.id.input_energy_per_serving);
+        energyPer100CheckBox = (CheckBox) findViewById(R.id.input_energy_per_100g);
+        portionTextView = (TextView) findViewById(R.id.input_portion);
+
+        energyPerServingCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (energyPer100CheckBox.isChecked()) {
+                    energyPer100CheckBox.setChecked(false);
+                }
+                energyPerTextView.setError(null);
+                portionTextView.setEnabled(!portionTextView.isEnabled());
+            }
+        });
+        energyPer100CheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (energyPerServingCheckBox.isChecked()) {
+                    energyPerServingCheckBox.setChecked(false);
+                }
+                energyPerTextView.setError(null);
+                portionTextView.setEnabled(false);
+                portionTextView.setError(null);
+            }
+        });
 
         if (productNameTextView.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
@@ -150,9 +179,10 @@ public class AddProductActivity extends AppCompatActivity {
                     if (unitSpinner != null) {
                         unitText = unitSpinner.getSelectedItem().toString();
                     }
-                    energyPerServingText = energyPerServingTextView.getText().toString();
+                    energyPerText = energyPerTextView.getText().toString();
                     ingredientsText = ingredientsTextView.getText().toString();
                     tracesText = tracesTextView.getText().toString();
+                    portionText = portionTextView.getText().toString();
 
                     List<TextView> required = new ArrayList<>();
                     required.add(barcodeNumberTextView);
@@ -168,7 +198,23 @@ public class AddProductActivity extends AppCompatActivity {
                         }
                     }
 
-                    if (wereErrors && !DEBUG) return;
+                    if (!energyPerText.equals("") && (!energyPerServingCheckBox.isChecked() &&
+                            !energyPer100CheckBox.isChecked())) {
+                        SetErrorHints(energyPerTextView, getString(R.string.noEnergyCheckedError));
+                        wereErrors = true;
+                    }
+
+                    if (energyPerText.equals("") && (energyPerServingCheckBox.isChecked() ||
+                            energyPer100CheckBox.isChecked())) {
+                        SetErrorHints(energyPerTextView, getString(R.string.energyError));
+                    }
+
+                    if (energyPerServingCheckBox.isChecked() && portionText.equals("")) {
+                        SetErrorHints(portionTextView, getString(R.string.portionError));
+                        wereErrors = true;
+                    }
+
+                    if (wereErrors) return;
 
                     List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
 
@@ -181,17 +227,17 @@ public class AddProductActivity extends AppCompatActivity {
 
                     String ingredients = IngredientsList.ListToString(compareTwoLists(editedIngredients, traces));
 
-    //                if (DEBUG) {
-    //                    barcodeText = "072417136160";
-    //                    productNameText = "Maryland Choc Chip";
-    //                    itemTitle = productNameText;
-    //                    quantityText = "230g";
-    //                    energyPerServingText = "450";
-    //                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-    //                    writtenIngredients = IngredientsList.StringToList(ingredients);
-    //                    tracesText = "Milk, Soya, Nuts, Wheat";
-    //                    writtenTraces = IngredientsList.StringToList(tracesText);
-    //                }
+                    //                if (DEBUG) {
+                    //                    barcodeText = "072417136160";
+                    //                    productNameText = "Maryland Choc Chip";
+                    //                    itemTitle = productNameText;
+                    //                    quantityText = "230g";
+                    //                    energyPerText = "450";
+                    //                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                    //                    writtenIngredients = IngredientsList.StringToList(ingredients);
+                    //                    tracesText = "Milk, Soya, Nuts, Wheat";
+                    //                    writtenTraces = IngredientsList.StringToList(tracesText);
+                    //                }
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
@@ -202,7 +248,7 @@ public class AddProductActivity extends AppCompatActivity {
                             quantityText = quantityText + unitText;
                         }
                         quantityText = URLEncoder.encode(quantityText, "UTF-8");
-                        energyPerServingText = URLEncoder.encode(energyPerServingText, "UTF-8");
+                        energyPerText = URLEncoder.encode(energyPerText, "UTF-8");
                         ingredients = URLEncoder.encode(ingredients, "UTF-8");
                         tracesText = URLEncoder.encode(tracesText, "UTF-8");
                         user_id = URLEncoder.encode(user_id, "UTF-8");
@@ -219,9 +265,16 @@ public class AddProductActivity extends AppCompatActivity {
                     String params = "user_id=" + user_id +
                             "&password=" + password +
                             "&code=" + barcodeText + "&product_name=" + productNameText +
-                            "&quantity=" + quantityText + "&nutriment_energy=" + energyPerServingText +
-                            "&nutriment_energy_unit=kJ&nutrition_data_per=serving" +
-                            "&ingredients_text=" + ingredients + "&traces=" + tracesText;
+                            "&quantity=" + quantityText + "&nutriment_energy=" + energyPerText +
+                            "&nutriment_energy_unit=kJ&nutrition_data_per=";
+
+                    if (energyPerServingCheckBox.isChecked() && !energyPerText.equals("")) {
+                        params += "serving";
+                    } else if (energyPer100CheckBox.isChecked() && !energyPerText.equals("")) {
+                        params += "100g";
+                    }
+
+                    params += "&ingredients_text=" + ingredients + "&traces=" + tracesText;
 
                     try {
                         String url = BASE_URL + params;
@@ -267,8 +320,12 @@ public class AddProductActivity extends AppCompatActivity {
         DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
     }
 
+    private void SetErrorHints(TextView tv, String error) {
+        tv.setError(error);
+    }
+
     private void SetErrorHints(TextView tv) {
-        tv.setError(END_ERROR_MSG);
+        tv.setError(getString(R.string.requiredField));
     }
 
 }

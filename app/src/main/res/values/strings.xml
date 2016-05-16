@@ -22,7 +22,7 @@
     <string name="barcodeNumberHint">Barcode Number</string>
     <string name="productNameHint">Product Name</string>
     <string name="quantityHint">Quantity</string>
-    <string name="energyPerServingHint">Per Serving (kJ)</string>
+    <string name="energyPerHint">Energy (kJ)</string>
     <string name="ingredientsHint">Ingredients (As they appear on the packet)</string>
     <string name="productImageButtonText">PRODUCT IMAGE</string>
     <string name="productSubmitButtonText">SUBMIT</string>
@@ -30,9 +30,15 @@
     <string name="introTextViewText">Use the search button in the top right to search for an ingredient, or use the bar code button below to scan a product and find its information</string>
     <string name="searchViewQueryHint">Search for an ingredient</string>
     <string name="unitSpinnerPrompt">Unit</string>
-    <string name="energyPer100gHint">Per 100g/ml (kj)</string>
+    <string name="energyPer100gHint">Energy Per 100g/ml</string>
     <string name="energyLabelText">Energy</string>
     <string name="action_about">About</string>
     <string name="infoWindowProvideInfoText">Have you been here?\nClick here to provide information!</string>
     <string name="ratingLabel">Rating:</string>
+    <string name="requiredField">Required field.</string>
+    <string name="noEnergyCheckedError">Please check either energy per serving or energy per 100g/ml</string>
+    <string name="energyPerServingHint">Energy Per Serving</string>
+    <string name="portionSize">Portion Size (e.g. 30g)</string>
+    <string name="portionError">You must enter a portion size when selecting energy per serving</string>
+    <string name="energyError">Please enter an energy amount</string>
 </resources>
