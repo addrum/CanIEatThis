@@ -29,7 +29,7 @@ public class DataQuerier {
     private static DataQuerier mInstance = null;
 
     private DataQuerier(Activity activity) {
-        SetDatabasesFromFiles(activity);
+        setDatabasesFromFiles(activity);
     }
 
     public static DataQuerier getInstance(Activity activity) {
@@ -41,8 +41,8 @@ public class DataQuerier {
 
     public static boolean[] processData(List<String> ingredients, List<String> traces, boolean firebase, DataSnapshot snapshot) {
         boolean[] bools = new boolean[]{false, false, false, false,};
-        ingredients = IngredientsList.RemoveUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
-        traces = IngredientsList.RemoveUnwantedCharacters(traces, "[_]|\\s+$\"", "");
+        ingredients = IngredientsList.removeUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
+        traces = IngredientsList.removeUnwantedCharacters(traces, "[_]|\\s+$\"", "");
         if (firebase) {
             boolean lactose = true;
             boolean lacFalse = false;
@@ -101,28 +101,28 @@ public class DataQuerier {
                 if (!traces.get(0).equals("")) {
                     for (String trace : traces) {
                         if (!lacFalse) {
-                            boolean d = IsLactoseFree(trace);
+                            boolean d = isLactoseFree(trace);
                             if (!d) {
                                 lactose = false;
                                 lacFalse = true;
                             }
                         }
                         if (!veganFalse) {
-                            boolean v = IsVegan(trace);
+                            boolean v = isVegan(trace);
                             if (!v) {
                                 vegan = false;
                                 veganFalse = true;
                             }
                         }
                         if (!vegFalse) {
-                            boolean ve = IsVegetarian(trace);
+                            boolean ve = isVegetarian(trace);
                             if (!ve) {
                                 vegetarian = false;
                                 veganFalse = true;
                             }
                         }
                         if (glutFalse) {
-                            boolean g = IsGlutenFree(trace);
+                            boolean g = isGlutenFree(trace);
                             if (!g) {
                                 gluten = false;
                                 glutFalse = true;
@@ -136,31 +136,31 @@ public class DataQuerier {
             bools[2] = vegan;
             bools[3] = gluten;
         } else {
-            boolean lactose = IsLactoseFree(ingredients);
-            boolean vegan = IsVegan(ingredients);
+            boolean lactose = isLactoseFree(ingredients);
+            boolean vegan = isVegan(ingredients);
             boolean vegetarian = true;
             // if something is vegan it is 100% vegetarian
             if (!vegan) {
-                vegetarian = IsVegetarian(ingredients);
+                vegetarian = isVegetarian(ingredients);
             }
-            boolean gluten = IsGlutenFree(ingredients);
+            boolean gluten = isGlutenFree(ingredients);
 
             if (traces.size() > 0) {
                 if (!traces.get(0).equals("")) {
                     for (String trace : traces) {
-                        boolean d = IsLactoseFree(trace);
+                        boolean d = isLactoseFree(trace);
                         if (!d) {
                             lactose = false;
                         }
-                        boolean v = IsVegan(trace);
+                        boolean v = isVegan(trace);
                         if (!v) {
                             vegan = false;
                         }
-                        boolean ve = IsVegetarian(trace);
+                        boolean ve = isVegetarian(trace);
                         if (!ve) {
                             vegetarian = false;
                         }
-                        boolean g = IsGlutenFree(trace);
+                        boolean g = isGlutenFree(trace);
                         if (!g) {
                             gluten = false;
                         }
@@ -175,16 +175,16 @@ public class DataQuerier {
         return bools;
     }
 
-    public JSONObject ParseIntoJSON(String response) {
+    public JSONObject parseIntoJSON(String response) {
         try {
             return new JSONObject(response).getJSONObject("product");
         } catch (JSONException e) {
-            Log.e("ParseIntoJSON", "Issue getting ingredients from URL, could be from csv: " + e);
+            Log.e("parseIntoJSON", "issue getting ingredients from URL, could be from csv: " + e);
         }
         return null;
     }
 
-    public void SetDatabasesFromFiles(Activity activity) {
+    public void setDatabasesFromFiles(Activity activity) {
         dairy = new ArrayList<>();
         vegetarian = new ArrayList<>();
         vegan = new ArrayList<>();
@@ -264,7 +264,7 @@ public class DataQuerier {
         }
     }
 
-    public static boolean IsLactoseFree(List<String> list) {
+    public static boolean isLactoseFree(List<String> list) {
         for (String ingredient : list) {
             ingredient = replaceSpecialChars(ingredient);
             for (String dairyIngredient : dairy) {
@@ -276,7 +276,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsLactoseFree(String ingredient) {
+    public static boolean isLactoseFree(String ingredient) {
         for (String dairyIngredient : dairy) {
             if (ingredient.toLowerCase().equals(dairyIngredient.toLowerCase())) {
                 return false;
@@ -285,7 +285,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsVegetarian(List<String> list) {
+    public static boolean isVegetarian(List<String> list) {
         for (String ingredient : list) {
             ingredient = replaceSpecialChars(ingredient);
             for (String vegetarianIngredient : vegetarian) {
@@ -297,7 +297,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsVegetarian(String ingredient) {
+    public static boolean isVegetarian(String ingredient) {
         for (String vegetarianIngredient : vegetarian) {
             if (ingredient.toLowerCase().equals(vegetarianIngredient.toLowerCase())) {
                 return false;
@@ -306,7 +306,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsVegan(List<String> list) {
+    public static boolean isVegan(List<String> list) {
         for (String ingredient : list) {
             ingredient = replaceSpecialChars(ingredient);
             for (String veganIngredient : vegan) {
@@ -318,7 +318,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsVegan(String ingredient) {
+    public static boolean isVegan(String ingredient) {
         for (String veganIngredient : vegan) {
             if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
                 return false;
@@ -327,7 +327,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsGlutenFree(List<String> list) {
+    public static boolean isGlutenFree(List<String> list) {
         for (String ingredient : list) {
             ingredient = replaceSpecialChars(ingredient);
             for (String glutenIngredient : gluten) {
@@ -339,7 +339,7 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean IsGlutenFree(String ingredient) {
+    public static boolean isGlutenFree(String ingredient) {
         for (String glutenIngredient : gluten) {
             if (ingredient.toLowerCase().equals(glutenIngredient.toLowerCase())) {
                 return false;

@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class RequestHandler extends AsyncTask<String, Void, String> {
+public class QueryURLAsync extends AsyncTask<String, Void, String> {
 
     private Context context;
     private ProgressBar progressBar;
@@ -24,7 +24,7 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
 
     public AsyncResponse delegate = null;
 
-    public RequestHandler(Context context, ProgressBar progressBar, AsyncResponse delegate) {
+    public QueryURLAsync(Context context, ProgressBar progressBar, AsyncResponse delegate) {
         this.context = context;
         this.progressBar = progressBar;
         this.delegate = delegate;

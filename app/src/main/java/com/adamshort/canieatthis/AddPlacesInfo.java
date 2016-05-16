@@ -144,11 +144,9 @@ public class AddPlacesInfo extends AppCompatActivity {
         protected void onPostExecute(String response) {
             if (response == null || response.equals("")) {
                 Log.d("onPostExecute", "Response was null or empty");
-//                Toast.makeText(getBaseContext(), "There was an issue submitting information. Please try again.", Toast.LENGTH_LONG).show();
                 Snackbar.make(coordinatorLayout, "There was an issue submitting information. Please try again", Snackbar.LENGTH_LONG).show();
                 return;
             }
-//            Toast.makeText(getBaseContext(), "Places data submitted successfully", Toast.LENGTH_LONG).show();
 
             Intent intent = new Intent(getBaseContext(), MainActivity.class);
             intent.putExtra("position", 1);

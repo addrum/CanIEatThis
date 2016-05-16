@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         viewPager.setCurrentItem(0);
                     } else {
                         ScanFragment scanFragment = (ScanFragment) fragments.get(0);
-                        scanFragment.SetItemsFromDataPasser();
+                        scanFragment.setItemsFromDataPasser();
                     }
                 }
                 return true;

@@ -159,7 +159,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
 
-            RequestHandler rh = new RequestHandler(getContext(), null, new RequestHandler.AsyncResponse() {
+            QueryURLAsync rh = new QueryURLAsync(getContext(), null, new QueryURLAsync.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
                     try {

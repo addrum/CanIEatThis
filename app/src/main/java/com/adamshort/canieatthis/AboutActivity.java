@@ -23,21 +23,16 @@ public class AboutActivity extends AppCompatActivity {
         Intent ghIntent = new Intent(Intent.ACTION_VIEW);
         ghIntent.setData(Uri.parse(issuesUrl));
         gitHubElement.setTitle("Report an Issue")
-            .setIntent(ghIntent)
-            .setIcon(R.drawable.about_icon_github);
+                .setIntent(ghIntent)
+                .setIcon(R.drawable.about_icon_github);
 
         View aboutPage = new AboutPage(this)
                 .isRTL(false)
-                .setDescription("CanIEatThis cannot guarantee the accuracy of the information" +
-                        " and data provided (including, but not limited to, the product data: " +
-                        "barcode, name, quantity, energy values, ingredients, allergens, traces " +
-                        "and dietary suggestions.\n" +
-                        "The information and data is entered by other users of the app and can " +
-                        "therefore contain errors and inaccurate information.")
+                .setDescription(getString(R.string.aboutLegal))
                 .addItem(versionElement)
                 .addGroup("Connect with us")
-                .addEmail("canieatthisapp@gmail.com")
-                .addPlayStore("com.adamshort.canieatthis")
+                .addEmail(getString(R.string.aboutEmail))
+                .addPlayStore(getString(R.string.packageName))
                 .addItem(gitHubElement)
                 .create();
 

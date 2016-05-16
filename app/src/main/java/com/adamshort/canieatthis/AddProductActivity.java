@@ -56,7 +56,7 @@ public class AddProductActivity extends AppCompatActivity {
     private CheckBox energyPer100CheckBox;
     private TextView portionTextView;
 
-    private RequestHandler rh;
+    private QueryURLAsync rh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,13 +113,11 @@ public class AddProductActivity extends AppCompatActivity {
         }
 
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
         Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
         barcodeNumberTextView.setText(barcode);
 
-
-        rh = new RequestHandler(this.getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
+        rh = new QueryURLAsync(this.getBaseContext(), progressBar, new QueryURLAsync.AsyncResponse() {
             @Override
             public void processFinish(String output) {
                 Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
@@ -168,39 +166,39 @@ public class AddProductActivity extends AppCompatActivity {
 
                     for (TextView req : required) {
                         if (req.getText().toString().isEmpty()) {
-                            SetErrorHints(req);
+                            setErrorHints(req);
                             wereErrors = true;
                         }
                     }
 
                     if (!energyPerText.equals("") && (!energyPerServingCheckBox.isChecked() &&
                             !energyPer100CheckBox.isChecked())) {
-                        SetErrorHints(energyPerTextView, getString(R.string.noEnergyCheckedError));
+                        setErrorHints(energyPerTextView, getString(R.string.noEnergyCheckedError));
                         wereErrors = true;
                     }
 
                     if (energyPerText.equals("") && (energyPerServingCheckBox.isChecked() ||
                             energyPer100CheckBox.isChecked())) {
-                        SetErrorHints(energyPerTextView, getString(R.string.energyError));
+                        setErrorHints(energyPerTextView, getString(R.string.energyError));
                     }
 
                     if (energyPerServingCheckBox.isChecked() && portionText.equals("")) {
-                        SetErrorHints(portionTextView, getString(R.string.portionError));
+                        setErrorHints(portionTextView, getString(R.string.portionError));
                         wereErrors = true;
                     }
 
                     if (wereErrors & !DEBUG) return;
 
-                    List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
+                    List<String> editedIngredients = IngredientsList.stringToList(ingredientsText);
 
                     // Set values for passing back to scan fragment
                     itemTitle = productNameText;
                     writtenIngredients = editedIngredients;
-                    writtenTraces = IngredientsList.StringToList(tracesText);
+                    writtenTraces = IngredientsList.stringToList(tracesText);
 
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
-                    String ingredients = IngredientsList.ListToString(compareTwoLists(editedIngredients, traces));
+                    String ingredients = IngredientsList.listToString(compareTwoLists(editedIngredients, traces));
 
                     if (DEBUG) {
                         barcodeText = "072417136160";
@@ -209,9 +207,9 @@ public class AddProductActivity extends AppCompatActivity {
                         quantityText = "230g";
                         energyPerText = "450";
                         ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        writtenIngredients = IngredientsList.StringToList(ingredients);
+                        writtenIngredients = IngredientsList.stringToList(ingredients);
                         tracesText = "Milk, Soya, Nuts, Wheat";
-                        writtenTraces = IngredientsList.StringToList(tracesText);
+                        writtenTraces = IngredientsList.stringToList(tracesText);
                     }
 
                     String user_id = getString(R.string.open_food_facts_username);
@@ -291,15 +289,15 @@ public class AddProductActivity extends AppCompatActivity {
 
         DataPasser.getInstance().setFromSearch(false);
 
-        DataPasser.getInstance().setIngredients(IngredientsList.ListToString(writtenIngredients));
-        DataPasser.getInstance().setTraces(IngredientsList.ListToString(writtenTraces));
+        DataPasser.getInstance().setIngredients(IngredientsList.listToString(writtenIngredients));
+        DataPasser.getInstance().setTraces(IngredientsList.listToString(writtenTraces));
     }
 
-    private void SetErrorHints(TextView tv, String error) {
+    private void setErrorHints(TextView tv, String error) {
         tv.setError(error);
     }
 
-    private void SetErrorHints(TextView tv) {
+    private void setErrorHints(TextView tv) {
         tv.setError(getString(R.string.requiredField));
     }
 
