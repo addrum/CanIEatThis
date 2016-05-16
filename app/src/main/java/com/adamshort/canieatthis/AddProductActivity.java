@@ -122,42 +122,6 @@ public class AddProductActivity extends AppCompatActivity {
         rh = new RequestHandler(this.getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
             @Override
             public void processFinish(String output) {
-
-//                writtenIngredients = IngredientsList.RemoveUnwantedCharacters(writtenIngredients, "[_]|\\s+$\"", "");
-//                writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
-//
-//                boolean dairy = IsLactoseFree(writtenIngredients);
-//                boolean vegan = IsVegan(writtenIngredients);
-//                boolean vegetarian = true;
-//                // if something is vegan it is 100% vegetarian
-//                if (!vegan) {
-//                    vegetarian = IsVegetarian(writtenIngredients);
-//                }
-//                boolean gluten = IsGlutenFree(writtenIngredients);
-//
-//                if (writtenTraces.size() > 0) {
-//                    if (!writtenTraces.get(0).equals("")) {
-//                        for (String trace : writtenTraces) {
-//                            boolean d = IsLactoseFree(trace);
-//                            if (!d) {
-//                                dairy = false;
-//                            }
-//                            boolean v = IsVegan(trace);
-//                            if (!v) {
-//                                vegan = false;
-//                            }
-//                            boolean ve = IsVegetarian(trace);
-//                            if (!ve) {
-//                                vegetarian = false;
-//                            }
-//                            boolean g = IsGlutenFree(trace);
-//                            if (!g) {
-//                                gluten = false;
-//                            }
-//                        }
-//                    }
-//                }
-
                 Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                 ref.keepSynced(true);
                 ref.addValueEventListener(new ValueEventListener() {
