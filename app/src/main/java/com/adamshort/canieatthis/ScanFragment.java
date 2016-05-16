@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,12 +39,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.adamshort.canieatthis.DataQuerier.processData;
+
 public class ScanFragment extends Fragment {
 
-    public static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    public static final String EXTENSION = ".json";
-    public static final int DOWNLOAD = 0;
-    public static final int PRODUCT = 1;
+    private static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    private static final String EXTENSION = ".json";
+    private static final int DOWNLOAD = 0;
+    private static final int PRODUCT = 1;
+    private static final int FORM_REQUEST_CODE = 11;
 
     public static boolean DEBUG;
     private static boolean fragmentCreated = false;
@@ -55,6 +60,7 @@ public class ScanFragment extends Fragment {
     private static Switch vegetarianSwitch;
     private static Switch veganSwitch;
     private static Switch glutenFreeSwitch;
+    private CoordinatorLayout coordinatorLayout;
     private TableLayout switchesTableLayout;
     private TextView introTextView;
     private TextView itemTextView;
@@ -72,6 +78,7 @@ public class ScanFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
 
+        coordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
         introTextView = (TextView) view.findViewById(R.id.introTextView);
@@ -163,8 +170,9 @@ public class ScanFragment extends Fragment {
                 // Candy Crush Candy
 //                GetBarcodeInformation("790310020");
                 // Honey Monster Puffs
-                GetBarcodeInformation("5060145250093");
-//                startActivity(new Intent(getContext(), AddProductActivity.class));
+//                GetBarcodeInformation("5060145250093");
+                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
             } else {
                 startActivityForResult(intent, 0);
             }
@@ -206,7 +214,7 @@ public class ScanFragment extends Fragment {
                         intent.putExtra("barcode", barcode);
 
                         try {
-                            act.startActivity(intent);
+                            act.startActivityForResult(intent, FORM_REQUEST_CODE);
                         } catch (ActivityNotFoundException anfe) {
                             Log.e("showDialog", anfe.toString());
                         }
@@ -224,7 +232,6 @@ public class ScanFragment extends Fragment {
         return dialog.show();
     }
 
-    //on ActivityResult method
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == Activity.RESULT_OK) {
@@ -236,6 +243,13 @@ public class ScanFragment extends Fragment {
                     GetBarcodeInformation(contents);
                     barcode = contents;
                 }
+            }
+        }
+        // http://stackoverflow.com/a/10407371/1860436
+        else if (requestCode == 11) {
+            if (resultCode == Activity.RESULT_OK) {
+                Snackbar.make(coordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
+                SetItemsFromDataPasser();
             }
         }
     }
@@ -321,142 +335,6 @@ public class ScanFragment extends Fragment {
                 }
             }
         }
-    }
-
-    public boolean[] processData(List<String> ingredients, List<String> traces, boolean firebase, DataSnapshot snapshot) {
-        boolean[] bools = new boolean[]{false, false, false, false,};
-        ingredients = IngredientsList.RemoveUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
-        traces = IngredientsList.RemoveUnwantedCharacters(traces, "[_]|\\s+$\"", "");
-        if (firebase) {
-            boolean lactose = true;
-            boolean lacFalse = false;
-            boolean vegetarian = true;
-            boolean vegFalse = false;
-            boolean vegan = true;
-            boolean veganFalse = false;
-            boolean gluten = true;
-            boolean glutFalse = false;
-
-            if (ingredients.size() > 0 && !ingredients.get(0).equals("")) {
-                for (String resIngredient : ingredients) {
-                    // replace any special characters as we need an exact match
-                    String lowerResIngredient = DataQuerier.replaceSpecialChars(resIngredient).toLowerCase();
-                    for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
-                        String name = ingredientSnapshot.getKey().toLowerCase();
-                        if (name.equals(lowerResIngredient)) {
-                            if (!lacFalse) {
-                                boolean dai = (Boolean) ing.get("lactose_free");
-                                if (!dai) {
-                                    lactose = false;
-                                    lacFalse = true;
-                                }
-                            }
-                            if (!vegFalse) {
-                                boolean veg = (Boolean) ing.get("vegetarian");
-                                if (!veg) {
-                                    vegetarian = false;
-                                    vegFalse = true;
-                                }
-                            }
-                            if (!veganFalse) {
-                                boolean veg = (Boolean) ing.get("vegan");
-                                if (!veg) {
-                                    vegan = false;
-                                    veganFalse = true;
-                                }
-                            }
-                            if (!glutFalse) {
-                                boolean glu = (Boolean) ing.get("gluten_free");
-                                if (!glu) {
-                                    gluten = false;
-                                    glutFalse = true;
-                                }
-                            }
-                            Log.d("onDataChange", name + " " + lactose + " " + vegetarian +
-                                    " " + vegan + " " + gluten);
-                        }
-                    }
-                }
-            }
-
-            if (traces.size() > 0 && !traces.get(0).equals("")) {
-                if (!traces.get(0).equals("")) {
-                    for (String trace : traces) {
-                        if (!lacFalse) {
-                            boolean d = dataQuerier.IsLactoseFree(trace);
-                            if (!d) {
-                                lactose = false;
-                                lacFalse = true;
-                            }
-                        }
-                        if (!veganFalse) {
-                            boolean v = dataQuerier.IsVegan(trace);
-                            if (!v) {
-                                vegan = false;
-                                veganFalse = true;
-                            }
-                        }
-                        if (!vegFalse) {
-                            boolean ve = dataQuerier.IsVegetarian(trace);
-                            if (!ve) {
-                                vegetarian = false;
-                                veganFalse = true;
-                            }
-                        }
-                        if (glutFalse) {
-                            boolean g = dataQuerier.IsGlutenFree(trace);
-                            if (!g) {
-                                gluten = false;
-                                glutFalse = true;
-                            }
-                        }
-                    }
-                }
-            }
-            bools[0] = lactose;
-            bools[1] = vegetarian;
-            bools[2] = vegan;
-            bools[3] = gluten;
-        } else {
-            boolean lactose = dataQuerier.IsLactoseFree(ingredients);
-            boolean vegan = dataQuerier.IsVegan(ingredients);
-            boolean vegetarian = true;
-            // if something is vegan it is 100% vegetarian
-            if (!vegan) {
-                vegetarian = dataQuerier.IsVegetarian(ingredients);
-            }
-            boolean gluten = dataQuerier.IsGlutenFree(ingredients);
-
-            if (traces.size() > 0) {
-                if (!traces.get(0).equals("")) {
-                    for (String trace : traces) {
-                        boolean d = dataQuerier.IsLactoseFree(trace);
-                        if (!d) {
-                            lactose = false;
-                        }
-                        boolean v = dataQuerier.IsVegan(trace);
-                        if (!v) {
-                            vegan = false;
-                        }
-                        boolean ve = dataQuerier.IsVegetarian(trace);
-                        if (!ve) {
-                            vegetarian = false;
-                        }
-                        boolean g = dataQuerier.IsGlutenFree(trace);
-                        if (!g) {
-                            gluten = false;
-                        }
-                    }
-                }
-            }
-            bools[0] = lactose;
-            bools[1] = vegetarian;
-            bools[2] = vegan;
-            bools[3] = gluten;
-        }
-        return bools;
     }
 
     public void ProcessResponseFirebase(JSONObject product) {
@@ -554,7 +432,6 @@ public class ScanFragment extends Fragment {
         }
     }
 
-
     public void SetSwitchesVisibility(int visibility) {
         if (switchesTableLayout != null) {
             switchesTableLayout.setVisibility(visibility);
@@ -644,6 +521,10 @@ public class ScanFragment extends Fragment {
         } catch (JSONException e) {
             Log.e("ProcessResponse", "Issue ParseIntoJSON(response)");
         }
+    }
+
+    public FirebaseAsyncRequest getFirebaseAsyncRequest() {
+        return new FirebaseAsyncRequest();
     }
 
     private class FirebaseAsyncRequest extends AsyncTask<JSONObject, Void, String> {

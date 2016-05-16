@@ -1,9 +1,8 @@
 package com.adamshort.canieatthis;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,12 +14,19 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.adamshort.canieatthis.DataQuerier.*;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -38,8 +44,8 @@ public class AddProductActivity extends AppCompatActivity {
     private String tracesText;
     private String itemTitle;
     private String portionText;
+    private List<String> writtenIngredients, writtenTraces;
 
-    private CoordinatorLayout coordinatorLayout;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
@@ -49,10 +55,6 @@ public class AddProductActivity extends AppCompatActivity {
     private CheckBox energyPerServingCheckBox;
     private CheckBox energyPer100CheckBox;
     private TextView portionTextView;
-
-    private List<String> writtenIngredients, writtenTraces;
-
-    private DataQuerier dataQuerier;
 
     private RequestHandler rh;
 
@@ -68,7 +70,6 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.add_product_coordinator_layout);
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
         quantityTextView = (TextView) findViewById(R.id.input_quantity);
@@ -117,55 +118,65 @@ public class AddProductActivity extends AppCompatActivity {
 
         barcodeNumberTextView.setText(barcode);
 
-        dataQuerier = DataQuerier.getInstance(this);
 
         rh = new RequestHandler(this.getBaseContext(), progressBar, new RequestHandler.AsyncResponse() {
             @Override
             public void processFinish(String output) {
 
-                writtenIngredients = IngredientsList.RemoveUnwantedCharacters(writtenIngredients, "[_]|\\s+$\"", "");
+//                writtenIngredients = IngredientsList.RemoveUnwantedCharacters(writtenIngredients, "[_]|\\s+$\"", "");
+//                writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
+//
+//                boolean dairy = IsLactoseFree(writtenIngredients);
+//                boolean vegan = IsVegan(writtenIngredients);
+//                boolean vegetarian = true;
+//                // if something is vegan it is 100% vegetarian
+//                if (!vegan) {
+//                    vegetarian = IsVegetarian(writtenIngredients);
+//                }
+//                boolean gluten = IsGlutenFree(writtenIngredients);
+//
+//                if (writtenTraces.size() > 0) {
+//                    if (!writtenTraces.get(0).equals("")) {
+//                        for (String trace : writtenTraces) {
+//                            boolean d = IsLactoseFree(trace);
+//                            if (!d) {
+//                                dairy = false;
+//                            }
+//                            boolean v = IsVegan(trace);
+//                            if (!v) {
+//                                vegan = false;
+//                            }
+//                            boolean ve = IsVegetarian(trace);
+//                            if (!ve) {
+//                                vegetarian = false;
+//                            }
+//                            boolean g = IsGlutenFree(trace);
+//                            if (!g) {
+//                                gluten = false;
+//                            }
+//                        }
+//                    }
+//                }
 
-                writtenTraces = IngredientsList.RemoveUnwantedCharacters(writtenTraces, "[_]|\\s+$\"", "");
+                Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                ref.keepSynced(true);
+                ref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean[] bools = processData(writtenIngredients, writtenTraces, true, snapshot);
 
-                boolean dairy = dataQuerier.IsLactoseFree(writtenIngredients);
-                boolean vegan = dataQuerier.IsVegan(writtenIngredients);
-                boolean vegetarian = true;
-                // if something is vegan it is 100% vegetarian
-                if (!vegan) {
-                    vegetarian = dataQuerier.IsVegetarian(writtenIngredients);
-                }
-                boolean gluten = dataQuerier.IsGlutenFree(writtenIngredients);
+                        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
 
-                if (writtenTraces.size() > 0) {
-                    if (!writtenTraces.get(0).equals("")) {
-                        for (String trace : writtenTraces) {
-                            boolean d = dataQuerier.IsLactoseFree(trace);
-                            if (!d) {
-                                dairy = false;
-                            }
-                            boolean v = dataQuerier.IsVegan(trace);
-                            if (!v) {
-                                vegan = false;
-                            }
-                            boolean ve = dataQuerier.IsVegetarian(trace);
-                            if (!ve) {
-                                vegetarian = false;
-                            }
-                            boolean g = dataQuerier.IsGlutenFree(trace);
-                            if (!g) {
-                                gluten = false;
-                            }
-                        }
+                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                        intent.putExtra("result", RESULT_OK);
+                        setResult(Activity.RESULT_OK, intent);
+                        finish();
                     }
-                }
 
-                setDataPasser(dairy, vegetarian, vegan, gluten);
-
-                Snackbar.make(coordinatorLayout, "Product was posted successfully", Snackbar.LENGTH_LONG).show();
-//                Toast.makeText(getBaseContext(), "Product posted successfully", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                startActivity(intent);
+                    @Override
+                    public void onCancelled(FirebaseError error) {
+                    }
+                });
             }
         });
 
@@ -214,7 +225,7 @@ public class AddProductActivity extends AppCompatActivity {
                         wereErrors = true;
                     }
 
-                    if (wereErrors) return;
+                    if (wereErrors & !DEBUG) return;
 
                     List<String> editedIngredients = IngredientsList.StringToList(ingredientsText);
 
@@ -227,17 +238,17 @@ public class AddProductActivity extends AppCompatActivity {
 
                     String ingredients = IngredientsList.ListToString(compareTwoLists(editedIngredients, traces));
 
-                    //                if (DEBUG) {
-                    //                    barcodeText = "072417136160";
-                    //                    productNameText = "Maryland Choc Chip";
-                    //                    itemTitle = productNameText;
-                    //                    quantityText = "230g";
-                    //                    energyPerText = "450";
-                    //                    ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                    //                    writtenIngredients = IngredientsList.StringToList(ingredients);
-                    //                    tracesText = "Milk, Soya, Nuts, Wheat";
-                    //                    writtenTraces = IngredientsList.StringToList(tracesText);
-                    //                }
+                    if (DEBUG) {
+                        barcodeText = "072417136160";
+                        productNameText = "Maryland Choc Chip";
+                        itemTitle = productNameText;
+                        quantityText = "230g";
+                        energyPerText = "450";
+                        ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                        writtenIngredients = IngredientsList.StringToList(ingredients);
+                        tracesText = "Milk, Soya, Nuts, Wheat";
+                        writtenTraces = IngredientsList.StringToList(tracesText);
+                    }
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
