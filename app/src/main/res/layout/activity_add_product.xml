@@ -206,12 +206,12 @@
 
         </RelativeLayout>
 
-    </RelativeLayout>
+        <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/add_product_coordinator_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.design.widget.CoordinatorLayout>
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/add_product_coordinator_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </android.support.design.widget.CoordinatorLayout>
+    </RelativeLayout>
 
 </ScrollView>

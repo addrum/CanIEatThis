@@ -159,8 +159,9 @@ public class ScanFragment extends Fragment {
                 // Muller Corner Choco Digestives
 //                GetBarcodeInformation("4025500165574");
                 // Jammie Dodgers
-//                GetBarcodeInformation("072417143700");
-                GetBarcodeInformation("790310020");
+                GetBarcodeInformation("072417143700");
+                // Candy Crush Candy
+//                GetBarcodeInformation("790310020");
 //                startActivity(new Intent(getContext(), AddProductActivity.class));
             } else {
                 startActivityForResult(intent, 0);
