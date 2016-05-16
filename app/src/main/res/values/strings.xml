@@ -44,4 +44,5 @@
     <string name="aboutLegal">CanIEatThis cannot guarantee the accuracy of the information and data provided (including, but not limited to, the product data: barcode, name, quantity, energy values, ingredients, allergens, traces and dietary suggestions).\nThe information and data is entered by other users of the app and can therefore contain errors and inaccurate information.</string>
     <string name="aboutEmail">canieatthisapp@gmail.com</string>
     <string name="packageName">com.adamshort.canieatthis</string>
+    <string name="csvURL">http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv</string>
 </resources>
