@@ -22,24 +22,28 @@ public class FileDownloader {
         String storageState = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
 
-            File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
-            if (file.exists()) {
-                Log.d("FileDownloader", "File exists!");
-                boolean delete = file.delete();
-                Log.d("FileDownloader", "Deleted: " + delete);
+            try {
+                File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
+                if (file.exists()) {
+                    Log.d("FileDownloader", "File exists!");
+                    boolean delete = file.delete();
+                    Log.d("FileDownloader", "Deleted: " + delete);
+                }
+
+                DownloadManager.Request request = new DownloadManager.Request(uri);
+                request.setDescription("Local database for CanIEatThis");
+                request.setTitle("CanIEatThis Database");
+                request.setDestinationInExternalFilesDir(activity, null, filename);
+                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+
+                downloadReference = downloadManager.enqueue(request);
+                SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("download_status", "downloading");
+                editor.apply();
+            } catch (NullPointerException e) {
+                Log.e("FileDownloader", "Couldn't get externalFilesDir: " + e.toString());
             }
-
-            DownloadManager.Request request = new DownloadManager.Request(uri);
-            request.setDescription("Local database for CanIEatThis");
-            request.setTitle("CanIEatThis Database");
-            request.setDestinationInExternalFilesDir(activity, null, filename);
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
-
-            downloadReference = downloadManager.enqueue(request);
-            SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("download_status", "downloading");
-            editor.apply();
         } else {
             Toast.makeText(activity, "Storage device not available", Toast.LENGTH_LONG).show();
             Log.e("FileDownloader", "Storage device was not available, state was: " + storageState);
