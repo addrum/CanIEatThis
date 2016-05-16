@@ -1,9 +1,12 @@
 package com.adamshort.canieatthis;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import mehdi.sakout.aboutpage.AboutPage;
@@ -16,7 +19,12 @@ public class AboutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Element versionElement = new Element();
-        versionElement.setTitle("Version 1.0.1");
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionElement.setTitle(pInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("onCreate", "Couldn't get package info: " + e.toString());
+        }
 
         Element gitHubElement = new Element();
         String issuesUrl = "https://github.com/addrum/CanIEatThis-Public-/issues";
