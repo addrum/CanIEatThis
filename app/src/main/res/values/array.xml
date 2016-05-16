@@ -10,4 +10,14 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string-array name="unitValues">
+        <item>g</item>
+        <item>kg</item>
+        <item>ml</item>
+        <item>cl</item>
+        <item>l</item>
+        <item>oz</item>
+        <item>fl oz</item>
+    </string-array>
 </resources>

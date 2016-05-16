@@ -32,7 +32,7 @@ public class DataPasser {
     }
 
     public String getQuery() {
-        Log.d("GET", "Query: " + query);
+        Log.d("getQuery", "Query: " + query);
         return query;
     }
 
@@ -105,33 +105,33 @@ public class DataPasser {
     }
 
     public void setIngredients(String ingredients) {
-        Log.d("SET", "Ingredients: " + ingredients);
+        Log.d("setIngredients", "Ingredients: " + ingredients);
         this.ingredients = ingredients;
     }
 
     public String getIngredients()
     {
-        Log.d("GET", "Ingredients: " + ingredients);
+        Log.d("getIngredients", "Ingredients: " + ingredients);
         return ingredients;
     }
 
     public void setFromSearch(boolean fromSearch) {
-        Log.d("SET", "From Search: " + fromSearch);
+        Log.d("setFromSearch", "From Search: " + fromSearch);
         this.fromSearch = fromSearch;
     }
 
     public boolean isFromSearch() {
-        Log.d("GET", "From Search: " + fromSearch);
+        Log.d("isFromSearch", "From Search: " + fromSearch);
         return fromSearch;
     }
 
     public void setTraces(String traces) {
-        Log.d("SET", "Traces: " + traces);
+        Log.d("setTraces", "Traces: " + traces);
         this.traces = traces;
     }
 
     public String getTraces() {
-        Log.d("GET", "Traces: " + traces);
+        Log.d("getTraces", "Traces: " + traces);
         return traces;
     }
 }

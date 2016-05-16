@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class RequestHandler extends AsyncTask<String, Void, String> {
+public class QueryURLAsync extends AsyncTask<String, Void, String> {
 
     private Context context;
     private ProgressBar progressBar;
@@ -24,22 +24,24 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
 
     public AsyncResponse delegate = null;
 
-    public RequestHandler(Context context, ProgressBar progressBar, AsyncResponse delegate) {
+    public QueryURLAsync(Context context, ProgressBar progressBar, AsyncResponse delegate) {
         this.context = context;
         this.progressBar = progressBar;
         this.delegate = delegate;
     }
 
+    @Override
     protected void onPreExecute() {
         if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
     }
 
+    @Override
     protected String doInBackground(String... urls) {
         try {
             URL url = new URL(urls[0]);
-            Log.d("Response", "Executing response at " + url);
+            Log.d("doInBackground", "Executing response at " + url);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             try {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -62,19 +64,25 @@ public class RequestHandler extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String response) {
         if (response == null) {
-            Log.d("DEBUG", "Response was null");
-            progressBar.setVisibility(View.INVISIBLE);
+            Log.d("onPostExecute", "Response was null");
+            if (progressBar != null) {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
             Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
         }
         if (response.equals("")) {
-            Log.d("DEBUG", "Couldn't find matching barcode in local csv");
-            progressBar.setVisibility(View.INVISIBLE);
+            Log.d("onPostExecute", "Couldn't find matching barcode in local csv");
+            if (progressBar != null) {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
             Toast.makeText(context, "There was an issue finding information. Please try again.", Toast.LENGTH_LONG).show();
             return;
         }
-        progressBar.setVisibility(View.INVISIBLE);
-        Log.i("INFO", response);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+        Log.i("onPostExecute", response);
         delegate.processFinish(response);
     }
 

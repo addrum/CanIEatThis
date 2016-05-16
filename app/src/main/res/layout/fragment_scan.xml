@@ -1,171 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/container"
-              xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="#ffffff"
-              android:orientation="vertical"
-              android:weightSum="1">
-
-    <TextView
-        android:id="@+id/itemTitleText"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:text="@string/itemTitleText"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:visibility="invisible"/>
-
-    <TableLayout
-        android:id="@+id/switchesTableLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:stretchColumns="0,1"
-        android:visibility="invisible">
-
-        <TableRow
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
-
-            <Switch
-                android:id="@+id/dairyFreeSwitch"
-                android:layout_marginEnd="10dp"
-                android:layout_marginStart="20dp"
-                android:checked="false"
-                android:text="@string/dairySwitchText"/>
-
-            <Switch
-                android:id="@+id/vegetarianSwitch"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="10dp"
-                android:checked="false"
-                android:text="@string/vegetarianSwitchText"/>
-
-        </TableRow>
-
-        <TableRow
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp">
-
-            <Switch
-                android:id="@+id/veganSwitch"
-                android:layout_marginEnd="10dp"
-                android:layout_marginStart="20dp"
-                android:checked="false"
-                android:text="@string/veganSwitchText"/>
-
-            <Switch
-                android:id="@+id/glutenFreeSwitch"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="10dp"
-                android:checked="false"
-                android:text="@string/glutenFreeSwitchText"/>
-
-        </TableRow>
-    </TableLayout>
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/scan_coordinator_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    android:weightSum="1">
 
     <RelativeLayout
-        android:id="@+id/responseRelativeLayout"
+        android:id="@+id/introTextLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:minHeight="100dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/ingredientsTitleText"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="top"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:text="@string/ingredientsTitleText"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:visibility="invisible"/>
-
-        <TextView
-            android:id="@+id/ingredientsResponseView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ingredientsTitleText"
-            android:layout_margin="10dp"
-            android:freezesText="true"
-            android:text="@string/ingredientsTextViewText"
-            android:visibility="invisible"/>
-
-        <TextView
-            android:id="@+id/tracesTitleText"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="false"
-            android:layout_below="@+id/ingredientsResponseView"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="top"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:text="@string/tracesTitleText"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:visibility="invisible"/>
-
-        <TextView
-            android:id="@+id/tracesResponseView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tracesTitleText"
-            android:layout_margin="10dp"
-            android:freezesText="true"
-            android:text="@string/tracesTextViewText"
-            android:visibility="invisible"/>
+        android:layout_height="match_parent"
+        android:layout_marginBottom="100dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center">
 
         <TextView
             android:id="@+id/introTextView"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:gravity="center"
             android:text="@string/introTextViewText"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:visibility="invisible"/>
-
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/buttonRelativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/scanButton"
+        <TextView
+            android:id="@+id/itemTitleText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:text="@string/itemTitleText"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:visibility="invisible"/>
+
+        <TableLayout
+            android:id="@+id/switchesTableLayout"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="#00a400"
-            android:text="@string/bottomButtonText"
-            android:textColor="#ffffff"
-            android:textSize="18sp"/>
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/itemTitleText"
+            android:layout_margin="10dp"
+            android:stretchColumns="0,1"
+            android:visibility="invisible">
+
+            <TableRow
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <Switch
+                    android:id="@+id/lactoseFreeSwitch"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="20dp"
+                    android:checked="false"
+                    android:text="@string/dairySwitchText"
+                    android:theme="@style/Switch"/>
+
+                <Switch
+                    android:id="@+id/vegetarianSwitch"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="10dp"
+                    android:checked="false"
+                    android:text="@string/vegetarianSwitchText"
+                    android:theme="@style/Switch"/>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <Switch
+                    android:id="@+id/veganSwitch"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="20dp"
+                    android:checked="false"
+                    android:text="@string/veganSwitchText"
+                    android:theme="@style/Switch"/>
+
+                <Switch
+                    android:id="@+id/glutenFreeSwitch"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="10dp"
+                    android:checked="false"
+                    android:text="@string/glutenFreeSwitchText"
+                    android:theme="@style/Switch"/>
+
+            </TableRow>
+        </TableLayout>
+
+        <RelativeLayout
+            android:id="@+id/responseRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switchesTableLayout"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:minHeight="100dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/ingredientsTitleText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="top"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="@string/ingredientsTitleText"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/ingredientsResponseView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ingredientsTitleText"
+                android:layout_margin="10dp"
+                android:freezesText="true"
+                android:text="@string/ingredientsTextViewText"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/tracesTitleText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="false"
+                android:layout_below="@+id/ingredientsResponseView"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="top"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="@string/tracesTitleText"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/tracesResponseView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tracesTitleText"
+                android:layout_margin="10dp"
+                android:freezesText="true"
+                android:text="@string/tracesTextViewText"
+                android:visibility="invisible"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:visibility="invisible"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/buttonRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:layout_behavior="com.adamshort.canieatthis.FloatingActionButtonBehaviour">
+
+            <Button
+                android:id="@+id/scanButton"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/colorButton"
+                android:text="@string/bottomButtonText"
+                android:textColor="#ffffff"
+                android:textSize="18sp"/>
+        </RelativeLayout>
+
     </RelativeLayout>
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
