@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.adamshort.canieatthis.DataQuerier.*;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String CSV_URL = "http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv";
@@ -44,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Fragment> fragments;
     private ViewPager viewPager;
-    private DataQuerier dataQuerier;
     private DataPasser dataPasser;
     private DownloadManager downloadManager;
     private BroadcastReceiver downloadCompleteReceiver;
@@ -100,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             tabLayout.setupWithViewPager(viewPager);
         }
 
-        dataQuerier = DataQuerier.getInstance(this);
         dataPasser = DataPasser.getInstance();
     }
 
@@ -126,14 +126,14 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
                     // query is the value entered into the search bar
-                    boolean dairy = dataQuerier.IsLactoseFree(query);
-                    boolean vegan = dataQuerier.IsVegan(query);
+                    boolean dairy = isLactoseFree(query);
+                    boolean vegan = isVegan(query);
                     boolean vegetarian = false;
                     // if something is vegan it is 100% vegetarian
                     if (!vegan) {
-                        vegetarian = dataQuerier.IsVegetarian(query);
+                        vegetarian = isVegetarian(query);
                     }
-                    boolean gluten = dataQuerier.IsGlutenFree(query);
+                    boolean gluten = isGlutenFree(query);
 
                     dataPasser.setQuery(query);
 
