@@ -1,5 +1,6 @@
 package com.adamshort.canieatthis;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.SearchManager;
@@ -10,8 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -34,22 +33,20 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static com.adamshort.canieatthis.DataQuerier.*;
+import static com.adamshort.canieatthis.DataQuerier.isGlutenFree;
+import static com.adamshort.canieatthis.DataQuerier.isLactoseFree;
+import static com.adamshort.canieatthis.DataQuerier.isVegan;
+import static com.adamshort.canieatthis.DataQuerier.isVegetarian;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String CSV_URL = "http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv";
 
     private int position;
 
     private List<Fragment> fragments;
     private ViewPager viewPager;
     private DataPasser dataPasser;
-    private DownloadManager downloadManager;
     private BroadcastReceiver downloadCompleteReceiver;
-    private FileDownloader fileDownloader;
     private PlacesFragment placesFragment;
     private LinearLayout tabLayoutLinearLayout;
 
@@ -185,10 +182,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                if (fileDownloader.getDownloadReference() == reference) {
+                if (Utilities.getFileDownloader().getDownloadReference() == reference) {
                     DownloadManager.Query query = new DownloadManager.Query();
                     query.setFilterById(reference);
-                    Cursor cursor = downloadManager.query(query);
+                    Cursor cursor = Utilities.getDownloadManager().query(query);
                     cursor.moveToFirst();
 
                     int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
@@ -202,20 +199,21 @@ public class MainActivity extends AppCompatActivity {
                     switch (status) {
                         case DownloadManager.STATUS_SUCCESSFUL:
                             Snackbar.make(tabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
-//                            Toast.makeText(MainActivity.this, "Successfully downloaded database update", Toast.LENGTH_LONG).show();
                             editor.putString("download_status", "downloaded");
                             editor.apply();
-                            String internalDir = getExternalFilesDir(null).getPath();
-                            File from = new File(internalDir, "products.csv.tmp");
-                            File to = new File(internalDir, "products.csv");
-                            boolean success = from.renameTo(to);
-                            Log.d("DEBUG", "Renamed: " + success);
-
+                            try {
+                                String internalDir = getExternalFilesDir(null).getPath();
+                                File from = new File(internalDir, "products.csv.tmp");
+                                File to = new File(internalDir, "products.csv");
+                                boolean success = from.renameTo(to);
+                                Log.d("DEBUG", "Renamed: " + success);
+                            } catch (NullPointerException e) {
+                                Log.e("createBroadcastComplete", "Couldn't get externalFilesDir: " + e.toString());
+                            }
                             break;
                         case DownloadManager.STATUS_FAILED:
                             Log.d("onReceive", "Download failed: " + reason);
                             Snackbar.make(tabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
-//                            Toast.makeText(MainActivity.this, "Database update download failed: " + reason, Toast.LENGTH_LONG).show();
                             editor.putString("download_status", "failed");
                             break;
                         case DownloadManager.STATUS_PAUSED:
@@ -236,7 +234,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDownloadPrompt() {
-        if (hasInternetConnection()) {
+        final Activity act = this;
+        if (Utilities.hasInternetConnection(getBaseContext())) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
             Log.d("showDownloadPrompt", "Should download database: " + downloadDatabasePref);
@@ -252,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            downloadDatabase();
+                            Utilities.downloadDatabase(act, getBaseContext());
                         }
                     });
                     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -266,65 +265,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("showDownloadPrompt", "Has no internet connection");
         }
-    }
-
-    private void downloadDatabase() {
-        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        fileDownloader = new FileDownloader(this, downloadManager, CSV_URL, "products.csv.tmp");
-
-        // Update timestamp since we've downloaded a new one
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong("timestamp", System.currentTimeMillis());
-        editor.apply();
-    }
-
-    public boolean hasInternetConnection() {
-        ConnectivityManager cm = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork != null) {
-            return activeNetwork.isConnected();
-        }
-        return false;
-    }
-
-    public boolean timeForUpdatePrompt(Timestamp current) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        long lastPref = prefs.getLong("timestamp", current.getTime());
-        if (lastPref == 0) {
-            // Pref is probably empty when app is first installed so set it to current time as default
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putLong("timestamp", System.currentTimeMillis());
-            editor.apply();
-        }
-        Timestamp last = new Timestamp(lastPref);
-
-        Log.d("timeForUpdatePrompt", "Current: " + current.getTime() + " - Last: " + last.getTime());
-
-        String frequency = prefs.getString("frequency_list_pref", "0");
-        Log.d("timeForUpdatePrompt", "Frequency is " + frequency);
-
-        long days = TimeUnit.MILLISECONDS.toDays(current.getTime() - last.getTime());
-        Log.d("timeForUpdatePrompt", "Days is " + days);
-
-        switch (frequency) {
-            case "0":
-                if (days > 1) {
-                    return true;
-                }
-                break;
-            case "1":
-                if (days > 7) {
-                    return true;
-                }
-                break;
-            case "2":
-                if (days > 28) {
-                    return true;
-                }
-                break;
-        }
-        return false;
     }
 
     @Override
@@ -356,9 +296,9 @@ public class MainActivity extends AppCompatActivity {
         createBroadcastCompleteReceiver();
         long current = System.currentTimeMillis();
         Timestamp cur = new Timestamp(current);
-        if (timeForUpdatePrompt(cur)) {
-            Log.d("onResume", "Time for update prompt was true");
-            showDownloadPrompt();
+        if (Utilities.timeForUpdatePrompt(getBaseContext(), cur)) {
+        Log.d("onResume", "Time for update prompt was true");
+        showDownloadPrompt();
         }
     }
 

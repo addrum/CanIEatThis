@@ -258,7 +258,7 @@ public class ScanFragment extends Fragment {
         barcode = StringUtils.leftPad(barcode, 13, "0");
         if (!ScanFragment.barcode.equals(barcode)) {
             ScanFragment.barcode = barcode;
-            if (((MainActivity) getActivity()).hasInternetConnection()) {
+            if (Utilities.hasInternetConnection(getContext())) {
                 QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, new QueryURLAsync.AsyncResponse() {
                     @Override
                     public void processFinish(String output) {
