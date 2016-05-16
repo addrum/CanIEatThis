@@ -127,6 +127,7 @@ public class DataQuerier {
 
     public boolean IsLactoseFree(List<String> list) {
         for (String ingredient : list) {
+            ingredient = replaceSpecialChars(ingredient);
             for (String dairyIngredient : dairy) {
                 if (ingredient.toLowerCase().equals(dairyIngredient.toLowerCase())) {
                     return false;
@@ -147,6 +148,7 @@ public class DataQuerier {
 
     public boolean IsVegetarian(List<String> list) {
         for (String ingredient : list) {
+            ingredient = replaceSpecialChars(ingredient);
             for (String vegetarianIngredient : vegetarian) {
                 if (ingredient.toLowerCase().equals(vegetarianIngredient.toLowerCase())) {
                     return false;
@@ -167,6 +169,7 @@ public class DataQuerier {
 
     public boolean IsVegan(List<String> list) {
         for (String ingredient : list) {
+            ingredient = replaceSpecialChars(ingredient);
             for (String veganIngredient : vegan) {
                 if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
                     return false;
@@ -187,6 +190,7 @@ public class DataQuerier {
 
     public boolean IsGlutenFree(List<String> list) {
         for (String ingredient : list) {
+            ingredient = replaceSpecialChars(ingredient);
             for (String glutenIngredient : gluten) {
                 if (ingredient.toLowerCase().equals(glutenIngredient.toLowerCase())) {
                     return false;
@@ -203,6 +207,13 @@ public class DataQuerier {
             }
         }
         return true;
+    }
+
+    public static String replaceSpecialChars(String s) {
+        s = s.replaceAll("\\([^)]*\\)", "")
+                .replace("_", "")
+                .trim();
+        return s;
     }
 
     public List<String> getTraces() {
