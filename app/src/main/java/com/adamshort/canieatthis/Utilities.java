@@ -14,22 +14,31 @@ import java.util.concurrent.TimeUnit;
 
 public class Utilities {
 
+    private static Utilities mInstance = null;
     private static DownloadManager downloadManager;
     private static FileDownloader fileDownloader;
+
+    private Utilities() {
+    }
+
+    public static Utilities getInstance() {
+        if (mInstance == null) {
+            mInstance = new Utilities();
+        }
+        return mInstance;
+    }
 
     public static boolean hasInternetConnection(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork != null) {
-            return activeNetwork.isConnected();
-        }
-        return false;
+        return activeNetwork != null && activeNetwork.isConnected();
     }
 
     public static void downloadDatabase(Activity activity, Context context) {
         if (activity != null && context != null) {
             downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            fileDownloader = new FileDownloader(activity, downloadManager, context.getString(R.string.csvURL), "products.csv.tmp");
+            fileDownloader = FileDownloader.getInstance(activity, downloadManager,
+                    context.getString(R.string.csvURL), "products.csv.tmp");
 
             // Update timestamp since we've downloaded a new one
             SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);

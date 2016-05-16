@@ -182,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                Utilities.getInstance();
                 if (Utilities.getFileDownloader().getDownloadReference() == reference) {
                     DownloadManager.Query query = new DownloadManager.Query();
                     query.setFilterById(reference);
@@ -244,23 +245,23 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
                 String status = prefs.getString("download_status", "null");
                 Log.d("showDownloadPrompt", "Download Status: " + status);
-                if (!status.equals("downloading")) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                    dialog.setTitle("Database Update Available");
-                    dialog.setMessage("A new database update is available for download. Download now?");
-                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Utilities.downloadDatabase(act, getBaseContext());
-                        }
-                    });
-                    dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-                    dialog.show();
-                }
+//                if (!status.equals("downloading")) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                dialog.setTitle("Database Update Available");
+                dialog.setMessage("A new database update is available for download. Download now?");
+                dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Utilities.downloadDatabase(act, getBaseContext());
+                    }
+                });
+                dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                dialog.show();
+//                }
             }
         } else {
             Log.d("showDownloadPrompt", "Has no internet connection");
@@ -297,8 +298,8 @@ public class MainActivity extends AppCompatActivity {
         long current = System.currentTimeMillis();
         Timestamp cur = new Timestamp(current);
         if (Utilities.timeForUpdatePrompt(getBaseContext(), cur)) {
-        Log.d("onResume", "Time for update prompt was true");
-        showDownloadPrompt();
+            Log.d("onResume", "Time for update prompt was true");
+            showDownloadPrompt();
         }
     }
 

@@ -13,15 +13,16 @@ import java.io.File;
 
 public class FileDownloader {
 
+    private static FileDownloader mInstance = null;
+
     private long downloadReference;
 
-    public FileDownloader(Activity activity, DownloadManager downloadManager, String url, String filename) {
+    private FileDownloader(Activity activity, DownloadManager downloadManager, String url, String filename) {
         Log.d("FileDownloader", "Download file at: " + url);
         Uri uri = Uri.parse(url);
 
         String storageState = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
-
             try {
                 File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
                 if (file.exists()) {
@@ -48,6 +49,13 @@ public class FileDownloader {
             Toast.makeText(activity, "Storage device not available", Toast.LENGTH_LONG).show();
             Log.e("FileDownloader", "Storage device was not available, state was: " + storageState);
         }
+    }
+
+    public static FileDownloader getInstance(Activity activity, DownloadManager downloadManager, String url, String filename) {
+        if (mInstance == null) {
+            mInstance = new FileDownloader(activity, downloadManager, url, filename);
+        }
+        return mInstance;
     }
 
     public long getDownloadReference() {
