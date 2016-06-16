@@ -227,8 +227,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private LatLng getUserLatLng() {
         if (checkForPermission()) {
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            lat = mLastLocation.getLatitude();
-            lng = mLastLocation.getLongitude();
+            try {
+                lat = mLastLocation.getLatitude();
+                lng = mLastLocation.getLongitude();
+            } catch (NullPointerException e) {
+                Log.e("ERROR", "Couldn't get lat or long from last location: " + e.toString());
+            }
             return new LatLng(lat, lng);
         }
         return null;
