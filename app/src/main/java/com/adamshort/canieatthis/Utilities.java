@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -26,6 +27,34 @@ public class Utilities {
             mInstance = new Utilities();
         }
         return mInstance;
+    }
+
+    public static boolean getIntroShownPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean intro_shown = preferences.getBoolean("intro_shown", false);
+        Log.d("getIntroShownPref", "intro_shown: " + intro_shown);
+        return preferences.getBoolean("intro_shown", false);
+    }
+
+    public static void setIntroShownPref(Context context, boolean value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("intro_shown", value);
+        editor.apply();
+        Log.d("setIntroShownPref", "intro_shown: " + value);
+    }
+
+    public static String getFrequencyListPref(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("frequency_list_pref", "0");
+    }
+
+    public static void setFrequencyListPref(Activity activity, String value) {
+        SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("frequency_list_ref", value);
+        editor.apply();
+        Log.d("setFrequencyListPref", "frequency_list_ref: " + value);
     }
 
     public static boolean hasInternetConnection(Context context) {

@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
         }
         Firebase.setAndroidContext(getBaseContext());
 
+        if (!Utilities.getIntroShownPref(getBaseContext())) {
+            Log.d("onCreate", "Showing intro activity");
+            Utilities.setIntroShownPref(this, true);
+            Intent intent = new Intent(this, AppIntroActivity.class);
+            startActivity(intent);
+        }
+
         fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
         placesFragment = new PlacesFragment();
