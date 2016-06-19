@@ -49,6 +49,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private boolean connected;
     private boolean mapReady;
+    private boolean isVisible;
     private double lat;
     private double lng;
 
@@ -86,9 +87,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void moveCamera(GoogleMap googleMap, LatLng latLng) {
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(latLng).zoom(15).build();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        if (isVisible) {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(latLng).zoom(15).build();
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     @Override
@@ -239,16 +242,19 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private boolean checkForPermission() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-            if (connected && mapReady) {
-                moveCamera(mMap, getUserLatLng());
+        if (isVisible) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
+                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+                if (connected && mapReady) {
+                    moveCamera(mMap, getUserLatLng());
+                }
+                return false;
             }
-            return false;
         }
+        return false;
     }
 
     @Override
@@ -346,6 +352,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
+            Log.d("setUserVisibleHint", "PlacesFragment is visible.");
+            isVisible = true;
             checkForPermission();
         }
     }

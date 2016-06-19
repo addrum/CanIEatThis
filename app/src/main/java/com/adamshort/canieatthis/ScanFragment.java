@@ -126,12 +126,12 @@ public class ScanFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            Log.d("setUserVisibleHint", "Fragment is visible.");
+            Log.d("setUserVisibleHint", "ScanFragment is visible.");
             Log.d("setUserVisibleHint", Boolean.toString(fragmentCreated));
             if (fragmentCreated) setItemsFromDataPasser();
             resetIntro = false;
         } else {
-            Log.d("setUserVisibleHint", "Fragment is not visible.");
+            Log.d("setUserVisibleHint", "ScanFragment is not visible.");
             setSwitchesVisibility(View.INVISIBLE);
             setResponseItemsVisibility(View.INVISIBLE);
             if (itemTextView != null) {
