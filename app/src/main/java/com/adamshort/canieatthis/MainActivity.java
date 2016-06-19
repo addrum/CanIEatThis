@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Firebase.setAndroidContext(getBaseContext());
 
+        // show intro if not shown before
         if (!Utilities.getIntroShownPref(getBaseContext())) {
             Log.d("onCreate", "Showing intro activity");
             Utilities.setIntroShownPref(this, true);
@@ -242,31 +243,30 @@ public class MainActivity extends AppCompatActivity {
 
     private void showDownloadPrompt() {
         if (Utilities.hasInternetConnection(getBaseContext())) {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-            boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
+            boolean downloadDatabasePref = Utilities.getDownloadSwitchPref(getBaseContext());
             Log.d("showDownloadPrompt", "Should download database: " + downloadDatabasePref);
 
             if (downloadDatabasePref) {
                 SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
                 String status = prefs.getString("download_status", "null");
                 Log.d("showDownloadPrompt", "Download Status: " + status);
-//                if (!status.equals("downloading")) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setTitle("Database Update Available");
-                dialog.setMessage("A new database update is available for download. Download now?");
-                dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Utilities.downloadDatabase(MainActivity.this, getBaseContext());
-                    }
-                });
-                dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                dialog.show();
-//                }
+                if (!status.equals("downloading")) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setTitle("Database Update Available");
+                    dialog.setMessage("A new database update is available for download. Download now?");
+                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Utilities.downloadDatabase(MainActivity.this, getBaseContext());
+                        }
+                    });
+                    dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+                    dialog.show();
+                }
             }
         } else {
             Log.d("showDownloadPrompt", "Has no internet connection");

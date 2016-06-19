@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
+import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
+import com.heinrichreimersoftware.materialintro.slide.Slide;
 
 public class AppIntroActivity extends IntroActivity {
 
@@ -14,18 +16,17 @@ public class AppIntroActivity extends IntroActivity {
         super.onCreate(savedInstanceState);
 
         addSlide(new SimpleSlide.Builder()
-                .title("CanIEatThis")
-                .description("Welcome!")
+                .title(R.string.slide1Title)
+                .description(R.string.slide1Desc)
                 .image(R.mipmap.ic_launcher)
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
                 .build());
 
         addSlide(new SimpleSlide.Builder()
-                .title("Download Offline Database")
-                .description("To enable offline scanning of products, we need to download the database. " +
-                        "Press the button below to do that now! (You will see a download notification appear.")
-                .buttonCtaLabel("Download Database")
+                .title(R.string.slide2Title)
+                .description(getString(R.string.slide2Desc))
+                .buttonCtaLabel(R.string.slide2ButtonLabel)
                 .buttonCtaClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -37,10 +38,16 @@ public class AppIntroActivity extends IntroActivity {
                 .backgroundDark(R.color.colorPrimaryDark)
                 .build());
 
+        final Slide downloadFrequencySlide = new FragmentSlide.Builder()
+                .background(R.color.colorPrimary)
+                .backgroundDark(R.color.colorPrimaryDark)
+                .fragment(DownloadFrequencyFragment.newInstance())
+                .build();
+        addSlide(downloadFrequencySlide);
+
         addSlide(new SimpleSlide.Builder()
-                .title("Finding Restaurants Near You")
-                .description("In order to find restaurants, we need access to your location. " +
-                        "Press the button below to do that now!")
+                .title(R.string.slide3Title)
+                .description(R.string.slide3Desc)
                 .permission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .image(R.mipmap.ic_launcher)
                 .background(R.color.colorPrimary)

@@ -6,12 +6,12 @@
 
     <SwitchPreference
         android:key="download_switch_pref"
-        android:title="Check for Updates to Local Database"
+        android:title="@string/checkForUpdates"
         android:defaultValue="true"/>
 
     <ListPreference
         android:key="frequency_list_pref"
-        android:title="Update Check Frequency"
+        android:title="@string/updateCheckFrequency"
         android:summary="%s"
         android:entries="@array/updateCheckFrequencyArray"
         android:entryValues="@array/updateCheckFrequencyValues"

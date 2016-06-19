@@ -44,17 +44,34 @@ public class Utilities {
         Log.d("setIntroShownPref", "intro_shown: " + value);
     }
 
-    public static String getFrequencyListPref(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString("frequency_list_pref", "0");
+    public static boolean getDownloadSwitchPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean intro_shown = preferences.getBoolean("download_switch_pref", false);
+        Log.d("getDownloadSwitchPref", "download_switch_pref: " + intro_shown);
+        return preferences.getBoolean("download_switch_pref", false);
     }
 
-    public static void setFrequencyListPref(Activity activity, String value) {
-        SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+    public static void setDownloadSwitchPref(Context context, boolean value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("frequency_list_ref", value);
+        editor.putBoolean("download_switch_pref", value);
         editor.apply();
-        Log.d("setFrequencyListPref", "frequency_list_ref: " + value);
+        Log.d("setDownloadSwitchPref", "download_switch_pref: " + value);
+    }
+
+    public static String getFrequencyListPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean intro_shown = preferences.getBoolean("frequency_list_pref", false);
+        Log.d("getFrequencyListPref", "frequency_list_pref: " + intro_shown);
+        return preferences.getString("frequency_list_pref", "0");
+    }
+
+    public static void setFrequencyListPref(Context context, String value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("frequency_list_pref", value);
+        editor.apply();
+        Log.d("setFrequencyListPref", "frequency_list_pref: " + value);
     }
 
     public static boolean hasInternetConnection(Context context) {
