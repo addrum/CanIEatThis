@@ -1,6 +1,5 @@
 package com.adamshort.canieatthis;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.SearchManager;
@@ -242,7 +241,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDownloadPrompt() {
-        final Activity act = this;
         if (Utilities.hasInternetConnection(getBaseContext())) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
             boolean downloadDatabasePref = preferences.getBoolean("download_switch_pref", false);
@@ -259,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Utilities.downloadDatabase(act, getBaseContext());
+                        Utilities.downloadDatabase(MainActivity.this, getBaseContext());
                     }
                 });
                 dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
