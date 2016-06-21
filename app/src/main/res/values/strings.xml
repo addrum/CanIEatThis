@@ -43,11 +43,12 @@
     <string name="csvURL">http://world.openfoodfacts.org/data/en.openfoodfacts.org.products.csv</string>
     <string name="updateCheckFrequency">Update Check Frequency</string>
     <string name="checkForUpdates">Check for Updates to Local Database</string>
-    <string name="slide2Title">Download Offline Database</string>
-    <string name="slide2Desc">"To enable offline scanning of products, we need to download the database. Press the button below to do that now! (You will see a download notification appear.)""</string>
     <string name="slide1Title">CanIEatThis</string>
     <string name="slide1Desc">Welcome!</string>
-    <string name="slide3Title">Finding Restaurants Near You</string>
-    <string name="slide3Desc">In order to find restaurants, we need access to your location. Press the button below to do that now!</string>
+    <string name="slide2Title">Download Offline Database</string>
+    <string name="slide2Desc">"To enable offline scanning of products, we need to download the database. Press the button below to do that now! (You will see a download notification appear.)""</string>
     <string name="slide2ButtonLabel">Download Database</string>
+    <string name="slide4Title">Finding Restaurants Near You</string>
+    <string name="slide4Desc">In order to find restaurants, we need access to your location. Press the button below to do that now!</string>
+    <string name="slide3Desc">Use the dropdown below to set how often you\'d like to download the offline database (updated daily).</string>
 </resources>

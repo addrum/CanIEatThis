@@ -42,17 +42,17 @@ public class AppIntroActivity extends IntroActivity {
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
                 .fragment(DownloadFrequencyFragment.newInstance())
-                .canGoForward(true)
                 .build();
         addSlide(downloadFrequencySlide);
 
         addSlide(new SimpleSlide.Builder()
-                .title(R.string.slide3Title)
-                .description(R.string.slide3Desc)
+                .title(R.string.slide4Title)
+                .description(R.string.slide4Desc)
                 .permission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .image(R.mipmap.ic_launcher)
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
+                .canGoForward(true)
                 .build());
     }
 }

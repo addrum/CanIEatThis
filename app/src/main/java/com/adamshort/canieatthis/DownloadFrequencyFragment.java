@@ -8,7 +8,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.heinrichreimersoftware.materialintro.app.OnNavigationBlockedListener;
 import com.heinrichreimersoftware.materialintro.app.SlideFragment;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DownloadFrequencyFragment extends SlideFragment {
 
@@ -27,8 +32,13 @@ public class DownloadFrequencyFragment extends SlideFragment {
         View root = inflater.inflate(R.layout.fragment_download_frequency, container, false);
 
         final Spinner updateFrequencySpinner = (Spinner) root.findViewById(R.id.updateFrequencySpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.updateCheckFrequencyArray, android.R.layout.simple_spinner_dropdown_item);
+        String[] updateCheckFrequencyArray = getResources().getStringArray(R.array.updateCheckFrequencyArray);
+        List<String> list;
+        list = Arrays.asList(updateCheckFrequencyArray);
+        ArrayList<String> arrayList = new ArrayList<>(list);
+        arrayList.add("Never");
+        updateCheckFrequencyArray = arrayList.toArray(new String[list.size()]);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getContext(), android.R.layout.simple_spinner_dropdown_item, updateCheckFrequencyArray);
         if (updateFrequencySpinner != null) {
             updateFrequencySpinner.setAdapter(adapter);
         }
@@ -41,7 +51,11 @@ public class DownloadFrequencyFragment extends SlideFragment {
             updateFrequencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                    Utilities.setFrequencyListPref(getContext(), Long.toString(id));
+                    if (id == 3) {
+                        Utilities.setDownloadSwitchPref(getContext(), false);
+                    } else {
+                        Utilities.setFrequencyListPref(getContext(), Long.toString(id));
+                    }
                 }
 
                 @Override
