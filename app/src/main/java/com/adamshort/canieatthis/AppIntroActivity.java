@@ -42,6 +42,7 @@ public class AppIntroActivity extends IntroActivity {
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
                 .fragment(DownloadFrequencyFragment.newInstance())
+                .canGoForward(true)
                 .build();
         addSlide(downloadFrequencySlide);
 

@@ -248,9 +248,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             } else {
                 Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
                 requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-                if (connected && mapReady) {
-                    moveCamera(mMap, getUserLatLng());
-                }
                 return false;
             }
         }
@@ -354,7 +351,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
             isVisible = true;
-            checkForPermission();
+            mMap.setMyLocationEnabled(true);
+            if (connected && mapReady && checkForPermission()) {
+                moveCamera(mMap, getUserLatLng());
+            }
         }
     }
 
