@@ -19,6 +19,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
@@ -72,6 +75,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
+    private View locationButton;
     private CoordinatorLayout coordinatorLayout;
     private Button showMoreButton;
 
@@ -102,7 +106,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
         //HACK: Get the button view and place it on the bottom right (as Google Maps app)
         //noinspection ResourceType
-        View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
+        locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
@@ -137,7 +141,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mGoogleApiClient.connect();
 
             // http://stackoverflow.com/a/29872703/1860436
-
             LocationRequest locationRequest = LocationRequest.create();
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             locationRequest.setInterval(30 * 1000);
@@ -225,6 +228,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     Installation.id(getContext());
                     if (!Installation.isInInstallationFile(getContext(),
                             marker.getPosition().toString())) {
+                        showMoreButton.setVisibility(View.INVISIBLE);
                         Intent intent = new Intent(getContext(), AddPlacesInfo.class);
                         intent.putExtra("name", marker.getTitle());
                         intent.putExtra("latlng", marker.getPosition().toString());

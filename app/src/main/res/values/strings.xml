@@ -51,5 +51,5 @@
     <string name="slide4Title">Finding Restaurants Near You</string>
     <string name="slide4Desc">In order to find restaurants, we need access to your location. Press the button below to do that now!</string>
     <string name="slide3Desc">Use the dropdown below to set how often you\'d like to download the offline database (updated daily).</string>
-    <string name="showMorePlaces">Show More Places</string>
+    <string name="showMorePlaces">Show More</string>
 </resources>
