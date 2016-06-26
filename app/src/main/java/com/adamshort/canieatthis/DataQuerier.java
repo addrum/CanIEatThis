@@ -39,139 +39,145 @@ public class DataQuerier {
         return mInstance;
     }
 
-    public static boolean[] processData(List<String> ingredients, List<String> traces, boolean firebase, DataSnapshot snapshot) {
+    public static boolean[] processDataFirebase(List<String> ingredients, List<String> traces, DataSnapshot snapshot) {
         boolean[] bools = new boolean[]{false, false, false, false,};
         ingredients = IngredientsList.removeUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
         traces = IngredientsList.removeUnwantedCharacters(traces, "[_]|\\s+$\"", "");
-        if (firebase) {
-            boolean lactose = true;
-            boolean lacFalse = false;
-            boolean vegetarian = true;
-            boolean vegFalse = false;
-            boolean vegan = true;
-            boolean veganFalse = false;
-            boolean gluten = true;
-            boolean glutFalse = false;
 
-            if (ingredients.size() > 0 && !ingredients.get(0).equals("")) {
-                for (String resIngredient : ingredients) {
-                    // replace any special characters as we need an exact match
-                    String lowerResIngredient = DataQuerier.replaceSpecialChars(resIngredient).toLowerCase();
-                    for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
-                        String name = ingredientSnapshot.getKey().toLowerCase();
-                        if (name.equals(lowerResIngredient)) {
-                            if (!lacFalse) {
-                                boolean dai = (Boolean) ing.get("lactose_free");
-                                if (!dai) {
-                                    lactose = false;
-                                    lacFalse = true;
-                                }
-                            }
-                            if (!vegFalse) {
-                                boolean veg = (Boolean) ing.get("vegetarian");
-                                if (!veg) {
-                                    vegetarian = false;
-                                    vegFalse = true;
-                                }
-                            }
-                            if (!veganFalse) {
-                                boolean veg = (Boolean) ing.get("vegan");
-                                if (!veg) {
-                                    vegan = false;
-                                    veganFalse = true;
-                                }
-                            }
-                            if (!glutFalse) {
-                                boolean glu = (Boolean) ing.get("gluten_free");
-                                if (!glu) {
-                                    gluten = false;
-                                    glutFalse = true;
-                                }
-                            }
-                            Log.d("onDataChange", name + " " + lactose + " " + vegetarian +
-                                    " " + vegan + " " + gluten);
-                        }
-                    }
-                }
-            }
+        boolean lactose = true;
+        boolean lacFalse = false;
+        boolean vegetarian = true;
+        boolean vegFalse = false;
+        boolean vegan = true;
+        boolean veganFalse = false;
+        boolean gluten = true;
+        boolean glutFalse = false;
 
-            if (traces.size() > 0 && !traces.get(0).equals("")) {
-                if (!traces.get(0).equals("")) {
-                    for (String trace : traces) {
+        if (ingredients.size() > 0 && !ingredients.get(0).equals("")) {
+            for (String resIngredient : ingredients) {
+                // replace any special characters as we need an exact match
+                String lowerResIngredient = DataQuerier.replaceSpecialChars(resIngredient).toLowerCase();
+                for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
+                    String name = ingredientSnapshot.getKey().toLowerCase();
+                    if (name.equals(lowerResIngredient)) {
                         if (!lacFalse) {
-                            boolean d = isLactoseFree(trace);
-                            if (!d) {
+                            boolean dai = (Boolean) ing.get("lactose_free");
+                            if (!dai) {
                                 lactose = false;
                                 lacFalse = true;
                             }
                         }
+                        if (!vegFalse) {
+                            boolean veg = (Boolean) ing.get("vegetarian");
+                            if (!veg) {
+                                vegetarian = false;
+                                vegFalse = true;
+                            }
+                        }
                         if (!veganFalse) {
-                            boolean v = isVegan(trace);
-                            if (!v) {
+                            boolean veg = (Boolean) ing.get("vegan");
+                            if (!veg) {
                                 vegan = false;
                                 veganFalse = true;
                             }
                         }
-                        if (!vegFalse) {
-                            boolean ve = isVegetarian(trace);
-                            if (!ve) {
-                                vegetarian = false;
-                                veganFalse = true;
-                            }
-                        }
-                        if (glutFalse) {
-                            boolean g = isGlutenFree(trace);
-                            if (!g) {
+                        if (!glutFalse) {
+                            boolean glu = (Boolean) ing.get("gluten_free");
+                            if (!glu) {
                                 gluten = false;
                                 glutFalse = true;
                             }
                         }
+                        Log.d("onDataChange", name + " " + lactose + " " + vegetarian +
+                                " " + vegan + " " + gluten);
                     }
                 }
             }
-            bools[0] = lactose;
-            bools[1] = vegetarian;
-            bools[2] = vegan;
-            bools[3] = gluten;
-        } else {
-            boolean lactose = isLactoseFree(ingredients);
-            boolean vegan = isVegan(ingredients);
-            boolean vegetarian = true;
-            // if something is vegan it is 100% vegetarian
-            if (!vegan) {
-                vegetarian = isVegetarian(ingredients);
-            }
-            boolean gluten = isGlutenFree(ingredients);
+        }
 
-            if (traces.size() > 0) {
-                if (!traces.get(0).equals("")) {
-                    for (String trace : traces) {
+        if (traces.size() > 0 && !traces.get(0).equals("")) {
+            if (!traces.get(0).equals("")) {
+                for (String trace : traces) {
+                    if (!lacFalse) {
                         boolean d = isLactoseFree(trace);
                         if (!d) {
                             lactose = false;
+                            lacFalse = true;
                         }
+                    }
+                    if (!veganFalse) {
                         boolean v = isVegan(trace);
                         if (!v) {
                             vegan = false;
+                            veganFalse = true;
                         }
+                    }
+                    if (!vegFalse) {
                         boolean ve = isVegetarian(trace);
                         if (!ve) {
                             vegetarian = false;
+                            veganFalse = true;
                         }
+                    }
+                    if (glutFalse) {
                         boolean g = isGlutenFree(trace);
                         if (!g) {
                             gluten = false;
+                            glutFalse = true;
                         }
                     }
                 }
             }
-            bools[0] = lactose;
-            bools[1] = vegetarian;
-            bools[2] = vegan;
-            bools[3] = gluten;
         }
+        bools[0] = lactose;
+        bools[1] = vegetarian;
+        bools[2] = vegan;
+        bools[3] = gluten;
+
+        return bools;
+    }
+
+    public static boolean[] processData(List<String> ingredients, List<String> traces) {
+        boolean[] bools = new boolean[]{false, false, false, false,};
+
+        boolean lactose = isLactoseFree(ingredients);
+        boolean vegan = isVegan(ingredients);
+        boolean vegetarian = true;
+        // if something is vegan it is 100% vegetarian
+        if (!vegan) {
+            vegetarian = isVegetarian(ingredients);
+        }
+        boolean gluten = isGlutenFree(ingredients);
+
+        if (traces.size() > 0) {
+            if (!traces.get(0).equals("")) {
+                for (String trace : traces) {
+                    boolean d = isLactoseFree(trace);
+                    if (!d) {
+                        lactose = false;
+                    }
+                    boolean v = isVegan(trace);
+                    if (!v) {
+                        vegan = false;
+                    }
+                    boolean ve = isVegetarian(trace);
+                    if (!ve) {
+                        vegetarian = false;
+                    }
+                    boolean g = isGlutenFree(trace);
+                    if (!g) {
+                        gluten = false;
+                    }
+                }
+            }
+        }
+        bools[0] = lactose;
+        bools[1] = vegetarian;
+        bools[2] = vegan;
+        bools[3] = gluten;
+
         return bools;
     }
 

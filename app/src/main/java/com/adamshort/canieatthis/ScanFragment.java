@@ -38,7 +38,7 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.adamshort.canieatthis.DataQuerier.processData;
+import static com.adamshort.canieatthis.DataQuerier.*;
 
 public class ScanFragment extends Fragment {
 
@@ -157,21 +157,21 @@ public class ScanFragment extends Fragment {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
             if (DEBUG) {
-                // Digestivees
-//                getBarcodeInformation("5000168183732");
 //                getBarcodeInformation("7622210307668");
+                // McVities Digestives
 //                getBarcodeInformation("5000168001142");
+                // Tesco Orange Juice from Concentrate
 //                getBarcodeInformation("5051140367282");
                 // Muller Corner Choco Digestives
 //                getBarcodeInformation("4025500165574");
                 // Jammie Dodgers
-//                getBarcodeInformation("072417143700");
+                getBarcodeInformation("072417143700");
                 // Candy Crush Candy
 //                getBarcodeInformation("790310020");
                 // Honey Monster Puffs
 //                getBarcodeInformation("5060145250093");
-                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
             } else {
                 startActivityForResult(intent, 0);
             }
@@ -271,6 +271,7 @@ public class ScanFragment extends Fragment {
 
                 File products = null;
                 try {
+                    //noinspection ConstantConditions
                     products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
                 } catch (NullPointerException e) {
                     Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
@@ -324,9 +325,9 @@ public class ScanFragment extends Fragment {
                             } catch (JSONException e) {
                                 Log.e("getBarcodeInformation", "Couldn't create jsonobject: " + e.toString());
                             }
-                            processResponse(product);
+                            queryData(null, product);
                         } else {
-                            processResponse(null);
+                            queryData(null, null);
                         }
                     }
                 } catch (FileNotFoundException e) {
@@ -339,46 +340,6 @@ public class ScanFragment extends Fragment {
     public void processResponseFirebase(JSONObject product) {
         FirebaseAsyncRequest fbar = new FirebaseAsyncRequest();
         fbar.execute(product);
-    }
-
-    public void processResponse(JSONObject product) {
-        Log.d("processResponse", "Product: " + product);
-
-        try {
-            if (product != null) {
-                String item = product.getString("product_name");
-                String ingredients = product.getString("ingredients_text");
-                String traces = product.getString("traces");
-
-                List<String> editedIngredients = IngredientsList.stringToList(ingredients);
-                List<String> editedTraces = IngredientsList.stringToList(traces);
-
-                boolean[] bools = processData(editedIngredients, editedTraces, false, null);
-
-                setItemTitleText(item);
-                if (item.equals("")) {
-                    setItemTitleText("Product name not found");
-                }
-                setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
-                setIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
-                setTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
-
-                setSwitchesVisibility(View.VISIBLE);
-                introTextView.setVisibility(View.INVISIBLE);
-                setResponseItemsVisibility(View.VISIBLE);
-
-                if (editedIngredients.size() < 1 || editedIngredients.get(0).equals("")) {
-                    setIngredientsResponseTextBox("No ingredients found");
-                }
-                if (editedTraces.size() < 1 || editedTraces.get(0).equals("")) {
-                    setTracesResponseTextBox("No traces found");
-                }
-            } else {
-                showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
-            }
-        } catch (JSONException e) {
-            Log.e("processResponse", "Issue parseIntoJSON(response)");
-        }
     }
 
     public void setItemsFromDataPasser() {
@@ -487,38 +448,52 @@ public class ScanFragment extends Fragment {
         tracesResponseView.setVisibility(View.VISIBLE);
     }
 
-    private void queryData(DataSnapshot snapshot, JSONObject response) {
+    private void queryData(DataSnapshot snapshot, JSONObject product) {
+        Log.d("processResponse", "Product: " + product);
+
         try {
-            String item = response.getString("product_name");
-            String ingredients = response.getString("ingredients_text");
-            String traces = response.getString("traces");
+            if (product != null) {
+                String item = product.getString("product_name");
+                String ingredients = product.getString("ingredients_text");
+                String traces = product.getString("traces");
 
-            List<String> editedIngredients = IngredientsList.stringToList(ingredients);
-            List<String> editedTraces = IngredientsList.stringToList(traces);
+                List<String> ingredientsToTest = IngredientsList.stringToListAndTrim(ingredients);
+                List<String> tracesToTest = IngredientsList.stringToListAndTrim(traces);
 
-            boolean[] bools = processData(editedIngredients, editedTraces, true, snapshot);
+                List<String> ingredientsToDisplay = IngredientsList.stringToList(ingredients);
+                List<String> tracesToDisplay = IngredientsList.stringToList(traces);
 
-            setItemTitleText(item);
-            if (item.equals("")) {
-                setItemTitleText("Product name not found");
+                boolean[] bools;
+                if (snapshot != null) {
+                    bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
+                } else {
+                    bools = processData(ingredientsToTest, tracesToTest);
+                }
+
+                setItemTitleText(item);
+                if (item.equals("")) {
+                    setItemTitleText("Product name not found");
+                }
+                setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
+                setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", "")
+                        .replace("_", ""));
+                setTracesResponseTextBox(tracesToDisplay.toString().replace("[", "").replace("]", ""));
+
+                setSwitchesVisibility(View.VISIBLE);
+                introTextView.setVisibility(View.INVISIBLE);
+                setResponseItemsVisibility(View.VISIBLE);
+
+                if (ingredientsToDisplay.size() < 1 || ingredientsToDisplay.get(0).equals("")) {
+                    setIngredientsResponseTextBox("No ingredients found");
+                }
+                if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
+                    setTracesResponseTextBox("No traces found");
+                }
+            } else {
+                showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
             }
-            setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
-            setIngredientsResponseTextBox(editedIngredients.toString().replace("[", "").replace("]", ""));
-            setTracesResponseTextBox(editedTraces.toString().replace("[", "").replace("]", ""));
-
-            setSwitchesVisibility(View.VISIBLE);
-            introTextView.setVisibility(View.INVISIBLE);
-            setResponseItemsVisibility(View.VISIBLE);
-
-            if (editedIngredients.size() < 1 || editedIngredients.get(0).equals("")) {
-                setIngredientsResponseTextBox("No ingredients found");
-            }
-            if (editedTraces.size() < 1 || editedTraces.get(0).equals("")) {
-                setTracesResponseTextBox("No traces found");
-            }
-
         } catch (JSONException e) {
-            Log.e("processResponse", "Issue parseIntoJSON(response)");
+            Log.e("processResponse", "Issue processing response: " + e.toString());
         }
     }
 

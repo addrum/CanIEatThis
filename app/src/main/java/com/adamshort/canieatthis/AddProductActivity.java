@@ -112,35 +112,10 @@ public class AddProductActivity extends AppCompatActivity {
             unitSpinner.setAdapter(adapter);
         }
 
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
         barcodeNumberTextView.setText(barcode);
-
-        rh = new QueryURLAsync(this.getBaseContext(), progressBar, new QueryURLAsync.AsyncResponse() {
-            @Override
-            public void processFinish(String output) {
-                Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-                ref.keepSynced(true);
-                ref.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        boolean[] bools = processData(writtenIngredients, writtenTraces, true, snapshot);
-
-                        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
-
-                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                        intent.putExtra("result", RESULT_OK);
-                        setResult(Activity.RESULT_OK, intent);
-                        finish();
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError error) {
-                    }
-                });
-            }
-        });
 
         if (submitProductButton != null) {
             submitProductButton.setOnClickListener(new View.OnClickListener() {
@@ -189,16 +164,17 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !DEBUG) return;
 
-                    List<String> editedIngredients = IngredientsList.stringToList(ingredientsText);
+                    final List<String> ingredientsToTest = IngredientsList.stringToListAndTrim(ingredientsText);
+                    List<String> ingredientsToDisplay = IngredientsList.stringToList(ingredientsText);
 
                     // Set values for passing back to scan fragment
                     itemTitle = productNameText;
-                    writtenIngredients = editedIngredients;
+                    writtenIngredients = ingredientsToDisplay;
                     writtenTraces = IngredientsList.stringToList(tracesText);
 
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
-                    String ingredients = IngredientsList.listToString(compareTwoLists(editedIngredients, traces));
+                    String ingredients = IngredientsList.listToString(compareTwoLists(ingredientsToDisplay, traces));
 
                     if (DEBUG) {
                         barcodeText = "072417136160";
@@ -252,6 +228,30 @@ public class AddProductActivity extends AppCompatActivity {
                     try {
                         String url = BASE_URL + params;
                         Log.d("onCreate", "Url to execute at is: " + url);
+                        rh = new QueryURLAsync(AddProductActivity.this, progressBar, new QueryURLAsync.AsyncResponse() {
+                            @Override
+                            public void processFinish(String output) {
+                                Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                                ref.keepSynced(true);
+                                ref.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot snapshot) {
+                                        boolean[] bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
+
+                                        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
+
+                                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                                        intent.putExtra("result", RESULT_OK);
+                                        setResult(Activity.RESULT_OK, intent);
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(FirebaseError error) {
+                                    }
+                                });
+                            }
+                        });
                         rh.execute(url);
                     } catch (Exception e) {
                         e.printStackTrace();
