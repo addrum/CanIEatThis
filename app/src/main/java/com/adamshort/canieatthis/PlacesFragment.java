@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -78,7 +79,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();// needed to get the map to display immediately
         mMapView.getMapAsync(this);
-        mMapView.setPadding(5, 5, 5, 5);
+
+        //HACK: Get the button view and place it on the bottom right (as Google Maps app)
+        View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rlp.setMargins(0, 0, 30, 200); // left, top, right, bottom
 
         try {
             MapsInitializer.initialize(getContext());
@@ -97,6 +104,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
+
+            // http://stackoverflow.com/a/29872703/1860436
 
             LocationRequest locationRequest = LocationRequest.create();
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -118,6 +127,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         case LocationSettingsStatusCodes.SUCCESS:
                             // All location settings are satisfied. The client can initialize location
                             // requests here.
+                            if (mapReady && mMap != null) {
+                                moveCamera(mMap, getUserLatLng());
+                                createNearbyMarkers(mMap);
+                            }
                             break;
                         case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                             // Location settings are not satisfied. But could be fixed by showing the user
