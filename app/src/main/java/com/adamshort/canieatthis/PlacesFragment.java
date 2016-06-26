@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import com.firebase.client.DataSnapshot;
@@ -56,30 +57,46 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int FORM_REQUEST_CODE = 11;
+    private static final String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
+
+    private static String radius = "1000";
+    private static String nextPageToken;
 
     private boolean connected;
     private boolean mapReady;
     private boolean isVisible;
     private double lat;
     private double lng;
+    private String apiKey;
 
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
     private CoordinatorLayout coordinatorLayout;
+    private Button showMoreButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // inflat and return the layout
+        // inflate and return the layout
         View v = inflater.inflate(R.layout.fragment_places, container, false);
         setHasOptionsMenu(true);
+        apiKey = getResources().getString(R.string.server_key);
 
         coordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
 
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
-        mMapView.onResume();// needed to get the map to display immediately
+        mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
+
+        showMoreButton = (Button) v.findViewById(R.id.showMoreButton);
+        showMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMore(nextPageToken);
+                showMoreButton.setVisibility(View.INVISIBLE);
+            }
+        });
 
         //HACK: Get the button view and place it on the bottom right (as Google Maps app)
         //noinspection ResourceType
@@ -139,8 +156,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             try {
                                 // Show the dialog by calling startResolutionForResult(),
                                 // and check the result in onActivityResult().
-                                status.startResolutionForResult(
-                                        getActivity(), 1000);
+                                status.startResolutionForResult(getActivity(), 1000);
                             } catch (IntentSender.SendIntentException e) {
                                 // Ignore the error.
                             }
@@ -226,28 +242,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             if (connected) {
                 getUserLatLng();
             }
-            String radius = "1000";
-            String apiKey = getResources().getString(R.string.server_key);
-            String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
-                    + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
-
-            QueryURLAsync rh = new QueryURLAsync(getContext(), null, new QueryURLAsync.AsyncResponse() {
-                @Override
-                public void processFinish(String output) {
-                    try {
-                        JSONObject response = new JSONObject(output);
-                        JSONArray results = response.getJSONArray("results");
-
-                        for (int i = 0; i < results.length(); i++) {
-                            JSONObject location = results.getJSONObject(i);
-                            createMarker(location);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            rh.execute(placesUrl);
+            if (lat != 0 && lng != 0) {
+                String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+                queryPlacesURL(url);
+            }
         } else {
             Log.d("createNearbyMarkers", "LatLng was null so won't make places request");
         }
@@ -294,6 +292,44 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         } catch (JSONException e) {
             Log.e("createMarker", e.toString());
         }
+    }
+
+    private void showMore(String nextPageToken) {
+        if (!nextPageToken.equals("")) {
+            String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey
+                    + "&pagetoken=" + nextPageToken;
+            queryPlacesURL(url);
+        }
+        Log.d("showMore", "Next page token was null, won't show more");
+    }
+
+    private void queryPlacesURL(String placesUrl) {
+        QueryURLAsync rh = new QueryURLAsync(getContext(), null, new QueryURLAsync.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                try {
+                    JSONObject response = new JSONObject(output);
+                    JSONArray results = response.getJSONArray("results");
+                    try {
+                        PlacesFragment.nextPageToken = response.getString("next_page_token");
+                        if (!nextPageToken.equals("")) {
+                            showMoreButton.setVisibility(View.VISIBLE);
+                        }
+                    } catch (JSONException e) {
+                        nextPageToken = "";
+                        showMoreButton.setVisibility(View.INVISIBLE);
+                    }
+
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject location = results.getJSONObject(i);
+                        createMarker(location);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        rh.execute(placesUrl);
     }
 
     private LatLng getUserLatLng() {
