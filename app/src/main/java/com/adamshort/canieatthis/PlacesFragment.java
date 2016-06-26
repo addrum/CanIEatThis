@@ -468,7 +468,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
             isVisible = true;
-            mMap.setMyLocationEnabled(true);
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
+            }
             createGoogleAPIClient();
             if (connected && mapReady && checkForPermission()) {
                 moveCamera(mMap, getUserLatLng());
