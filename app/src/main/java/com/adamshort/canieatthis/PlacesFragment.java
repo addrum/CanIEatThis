@@ -84,8 +84,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
         coordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
 
+        // https://code.google.com/p/gmaps-api-issues/issues/detail?id=6237#c9
+        final Bundle mapViewSavedInstanceState = savedInstanceState != null ? savedInstanceState.getBundle("mapViewSaveState") : null;
         mMapView = (MapView) v.findViewById(R.id.mapView);
-        mMapView.onCreate(savedInstanceState);
+        mMapView.onCreate(mapViewSavedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
 
@@ -114,6 +116,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
         // Perform any camera updates here
         return v;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        //This MUST be done before saving any of your own or your base class's variables
+        final Bundle mapViewSaveState = new Bundle(outState);
+        mMapView.onSaveInstanceState(mapViewSaveState);
+        outState.putBundle("mapViewSaveState", mapViewSaveState);
+        //Add any other variables here.
+        super.onSaveInstanceState(outState);
     }
 
     private void createGoogleAPIClient() {
