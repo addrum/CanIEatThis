@@ -32,7 +32,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -81,6 +80,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMapView.getMapAsync(this);
 
         //HACK: Get the button view and place it on the bottom right (as Google Maps app)
+        //noinspection ResourceType
         View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
@@ -120,9 +120,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
             result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
                 @Override
-                public void onResult(LocationSettingsResult result) {
+                public void onResult(@NonNull LocationSettingsResult result) {
                     final Status status = result.getStatus();
-                    final LocationSettingsStates state = result.getLocationSettingsStates();
                     switch (status.getStatusCode()) {
                         case LocationSettingsStatusCodes.SUCCESS:
                             // All location settings are satisfied. The client can initialize location
