@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -71,6 +72,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // inflat and return the layout
         View v = inflater.inflate(R.layout.fragment_places, container, false);
+        setHasOptionsMenu(true);
 
         coordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
 
@@ -424,6 +426,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 moveCamera(mMap, getUserLatLng());
             }
         }
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_search).setVisible(false);
+        super.onPrepareOptionsMenu(menu);
     }
 
     private boolean shouldShowInfo(double true_value, double false_value) {
