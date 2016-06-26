@@ -19,9 +19,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
@@ -29,6 +26,8 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -38,6 +37,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -59,6 +60,7 @@ import java.util.Map;
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
+    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int FORM_REQUEST_CODE = 11;
     private static final String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
 
@@ -75,7 +77,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
-    private View locationButton;
     private CoordinatorLayout coordinatorLayout;
     private Button showMoreButton;
 
@@ -104,9 +105,26 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
         });
 
+        Button searchButton = (Button) v.findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                    .build(getActivity());
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesRepairableException e) {
+                    // TODO: Handle the error.
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    // TODO: Handle the error.
+                }
+            }
+        });
+
         //HACK: Get the button view and place it on the bottom right (as Google Maps app)
         //noinspection ResourceType
-        locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
+        View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
@@ -123,7 +141,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(Bundle outState) {
         //This MUST be done before saving any of your own or your base class's variables
         final Bundle mapViewSaveState = new Bundle(outState);
         mMapView.onSaveInstanceState(mapViewSaveState);
@@ -162,6 +180,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             // requests here.
                             if (mapReady && mMap != null) {
                                 moveCamera(mMap, getUserLatLng());
+                                if (connected) {
+                                    getUserLatLng();
+                                }
                                 createNearbyMarkers(mMap);
                             }
                             break;
@@ -247,7 +268,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                return false;
+                return marker.getTitle().equals("custom");
             }
         });
     }
@@ -255,9 +276,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void createNearbyMarkers(GoogleMap googleMap) {
         googleMap.clear();
         if (checkForPermission()) {
-            if (connected) {
-                getUserLatLng();
-            }
             if (lat != 0 && lng != 0) {
                 String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
                 queryPlacesURL(url);
@@ -401,8 +419,28 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     // http://stackoverflow.com/a/10407371/1860436
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == 11) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(getContext(), data);
+                LatLng placeLatLng = place.getLatLng();
+                setLatLng(placeLatLng);
+                moveCamera(mMap, placeLatLng);
+                createNearbyMarkers(mMap);
+                MarkerOptions marker = new MarkerOptions().position(placeLatLng)
+                        .title("custom")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                mMap.addMarker(marker);
+                Log.i("onActivityResult", "Place: " + place.getName());
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(getContext(), data);
+                // TODO: Handle the error.
+                Log.i("onActivityResult", status.getStatusMessage());
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        } else if (requestCode == 11) {
             if (resultCode == Activity.RESULT_OK) {
                 Snackbar.make(coordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
             }
@@ -472,7 +510,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
             isVisible = true;
-            if (mMap != null) {
+            if (mMap != null && checkForPermission()) {
                 mMap.setMyLocationEnabled(true);
             }
             createGoogleAPIClient();
@@ -624,5 +662,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         @Override
         protected void onPostExecute(String response) {
         }
+    }
+
+    private void setLatLng(LatLng latLng) {
+        lat = latLng.latitude;
+        lng = latLng.longitude;
     }
 }
