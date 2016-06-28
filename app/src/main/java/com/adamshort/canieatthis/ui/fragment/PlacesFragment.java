@@ -567,7 +567,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         try {
             value = (long) dietary.get(key);
         } catch (Exception e) {
-            Log.e("getKeyValue", "Issue getting " + key + "from dietary requirement");
+            Log.e("getKeyValue", "Issue getting " + key + " from dietary requirement");
         }
         return value;
     }

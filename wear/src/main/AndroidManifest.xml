@@ -17,7 +17,7 @@
             android:name="com.google.android.wearable"
             android:required="false"/>
         <activity
-            android:name="com.adamshort.canieatthis.wear.MainWearActivity">
+            android:name="com.adamshort.canieatthis.wear.ui.MainWearActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
