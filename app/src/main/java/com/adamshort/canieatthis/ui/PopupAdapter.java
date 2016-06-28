@@ -24,7 +24,10 @@ import com.adamshort.canieatthis.R;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
+import java.util.List;
+
 public class PopupAdapter implements InfoWindowAdapter {
+
     private View popup = null;
     private LayoutInflater inflater = null;
 
@@ -66,36 +69,36 @@ public class PopupAdapter implements InfoWindowAdapter {
             rating_view.setVisibility(View.GONE);
         }
 
-        TextView dairy_free_view = (TextView) popup.findViewById(R.id.dairy_free);
+        TextView view1 = (TextView) popup.findViewById(R.id.view1);
         if (length > 2) {
-            dairy_free_view.setText(snippet[2]);
-            dairy_free_view.setVisibility(View.VISIBLE);
+            view1.setText(snippet[2]);
+            view1.setVisibility(View.VISIBLE);
         } else {
-            dairy_free_view.setVisibility(View.GONE);
+            view1.setVisibility(View.GONE);
         }
 
-        TextView vegetarian_view = (TextView) popup.findViewById(R.id.vegetarian);
+        TextView view2 = (TextView) popup.findViewById(R.id.view2);
         if (length > 3) {
-            vegetarian_view.setText(snippet[3]);
-            vegetarian_view.setVisibility(View.VISIBLE);
+            view2.setText(snippet[3]);
+            view2.setVisibility(View.VISIBLE);
         } else {
-            vegetarian_view.setVisibility(View.GONE);
+            view2.setVisibility(View.GONE);
         }
 
-        TextView vegan_view = (TextView) popup.findViewById(R.id.vegan);
+        TextView view3 = (TextView) popup.findViewById(R.id.view3);
         if (length > 4) {
-            vegan_view.setText(snippet[4]);
-            vegan_view.setVisibility(View.VISIBLE);
+            view3.setText(snippet[4]);
+            view3.setVisibility(View.VISIBLE);
         } else {
-            vegan_view.setVisibility(View.GONE);
+            view3.setVisibility(View.GONE);
         }
 
-        TextView gluten_free_view = (TextView) popup.findViewById(R.id.gluten_free);
+        TextView view4 = (TextView) popup.findViewById(R.id.view4);
         if (length > 5) {
-            gluten_free_view.setText(snippet[5]);
-            gluten_free_view.setVisibility(View.VISIBLE);
+            view4.setText(snippet[5]);
+            view4.setVisibility(View.VISIBLE);
         } else {
-            gluten_free_view.setVisibility(View.GONE);
+            view4.setVisibility(View.GONE);
         }
 
         return (popup);
