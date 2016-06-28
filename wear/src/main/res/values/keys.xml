@@ -1,0 +1,5 @@
+<resources>
+    <string name="places_api_key">AIzaSyBGBmDyc68VB9qg87yMX7UeHnBRCmx2T2M</string>
+    <string name="server_key">AIzaSyBG3zGGejYKap36YKU1SaFZIhiYnuTrlnA</string>
+    <string name="firebase_url">https://canieatthis.firebaseio.com</string>
+</resources>
