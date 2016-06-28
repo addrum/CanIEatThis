@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">CanIEatThis</string>
+    <string name="wearExitText">You can exit the app by long pressing the screen</string>
+    <string name="places_api_key">AIzaSyBGBmDyc68VB9qg87yMX7UeHnBRCmx2T2M</string>
+</resources>
