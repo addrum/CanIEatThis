@@ -279,7 +279,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        googleMap.clear();
+        if (googleMap != null) {
+            googleMap.clear();
+        }
         if (checkForPermission()) {
             if (lat != 0 && lng != 0) {
                 String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
@@ -467,6 +469,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onResume();
         if (mMapView != null) {
             mMapView.onResume();
+            moveCamera(mMap, getUserLatLng());
+            createNearbyMarkers(mMap);
         }
     }
 
