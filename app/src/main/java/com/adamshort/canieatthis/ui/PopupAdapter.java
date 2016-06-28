@@ -24,11 +24,11 @@ import com.adamshort.canieatthis.R;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
-class PopupAdapter implements InfoWindowAdapter {
+public class PopupAdapter implements InfoWindowAdapter {
     private View popup = null;
     private LayoutInflater inflater = null;
 
-    PopupAdapter(LayoutInflater inflater) {
+    public PopupAdapter(LayoutInflater inflater) {
         this.inflater = inflater;
     }
 
