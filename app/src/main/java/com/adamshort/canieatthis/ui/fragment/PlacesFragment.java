@@ -213,7 +213,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void moveCamera(GoogleMap googleMap, LatLng latLng) {
-        if (isVisible) {
+        if (isVisible && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng).zoom(15).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));

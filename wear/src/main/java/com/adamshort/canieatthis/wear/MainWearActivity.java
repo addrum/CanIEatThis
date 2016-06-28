@@ -1,38 +1,43 @@
 package com.adamshort.canieatthis.wear;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.DismissOverlayView;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
 import com.example.canieatthiswear.R;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.wearable.Wearable;
 
-public class MainWearActivity extends WearableActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
+public class MainWearActivity extends WearableActivity implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
-    private static final LatLng SYDNEY = new LatLng(-33.85704, 151.21522);
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
 
-    /**
-     * Overlay that shows a short help text when first launched. It also provides an option to
-     * exit the app.
-     */
+    private boolean connected;
+    private boolean mapReady;
+    private double lat;
+    private double lng;
+
     private DismissOverlayView mDismissOverlay;
-
-    /**
-     * The map. It is initialized when the map has been fully loaded and is ready to be used.
-     *
-     * @see #onMapReady(com.google.android.gms.maps.GoogleMap)
-     */
     private GoogleMap mMap;
     private MapView mMapView;
+    private GoogleApiClient mGoogleApiClient;
 
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -82,6 +87,38 @@ public class MainWearActivity extends WearableActivity implements OnMapReadyCall
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
 
+        createGoogleAPIClient();
+    }
+
+    private void moveCamera(GoogleMap googleMap, LatLng latLng) {
+        if (latLng != null && googleMap != null) {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(latLng).zoom(15).build();
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
+    }
+
+    private LatLng getUserLatLng() {
+        //noinspection MissingPermission
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        try {
+            lat = mLastLocation.getLatitude();
+            lng = mLastLocation.getLongitude();
+        } catch (NullPointerException e) {
+            Log.e("getUserLatLng", "Couldn't get lat or long from last location: " + e.toString());
+        }
+        return new LatLng(lat, lng);
+    }
+
+    private void createGoogleAPIClient() {
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(getBaseContext())
+                    .addApi(LocationServices.API)
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(this)
+                    .build();
+            mGoogleApiClient.connect();
+        }
     }
 
     /**
@@ -107,23 +144,133 @@ public class MainWearActivity extends WearableActivity implements OnMapReadyCall
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // Map is ready to be used.
+        Log.d("onMapReady", "Map is ready");
+        mapReady = true;
         mMap = googleMap;
-
-        // Set the long click listener as a way to exit the map.
         mMap.setOnMapLongClickListener(this);
+        if (connected) {
+            getUserLatLng();
+        }
+        moveCamera(googleMap, new LatLng(lat, lng));
 
-        // Add a marker with a title that is shown in its info window.
-        mMap.addMarker(new MarkerOptions().position(SYDNEY)
-                .title("Sydney Opera House"));
+        if (checkForPermission()) {
+            googleMap.setMyLocationEnabled(true);
+            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+//            createNearbyMarkers(googleMap);
+        }
 
-        // Move the camera to show the marker.
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(SYDNEY, 10));
+        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                getUserLatLng();
+//                createNearbyMarkers(googleMap);
+                return false;
+            }
+        });
     }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
         // Display the dismiss overlay with a button to exit this activity.
         mDismissOverlay.show();
+    }
+
+    private boolean checkForPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
+            ActivityCompat.requestPermissions(MainWearActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.d("onConnected", "APIClient connected");
+        connected = true;
+
+        if (checkForPermission()) {
+            Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (loc != null) {
+                lat = loc.getLatitude();
+                lng = loc.getLongitude();
+            }
+            if (mapReady && mMap != null) {
+                moveCamera(mMap, getUserLatLng());
+//            createNearbyMarkers(mMap);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.d("onRequestPermissions", "Permissions have been requested");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSION_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    if (connected) {
+                        if (checkForPermission()) {
+                            moveCamera(mMap, getUserLatLng());
+                            mMap.setMyLocationEnabled(true);
+                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+//                            createNearbyMarkers(mMap);
+                        }
+                    }
+                }
+            }
+        }
+        // other 'case' lines to check for other
+        // permissions this app might request
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mMapView != null) {
+            mMapView.onResume();
+            moveCamera(mMap, getUserLatLng());
+//            createNearbyMarkers(mMap);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mMapView != null) {
+            mMapView.onPause();
+        }
+        if (mMap != null) {
+            mMap.clear();
+        }
+        mapReady = false;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mMapView != null) {
+            mMapView.onDestroy();
+        }
+        if (mMap != null) {
+            mMap.clear();
+        }
+        connected = false;
+        mapReady = false;
     }
 }
