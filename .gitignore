@@ -38,3 +38,4 @@ captures/
 *.csv
 *.iml
 *.stackdump
+wear/src/main/res/values/keys.xml
