@@ -245,10 +245,7 @@ public class ScanFragment extends Fragment {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 
-                if (!barcode.equals(contents)) {
-                    getBarcodeInformation(contents);
-                    barcode = contents;
-                }
+                getBarcodeInformation(contents);
             }
         }
         // http://stackoverflow.com/a/10407371/1860436
