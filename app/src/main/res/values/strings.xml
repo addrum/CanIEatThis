@@ -53,4 +53,5 @@
     <string name="slide3Desc">Use the dropdown below to set how often you\'d like to download the offline database (updated daily).</string>
     <string name="showMorePlaces">Show More</string>
     <string name="search">Search</string>
+    <string name="placesUrl">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="</string>
 </resources>
