@@ -3,6 +3,7 @@
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature android:name="android.hardware.type.watch"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Permission required for ambient mode to keep the application running. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -17,7 +18,7 @@
             android:name="com.google.android.wearable"
             android:required="false"/>
         <activity
-            android:name="com.adamshort.canieatthis.wear.ui.MainWearActivity">
+            android:name="com.adamshort.canieatthis.wear.ui.activity.MainWearActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

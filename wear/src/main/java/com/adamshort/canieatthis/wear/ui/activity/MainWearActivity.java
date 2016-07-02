@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.wear.ui;
+package com.adamshort.canieatthis.wear.ui.activity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
+import com.adamshort.canieatthis.wear.ui.PopupAdapter;
 import com.adamshort.canieatthis.wear.util.QueryURLAsync;
 import com.example.canieatthiswear.R;
 import com.firebase.client.DataSnapshot;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.wearable.Wearable;
 
@@ -42,8 +44,6 @@ import java.util.Map;
 public class MainWearActivity extends WearableActivity implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
-
-    private static final String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
 
     private static String radius = "1000";
     private static String nextPageToken;
@@ -156,7 +156,7 @@ public class MainWearActivity extends WearableActivity implements GoogleApiClien
         }
         if (checkForPermission()) {
             if (lat != 0 && lng != 0) {
-                String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
                 queryPlacesURL(url);
             }
         } else {
@@ -258,7 +258,7 @@ public class MainWearActivity extends WearableActivity implements GoogleApiClien
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         Log.d("onMapReady", "Map is ready");
         mapReady = true;
         mMap = googleMap;
@@ -278,8 +278,17 @@ public class MainWearActivity extends WearableActivity implements GoogleApiClien
             @Override
             public boolean onMyLocationButtonClick() {
                 getUserLatLng();
-//                createNearbyMarkers(googleMap);
+                createNearbyMarkers(googleMap);
                 return false;
+            }
+        });
+
+        googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return marker.getTitle().equals("custom");
             }
         });
     }
