@@ -67,7 +67,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int FORM_REQUEST_CODE = 11;
-    private static final String placesUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
 
     private static String radius = "1000";
     private static String nextPageToken;
@@ -286,7 +285,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         if (checkForPermission()) {
             if (lat != 0 && lng != 0) {
-                String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
                 queryPlacesURL(url);
             }
         } else {
@@ -339,7 +338,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private void showMore(String nextPageToken) {
         if (!nextPageToken.equals("")) {
-            String url = placesUrl + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey
+            String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey
                     + "&pagetoken=" + nextPageToken;
             queryPlacesURL(url);
         }
