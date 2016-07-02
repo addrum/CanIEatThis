@@ -22,11 +22,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
-import com.adamshort.canieatthis.data.Installation;
-import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.data.Installation;
 import com.adamshort.canieatthis.ui.PopupAdapter;
 import com.adamshort.canieatthis.ui.activity.AddPlacesInfoActivity;
+import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -75,6 +75,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private boolean connected;
     private boolean mapReady;
     private boolean isVisible;
+    private static boolean fromSearch;
     private double lat;
     private double lng;
     private String apiKey;
@@ -241,6 +242,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             public boolean onMyLocationButtonClick() {
                 getUserLatLng();
                 createNearbyMarkers(googleMap);
+                fromSearch = false;
                 return false;
             }
         });
@@ -425,6 +427,15 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    private void createCustomMarker(LatLng placeLatLng) {
+        if (mMap != null) {
+            MarkerOptions marker = new MarkerOptions().position(placeLatLng)
+                    .title("custom")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            mMap.addMarker(marker);
+        }
+    }
+
     // http://stackoverflow.com/a/10407371/1860436
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -435,10 +446,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 setLatLng(placeLatLng);
                 moveCamera(mMap, placeLatLng);
                 createNearbyMarkers(mMap);
-                MarkerOptions marker = new MarkerOptions().position(placeLatLng)
-                        .title("custom")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                mMap.addMarker(marker);
+                createCustomMarker(placeLatLng);
+                fromSearch = true;
                 Log.i("onActivityResult", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getContext(), data);
@@ -469,8 +478,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onResume();
         if (mMapView != null) {
             mMapView.onResume();
-            moveCamera(mMap, getUserLatLng());
+            moveCamera(mMap, getLatLng());
             createNearbyMarkers(mMap);
+            if (fromSearch) {
+                createCustomMarker(getLatLng());
+            }
         }
     }
 
@@ -671,6 +683,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         @Override
         protected void onPostExecute(String response) {
         }
+    }
+
+    private LatLng getLatLng() {
+        return new LatLng(lat, lng);
     }
 
     private void setLatLng(LatLng latLng) {
