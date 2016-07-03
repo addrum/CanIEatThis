@@ -325,7 +325,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
 
             marker.snippet(snippetText);
-            marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+            marker.icon(BitmapDescriptorFactory.defaultMarker());
 
             FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
             fb.execute(marker);
