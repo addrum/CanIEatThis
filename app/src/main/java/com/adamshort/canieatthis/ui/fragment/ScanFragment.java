@@ -113,6 +113,10 @@ public class ScanFragment extends Fragment {
 
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
+        dataPasser = DataPasser.getInstance(getContext());
+
+        dataQuerier = DataQuerier.getInstance(getActivity());
+
         setItemsFromDataPasser();
 
         scanButton.setOnClickListener(new View.OnClickListener() {
@@ -125,10 +129,6 @@ public class ScanFragment extends Fragment {
         fragmentCreated = true;
 
         DEBUG = android.os.Debug.isDebuggerConnected();
-
-        dataPasser = DataPasser.getInstance(getContext());
-
-        dataQuerier = DataQuerier.getInstance(getActivity());
 
         return view;
     }
@@ -168,7 +168,7 @@ public class ScanFragment extends Fragment {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
 //            Intent intent = new Intent(ACTION_SCAN);
 //            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-//            if (DEBUG) {
+            if (DEBUG) {
 //                getBarcodeInformation("7622210307668");
             // McVities Digestives
 //                getBarcodeInformation("5000168001142");
@@ -186,10 +186,10 @@ public class ScanFragment extends Fragment {
 //                getBarcodeInformation("5053990101863");
 //                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-//            } else {
+            } else {
 //                startActivityForResult(intent, 0);
             IntentIntegrator.forSupportFragment(this).initiateScan();
-//            }
+            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
