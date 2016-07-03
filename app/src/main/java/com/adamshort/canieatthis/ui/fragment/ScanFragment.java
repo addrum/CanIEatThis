@@ -74,6 +74,7 @@ public class ScanFragment extends Fragment {
     private TextView ingredientResponseView;
     private TextView tracesTitleText;
     private TextView tracesResponseView;
+    private TextView suitableTitleText;
     private ProgressBar progressBar;
     private DataPasser dataPasser;
     private DataQuerier dataQuerier;
@@ -93,6 +94,7 @@ public class ScanFragment extends Fragment {
         ingredientResponseView = (TextView) view.findViewById(R.id.ingredientsResponseView);
         tracesTitleText = (TextView) view.findViewById(R.id.tracesTitleText);
         tracesResponseView = (TextView) view.findViewById(R.id.tracesResponseView);
+        suitableTitleText = (TextView) view.findViewById(R.id.suitableTitleText);
 
         Button scanButton = (Button) view.findViewById(R.id.scanButton);
 
@@ -260,83 +262,81 @@ public class ScanFragment extends Fragment {
     public void getBarcodeInformation(String barcode) {
         // 2nd param is output length, 3rd param is padding char
         barcode = StringUtils.leftPad(barcode, 13, "0");
-        if (!ScanFragment.barcode.equals(barcode)) {
-            ScanFragment.barcode = barcode;
-            if (Utilities.hasInternetConnection(getContext())) {
-                QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, new QueryURLAsync.AsyncResponse() {
-                    @Override
-                    public void processFinish(String output) {
-                        JSONObject product = dataQuerier.parseIntoJSON(output);
-                        processResponseFirebase(product);
-                    }
-                });
-                rh.execute(BASE_URL + barcode + EXTENSION);
-            } else {
-
-                File products = null;
-                try {
-                    //noinspection ConstantConditions
-                    products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
-                } catch (NullPointerException e) {
-                    Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
+        ScanFragment.barcode = barcode;
+        if (Utilities.hasInternetConnection(getContext())) {
+            QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, new QueryURLAsync.AsyncResponse() {
+                @Override
+                public void processFinish(String output) {
+                    JSONObject product = dataQuerier.parseIntoJSON(output);
+                    processResponseFirebase(product);
                 }
-                try {
-                    if (products != null) {
-                        CsvParserSettings settings = new CsvParserSettings();
-                        settings.getFormat().setDelimiter('\t');
-                        settings.setMaxCharsPerColumn(10000);
-                        // limits to barcode, name, ingredients and traces
-                        settings.selectIndexes(0, 7, 34, 35);
+            });
+            rh.execute(BASE_URL + barcode + EXTENSION);
+        } else {
 
-                        CsvParser parser = new CsvParser(settings);
+            File products = null;
+            try {
+                //noinspection ConstantConditions
+                products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
+            } catch (NullPointerException e) {
+                Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
+            }
+            try {
+                if (products != null) {
+                    CsvParserSettings settings = new CsvParserSettings();
+                    settings.getFormat().setDelimiter('\t');
+                    settings.setMaxCharsPerColumn(10000);
+                    // limits to barcode, name, ingredients and traces
+                    settings.selectIndexes(0, 7, 34, 35);
 
-                        // call beginParsing to read records one by one, iterator-style.
-                        parser.beginParsing(new FileReader(products));
+                    CsvParser parser = new CsvParser(settings);
 
-                        String[] info = null;
-                        String[] row;
-                        while ((row = parser.parseNext()) != null) {
-                            if (StringUtils.leftPad(row[0], 13, "0").equals(barcode)) {
-                                info = row;
-                                parser.stopParsing();
-                            }
-                        }
-                        if (info != null) {
-                            Log.d("getBarcodeInformation", Arrays.toString(info));
-                            JSONObject product = new JSONObject();
-                            try {
-                                int length = info.length;
-                                if (length > 0 && info[0] != null) {
-                                    product.put("barcode", info[0]);
-                                } else {
-                                    product.put("barcode", "");
-                                }
-                                if (length > 1 && info[1] != null) {
-                                    product.put("product_name", info[1]);
-                                } else {
-                                    product.put("product_name", "");
-                                }
-                                if (length > 2 && info[2] != null) {
-                                    product.put("ingredients_text", info[2]);
-                                } else {
-                                    product.put("ingredients_text", "");
-                                }
-                                if (length > 3 && info[3] != null) {
-                                    product.put("traces", info[3]);
-                                } else {
-                                    product.put("traces", "");
-                                }
-                            } catch (JSONException e) {
-                                Log.e("getBarcodeInformation", "Couldn't create jsonobject: " + e.toString());
-                            }
-                            queryData(null, product);
-                        } else {
-                            queryData(null, null);
+                    // call beginParsing to read records one by one, iterator-style.
+                    parser.beginParsing(new FileReader(products));
+
+                    String[] info = null;
+                    String[] row;
+                    while ((row = parser.parseNext()) != null) {
+                        if (StringUtils.leftPad(row[0], 13, "0").equals(barcode)) {
+                            info = row;
+                            parser.stopParsing();
                         }
                     }
-                } catch (FileNotFoundException e) {
-                    Log.e("getBarcodeInformation", "Couldn't find file: " + e.toString());
+                    if (info != null) {
+                        Log.d("getBarcodeInformation", Arrays.toString(info));
+                        JSONObject product = new JSONObject();
+                        try {
+                            int length = info.length;
+                            if (length > 0 && info[0] != null) {
+                                product.put("barcode", info[0]);
+                            } else {
+                                product.put("barcode", "");
+                            }
+                            if (length > 1 && info[1] != null) {
+                                product.put("product_name", info[1]);
+                            } else {
+                                product.put("product_name", "");
+                            }
+                            if (length > 2 && info[2] != null) {
+                                product.put("ingredients_text", info[2]);
+                            } else {
+                                product.put("ingredients_text", "");
+                            }
+                            if (length > 3 && info[3] != null) {
+                                product.put("traces", info[3]);
+                            } else {
+                                product.put("traces", "");
+                            }
+                        } catch (JSONException e) {
+                            Log.e("getBarcodeInformation", "Couldn't create jsonobject: " + e.toString());
+                        }
+                        queryData(null, product);
+                    } else {
+                        queryData(null, null);
+                    }
                 }
+            } catch (FileNotFoundException e) {
+                Log.e("getBarcodeInformation", "Couldn't find file: " + e.toString());
             }
         }
     }
@@ -411,6 +411,9 @@ public class ScanFragment extends Fragment {
         }
         if (glutenFreeSwitch != null) {
             glutenFreeSwitch.setVisibility(visibility);
+        }
+        if (suitableTitleText != null) {
+            suitableTitleText.setVisibility(visibility);
         }
     }
 
