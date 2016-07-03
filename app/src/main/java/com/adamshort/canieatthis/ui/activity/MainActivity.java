@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             tabLayout.setupWithViewPager(viewPager);
         }
 
-        dataPasser = DataPasser.getInstance();
+        dataPasser = DataPasser.getInstance(getBaseContext());
     }
 
     @Override

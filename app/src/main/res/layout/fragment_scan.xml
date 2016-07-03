@@ -64,7 +64,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp">
 
-                <Switch
+                <CheckBox
                     android:id="@+id/lactoseFreeSwitch"
                     android:layout_marginEnd="10dp"
                     android:layout_marginStart="20dp"
@@ -72,7 +72,7 @@
                     android:text="@string/dairySwitchText"
                     android:theme="@style/Switch"/>
 
-                <Switch
+                <CheckBox
                     android:id="@+id/vegetarianSwitch"
                     android:layout_marginEnd="20dp"
                     android:layout_marginStart="10dp"
@@ -86,7 +86,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp">
 
-                <Switch
+                <CheckBox
                     android:id="@+id/veganSwitch"
                     android:layout_marginEnd="10dp"
                     android:layout_marginStart="20dp"
@@ -94,7 +94,7 @@
                     android:text="@string/veganSwitchText"
                     android:theme="@style/Switch"/>
 
-                <Switch
+                <CheckBox
                     android:id="@+id/glutenFreeSwitch"
                     android:layout_marginEnd="20dp"
                     android:layout_marginStart="10dp"

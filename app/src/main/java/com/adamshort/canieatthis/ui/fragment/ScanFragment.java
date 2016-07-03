@@ -16,18 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
+import com.adamshort.canieatthis.ui.activity.AddProductActivity;
 import com.adamshort.canieatthis.util.IngredientsList;
 import com.adamshort.canieatthis.util.QueryURLAsync;
-import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.util.Utilities;
-import com.adamshort.canieatthis.ui.activity.AddProductActivity;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -45,7 +45,8 @@ import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.adamshort.canieatthis.data.DataQuerier.*;
+import static com.adamshort.canieatthis.data.DataQuerier.processData;
+import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class ScanFragment extends Fragment {
 
@@ -62,10 +63,10 @@ public class ScanFragment extends Fragment {
 
     private boolean resetIntro = false;
 
-    private static Switch lactoseFreeSwitch;
-    private static Switch vegetarianSwitch;
-    private static Switch veganSwitch;
-    private static Switch glutenFreeSwitch;
+    private static CheckBox lactoseFreeSwitch;
+    private static CheckBox vegetarianSwitch;
+    private static CheckBox veganSwitch;
+    private static CheckBox glutenFreeSwitch;
     private CoordinatorLayout coordinatorLayout;
     private TableLayout switchesTableLayout;
     private TextView introTextView;
@@ -98,10 +99,10 @@ public class ScanFragment extends Fragment {
 
         Button scanButton = (Button) view.findViewById(R.id.scanButton);
 
-        lactoseFreeSwitch = (Switch) view.findViewById(R.id.lactoseFreeSwitch);
-        vegetarianSwitch = (Switch) view.findViewById(R.id.vegetarianSwitch);
-        veganSwitch = (Switch) view.findViewById(R.id.veganSwitch);
-        glutenFreeSwitch = (Switch) view.findViewById(R.id.glutenFreeSwitch);
+        lactoseFreeSwitch = (CheckBox) view.findViewById(R.id.lactoseFreeSwitch);
+        vegetarianSwitch = (CheckBox) view.findViewById(R.id.vegetarianSwitch);
+        veganSwitch = (CheckBox) view.findViewById(R.id.veganSwitch);
+        glutenFreeSwitch = (CheckBox) view.findViewById(R.id.glutenFreeSwitch);
 
         lactoseFreeSwitch.setClickable(false);
         vegetarianSwitch.setClickable(false);
