@@ -3,7 +3,7 @@ package com.adamshort.canieatthis.data;
 import android.app.Activity;
 import android.util.Log;
 
-import com.adamshort.canieatthis.util.IngredientsList;
+import com.adamshort.canieatthis.util.ListHelper;
 import com.firebase.client.DataSnapshot;
 
 import org.json.JSONException;
@@ -42,8 +42,8 @@ public class DataQuerier {
 
     public static boolean[] processDataFirebase(List<String> ingredients, List<String> traces, DataSnapshot snapshot) {
         boolean[] bools = new boolean[]{false, false, false, false,};
-        ingredients = IngredientsList.removeUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
-        traces = IngredientsList.removeUnwantedCharacters(traces, "[_]|\\s+$\"", "");
+        ingredients = ListHelper.removeUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
+        traces = ListHelper.removeUnwantedCharacters(traces, "[_]|\\s+$\"", "");
 
         boolean lactose = true;
         boolean lacFalse = false;
@@ -54,7 +54,13 @@ public class DataQuerier {
         boolean gluten = true;
         boolean glutFalse = false;
 
-        if (ingredients.size() > 0 && !ingredients.get(0).equals("")) {
+        int ingSize = ingredients.size();
+        int traSize = traces.size();
+        if ((ingSize == 0 || ingredients.get(0).equals("")) && (traSize == 0 || traces.get(0).equals(""))) {
+            return new boolean[]{false, false, false, false};
+        }
+
+        if (ingSize > 0 && !ingredients.get(0).equals("")) {
             for (String resIngredient : ingredients) {
                 // replace any special characters as we need an exact match
                 String lowerResIngredient = DataQuerier.replaceSpecialChars(resIngredient).toLowerCase();
@@ -98,7 +104,7 @@ public class DataQuerier {
             }
         }
 
-        if (traces.size() > 0 && !traces.get(0).equals("")) {
+        if (traSize > 0 && !traces.get(0).equals("")) {
             if (!traces.get(0).equals("")) {
                 for (String trace : traces) {
                     if (!lacFalse) {
@@ -119,7 +125,7 @@ public class DataQuerier {
                         boolean ve = isVegetarian(trace);
                         if (!ve) {
                             vegetarian = false;
-                            veganFalse = true;
+                            vegFalse = true;
                         }
                     }
                     if (glutFalse) {

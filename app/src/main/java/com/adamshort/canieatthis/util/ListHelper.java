@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class IngredientsList {
+public class ListHelper {
 
     public static List<String> stringToList(String s) {
         return new ArrayList<>(Arrays.asList(trimArray(s.split(","))));
@@ -51,6 +51,15 @@ public class IngredientsList {
             Log.i("UnwantedCharacters", ingredients.get(i));
         }
         return ingredients;
+    }
+
+    public static List<String> toLowerCase(List<String> list) {
+        for (int i = 0; i < list.size(); i++) {
+            String s = list.get(i);
+            s = s.toLowerCase();
+            list.add(i, s);
+        }
+        return list;
     }
 
 }

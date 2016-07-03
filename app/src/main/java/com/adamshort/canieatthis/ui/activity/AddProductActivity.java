@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
-import com.adamshort.canieatthis.util.IngredientsList;
+import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -178,17 +178,20 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !DEBUG) return;
 
-                    final List<String> ingredientsToTest = IngredientsList.stringToListAndTrim(ingredientsText);
-                    List<String> ingredientsToDisplay = IngredientsList.stringToList(ingredientsText);
+                    final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
+                    List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
 
                     // Set values for passing back to scan fragment
                     itemTitle = productNameText;
                     writtenIngredients = ingredientsToDisplay;
-                    writtenTraces = IngredientsList.stringToList(tracesText);
+                    writtenTraces = ListHelper.stringToList(tracesText);
 
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
-                    String ingredients = IngredientsList.listToString(compareTwoLists(ingredientsToDisplay, traces));
+                    // make ingredients lower case, compare them with traces to add the _ to make them appear bold
+                    // and recongised in the db as traces
+                    String ingredients = ListHelper.listToString(compareTwoLists(
+                            ListHelper.toLowerCase(ingredientsToDisplay), traces));
 
                     if (DEBUG) {
                         barcodeText = "072417136160";
@@ -197,9 +200,9 @@ public class AddProductActivity extends AppCompatActivity {
                         quantityText = "230g";
                         energyPerText = "450";
                         ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        writtenIngredients = IngredientsList.stringToList(ingredients);
+                        writtenIngredients = ListHelper.stringToList(ingredients);
                         tracesText = "Milk, Soya, Nuts, Wheat";
-                        writtenTraces = IngredientsList.stringToList(tracesText);
+                        writtenTraces = ListHelper.stringToList(tracesText);
                     }
 
                     String user_id = getString(R.string.open_food_facts_username);
@@ -213,7 +216,7 @@ public class AddProductActivity extends AppCompatActivity {
                         quantityText = URLEncoder.encode(quantityText, "UTF-8");
                         energyPerText = URLEncoder.encode(energyPerText, "UTF-8");
                         ingredients = URLEncoder.encode(ingredients, "UTF-8");
-                        tracesText = URLEncoder.encode(tracesText, "UTF-8");
+                        tracesText = URLEncoder.encode(tracesText.toLowerCase(), "UTF-8");
                         user_id = URLEncoder.encode(user_id, "UTF-8");
                         password = URLEncoder.encode(password, "UTF-8");
                     } catch (UnsupportedEncodingException e) {
@@ -304,8 +307,8 @@ public class AddProductActivity extends AppCompatActivity {
 
         dataPasser.setFromSearch(false);
 
-        dataPasser.setIngredients(IngredientsList.listToString(writtenIngredients));
-        dataPasser.setTraces(IngredientsList.listToString(writtenTraces));
+        dataPasser.setIngredients(ListHelper.listToString(writtenIngredients));
+        dataPasser.setTraces(ListHelper.listToString(writtenTraces));
     }
 
     private void setErrorHints(TextView tv, String error) {

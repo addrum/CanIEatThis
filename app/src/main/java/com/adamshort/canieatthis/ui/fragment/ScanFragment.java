@@ -25,7 +25,7 @@ import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.ui.activity.AddProductActivity;
-import com.adamshort.canieatthis.util.IngredientsList;
+import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.DataSnapshot;
@@ -180,6 +180,8 @@ public class ScanFragment extends Fragment {
 //                getBarcodeInformation("790310020");
                 // Honey Monster Puffs
 //                getBarcodeInformation("5060145250093");
+                // Salt and Vinegar Pringles - no info but is added to db
+//                getBarcodeInformation("5053990101863");
 //                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
             } else {
@@ -356,11 +358,11 @@ public class ScanFragment extends Fragment {
                 String ingredients = product.getString("ingredients_text");
                 String traces = product.getString("traces");
 
-                List<String> ingredientsToTest = IngredientsList.stringToListAndTrim(ingredients);
-                List<String> tracesToTest = IngredientsList.stringToListAndTrim(traces);
+                List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredients);
+                List<String> tracesToTest = ListHelper.stringToListAndTrim(traces);
 
-                List<String> ingredientsToDisplay = IngredientsList.stringToList(ingredients);
-                List<String> tracesToDisplay = IngredientsList.stringToList(traces);
+                List<String> ingredientsToDisplay = ListHelper.stringToList(ingredients);
+                List<String> tracesToDisplay = ListHelper.stringToList(traces);
 
                 boolean[] bools;
                 if (snapshot != null) {
