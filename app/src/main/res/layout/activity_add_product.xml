@@ -155,7 +155,6 @@
 
         </android.support.design.widget.TextInputLayout>
 
-
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_traces"
             android:layout_width="match_parent"
@@ -166,8 +165,7 @@
                 android:id="@+id/input_traces"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/tracesHint"
-                android:inputType="textCapWords"/>
+                android:hint="@string/tracesHint"/>
 
         </android.support.design.widget.TextInputLayout>
 
