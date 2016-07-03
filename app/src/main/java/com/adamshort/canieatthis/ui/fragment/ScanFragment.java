@@ -346,6 +346,90 @@ public class ScanFragment extends Fragment {
         fbar.execute(product);
     }
 
+    private void queryData(DataSnapshot snapshot, JSONObject product) {
+        Log.d("processResponse", "Product: " + product);
+
+        try {
+            if (product != null) {
+                String item = product.getString("product_name");
+                String ingredients = product.getString("ingredients_text");
+                String traces = product.getString("traces");
+
+                List<String> ingredientsToTest = IngredientsList.stringToListAndTrim(ingredients);
+                List<String> tracesToTest = IngredientsList.stringToListAndTrim(traces);
+
+                List<String> ingredientsToDisplay = IngredientsList.stringToList(ingredients);
+                List<String> tracesToDisplay = IngredientsList.stringToList(traces);
+
+                boolean[] bools;
+                if (snapshot != null) {
+                    bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
+                } else {
+                    bools = processData(ingredientsToTest, tracesToTest);
+                }
+
+                setItemTitleText(item);
+                if (item.equals("")) {
+                    setItemTitleText("Product name not found");
+                }
+                setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
+                setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", "")
+                        .replace("_", ""));
+                setTracesResponseTextBox(tracesToDisplay.toString().replace("[", "").replace("]", ""));
+
+                setSwitchesVisibility(View.VISIBLE);
+                introTextView.setVisibility(View.INVISIBLE);
+                setResponseItemsVisibility(View.VISIBLE);
+
+                if (ingredientsToDisplay.size() < 1 || ingredientsToDisplay.get(0).equals("")) {
+                    setIngredientsResponseTextBox("No ingredients found");
+                }
+                if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
+                    setTracesResponseTextBox("No traces found");
+                }
+            } else {
+                showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
+            }
+        } catch (JSONException e) {
+            Log.e("processResponse", "Issue processing response: " + e.toString());
+        }
+    }
+
+    private class FirebaseAsyncRequest extends AsyncTask<JSONObject, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected String doInBackground(JSONObject... params) {
+            Log.d("processResponse", "Product: " + params[0]);
+            final JSONObject response = params[0];
+            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+            ref.keepSynced(true);
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    if (response != null) {
+                        queryData(snapshot, response);
+                    } else {
+                        showDialog(getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(FirebaseError error) {
+                }
+            });
+            return "Successful firebase request";
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
     public void setItemsFromDataPasser() {
         if (!resetIntro) {
             if (dataPasser == null) dataPasser = DataPasser.getInstance();
@@ -453,89 +537,5 @@ public class ScanFragment extends Fragment {
     public void setTracesResponseTextBox(String response) {
         tracesResponseView.setText(response);
         tracesResponseView.setVisibility(View.VISIBLE);
-    }
-
-    private void queryData(DataSnapshot snapshot, JSONObject product) {
-        Log.d("processResponse", "Product: " + product);
-
-        try {
-            if (product != null) {
-                String item = product.getString("product_name");
-                String ingredients = product.getString("ingredients_text");
-                String traces = product.getString("traces");
-
-                List<String> ingredientsToTest = IngredientsList.stringToListAndTrim(ingredients);
-                List<String> tracesToTest = IngredientsList.stringToListAndTrim(traces);
-
-                List<String> ingredientsToDisplay = IngredientsList.stringToList(ingredients);
-                List<String> tracesToDisplay = IngredientsList.stringToList(traces);
-
-                boolean[] bools;
-                if (snapshot != null) {
-                    bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
-                } else {
-                    bools = processData(ingredientsToTest, tracesToTest);
-                }
-
-                setItemTitleText(item);
-                if (item.equals("")) {
-                    setItemTitleText("Product name not found");
-                }
-                setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
-                setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", "")
-                        .replace("_", ""));
-                setTracesResponseTextBox(tracesToDisplay.toString().replace("[", "").replace("]", ""));
-
-                setSwitchesVisibility(View.VISIBLE);
-                introTextView.setVisibility(View.INVISIBLE);
-                setResponseItemsVisibility(View.VISIBLE);
-
-                if (ingredientsToDisplay.size() < 1 || ingredientsToDisplay.get(0).equals("")) {
-                    setIngredientsResponseTextBox("No ingredients found");
-                }
-                if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
-                    setTracesResponseTextBox("No traces found");
-                }
-            } else {
-                showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
-            }
-        } catch (JSONException e) {
-            Log.e("processResponse", "Issue processing response: " + e.toString());
-        }
-    }
-
-    private class FirebaseAsyncRequest extends AsyncTask<JSONObject, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(JSONObject... params) {
-            Log.d("processResponse", "Product: " + params[0]);
-            final JSONObject response = params[0];
-            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-            ref.keepSynced(true);
-            ref.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    if (response != null) {
-                        queryData(snapshot, response);
-                    } else {
-                        showDialog(getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
-                    }
-                }
-
-                @Override
-                public void onCancelled(FirebaseError error) {
-                }
-            });
-            return "Successful firebase request";
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.INVISIBLE);
-        }
     }
 }
