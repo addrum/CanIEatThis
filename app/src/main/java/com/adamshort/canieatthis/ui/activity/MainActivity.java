@@ -215,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
                             editor.putString("download_status", "downloaded");
                             editor.apply();
                             try {
+                                //noinspection ConstantConditions
                                 String internalDir = getExternalFilesDir(null).getPath();
                                 File from = new File(internalDir, "products.csv.tmp");
                                 File to = new File(internalDir, "products.csv");
