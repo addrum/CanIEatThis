@@ -123,7 +123,7 @@ public class ScanFragment extends Fragment {
 
         DEBUG = android.os.Debug.isDebuggerConnected();
 
-        dataPasser = DataPasser.getInstance();
+        dataPasser = DataPasser.getInstance(getContext());
 
         dataQuerier = DataQuerier.getInstance(getActivity());
 
@@ -432,7 +432,7 @@ public class ScanFragment extends Fragment {
 
     public void setItemsFromDataPasser() {
         if (!resetIntro) {
-            if (dataPasser == null) dataPasser = DataPasser.getInstance();
+            if (dataPasser == null) dataPasser = DataPasser.getInstance(getContext());
 
             setDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
 
