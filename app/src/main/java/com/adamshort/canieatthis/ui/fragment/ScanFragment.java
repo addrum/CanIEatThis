@@ -32,6 +32,8 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 
@@ -50,11 +52,11 @@ import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class ScanFragment extends Fragment {
 
-    private static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private static final String EXTENSION = ".json";
     private static final int DOWNLOAD = 0;
     private static final int PRODUCT = 1;
     private static final int FORM_REQUEST_CODE = 11;
+    private static final int SCAN_REQUEST_CODE = 49374;
 
     public static boolean DEBUG;
     private static boolean fragmentCreated = false;
@@ -164,29 +166,30 @@ public class ScanFragment extends Fragment {
     public void scanBar() {
         try {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-            Intent intent = new Intent(ACTION_SCAN);
-            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            if (DEBUG) {
+//            Intent intent = new Intent(ACTION_SCAN);
+//            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
+//            if (DEBUG) {
 //                getBarcodeInformation("7622210307668");
-                // McVities Digestives
+            // McVities Digestives
 //                getBarcodeInformation("5000168001142");
-                // Tesco Orange Juice from Concentrate
+            // Tesco Orange Juice from Concentrate
 //                getBarcodeInformation("5051140367282");
-                // Muller Corner Choco Digestives
+            // Muller Corner Choco Digestives
 //                getBarcodeInformation("4025500165574");
-                // Jammie Dodgers
-                getBarcodeInformation("072417143700");
-                // Candy Crush Candy
+            // Jammie Dodgers
+//                getBarcodeInformation("072417143700");
+            // Candy Crush Candy
 //                getBarcodeInformation("790310020");
-                // Honey Monster Puffs
+            // Honey Monster Puffs
 //                getBarcodeInformation("5060145250093");
-                // Salt and Vinegar Pringles - no info but is added to db
+            // Salt and Vinegar Pringles - no info but is added to db
 //                getBarcodeInformation("5053990101863");
 //                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-            } else {
-                startActivityForResult(intent, 0);
-            }
+//            } else {
+//                startActivityForResult(intent, 0);
+            IntentIntegrator.forSupportFragment(this).initiateScan();
+//            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
@@ -243,18 +246,24 @@ public class ScanFragment extends Fragment {
         return dialog.show();
     }
 
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == 0) {
-            if (resultCode == Activity.RESULT_OK) {
-                //get the extras that are returned from the intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
-                //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-
-                getBarcodeInformation(contents);
+        if (requestCode == SCAN_REQUEST_CODE) {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            if (result != null) {
+                if (result.getContents() == null) {
+                    Snackbar.make(coordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
+                } else {
+                    Snackbar.make(coordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
+                    getBarcodeInformation(result.getContents());
+                }
+            } else {
+                super.onActivityResult(requestCode, resultCode, intent);
             }
+
         }
         // http://stackoverflow.com/a/10407371/1860436
-        else if (requestCode == 11) {
+        else if (requestCode == FORM_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 Snackbar.make(coordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
                 setItemsFromDataPasser();

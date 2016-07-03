@@ -32,4 +32,6 @@ dependencies {
     compile 'com.firebase:firebase-client-android:2.5.2'
     compile 'com.heinrichreimersoftware:material-intro:1.5.4'
     compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
+    compile 'com.google.zxing:core:3.2.1'
 }

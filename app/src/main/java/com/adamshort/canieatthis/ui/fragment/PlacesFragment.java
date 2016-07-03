@@ -455,7 +455,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // The user canceled the operation.
             }
-        } else if (requestCode == 11) {
+        } else if (requestCode == FORM_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 Snackbar.make(coordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
             }
