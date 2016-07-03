@@ -8,17 +8,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.util.IngredientsList;
 import com.adamshort.canieatthis.util.QueryURLAsync;
-import com.adamshort.canieatthis.R;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -31,7 +32,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.adamshort.canieatthis.data.DataQuerier.*;
+import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -51,12 +52,12 @@ public class AddProductActivity extends AppCompatActivity {
     private String portionText;
     private List<String> writtenIngredients, writtenTraces;
 
+    private AutoCompleteTextView ingredientsTextView;
+    private AutoCompleteTextView tracesTextView;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
     private TextView energyPerTextView;
-    private TextView ingredientsTextView;
-    private TextView tracesTextView;
     private CheckBox energyPerServingCheckBox;
     private CheckBox energyPer100CheckBox;
     private TextView portionTextView;
@@ -75,12 +76,20 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
+        ingredientsTextView = (AutoCompleteTextView) findViewById(R.id.input_ingredients);
+        ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
+                DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
+        ingredientsTextView.setAdapter(ingredientsAdapter);
+
+        tracesTextView = (AutoCompleteTextView) findViewById(R.id.input_traces);
+        ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
+                DataQuerier.getInstance(getParent()).getTraces());
+        tracesTextView.setAdapter(tracesAdapter);
+
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
         quantityTextView = (TextView) findViewById(R.id.input_quantity);
         energyPerTextView = (TextView) findViewById(R.id.input_energy_per);
-        ingredientsTextView = (TextView) findViewById(R.id.input_ingredients);
-        tracesTextView = (TextView) findViewById(R.id.input_traces);
         energyPerServingCheckBox = (CheckBox) findViewById(R.id.input_energy_per_serving);
         energyPer100CheckBox = (CheckBox) findViewById(R.id.input_energy_per_100g);
         portionTextView = (TextView) findViewById(R.id.input_portion);
@@ -280,22 +289,23 @@ public class AddProductActivity extends AppCompatActivity {
     }
 
     private void setDataPasser(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
-        DataPasser.getInstance().setQuery(itemTitle);
+        DataPasser dataPasser = DataPasser.getInstance(getBaseContext());
+        dataPasser.setQuery(itemTitle);
 
-        DataPasser.getInstance().setDairy(dairy);
-        DataPasser.getInstance().setVegetarian(vegetarian);
-        DataPasser.getInstance().setVegan(vegan);
-        DataPasser.getInstance().setGluten(gluten);
+        dataPasser.setDairy(dairy);
+        dataPasser.setVegetarian(vegetarian);
+        dataPasser.setVegan(vegan);
+        dataPasser.setGluten(gluten);
 
-        DataPasser.getInstance().setSwitchesVisible(true);
-        DataPasser.getInstance().setItemVisible(true);
-        DataPasser.getInstance().setIntroVisible(false);
-        DataPasser.getInstance().setResponseVisible(true);
+        dataPasser.setSwitchesVisible(true);
+        dataPasser.setItemVisible(true);
+        dataPasser.setIntroVisible(false);
+        dataPasser.setResponseVisible(true);
 
-        DataPasser.getInstance().setFromSearch(false);
+        dataPasser.setFromSearch(false);
 
-        DataPasser.getInstance().setIngredients(IngredientsList.listToString(writtenIngredients));
-        DataPasser.getInstance().setTraces(IngredientsList.listToString(writtenTraces));
+        dataPasser.setIngredients(IngredientsList.listToString(writtenIngredients));
+        dataPasser.setTraces(IngredientsList.listToString(writtenTraces));
     }
 
     private void setErrorHints(TextView tv, String error) {

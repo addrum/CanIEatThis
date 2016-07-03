@@ -1,19 +1,31 @@
 package com.adamshort.canieatthis.data;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.adamshort.canieatthis.R;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataPasser {
+    private static DataPasser mInstance = null;
+
     private boolean dairy, vegetarian, vegan, gluten;
     private boolean switchesVisible, introVisible, responseVisible, itemVisible;
+    private boolean fromSearch;
 
+    private List<String> firebaseIngredientsList;
     private String query;
     private String ingredients;
     private String traces;
 
-    private static DataPasser mInstance = null;
-    private boolean fromSearch;
 
-    private DataPasser() {
+    private DataPasser(Context context) {
         dairy = false;
         vegetarian = false;
         vegan = false;
@@ -22,11 +34,27 @@ public class DataPasser {
         introVisible = true;
         responseVisible = false;
         itemVisible = false;
+
+        firebaseIngredientsList = new ArrayList<>();
+        Firebase ref = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
+        ref.keepSynced(true);
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
+                    firebaseIngredientsList.add(ingredientSnapshot.getKey().toLowerCase());
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError error) {
+            }
+        });
     }
 
-    public static DataPasser getInstance() {
+    public static DataPasser getInstance(Context context) {
         if (mInstance == null) {
-            mInstance = new DataPasser();
+            mInstance = new DataPasser(context);
         }
         return mInstance;
     }
@@ -109,8 +137,7 @@ public class DataPasser {
         this.ingredients = ingredients;
     }
 
-    public String getIngredients()
-    {
+    public String getIngredients() {
         Log.d("getIngredients", "Ingredients: " + ingredients);
         return ingredients;
     }
@@ -133,5 +160,10 @@ public class DataPasser {
     public String getTraces() {
         Log.d("getTraces", "Traces: " + traces);
         return traces;
+    }
+
+    public List<String> getFirebaseIngredientsList() {
+        Log.d("fbIngredientsList", firebaseIngredientsList.toString());
+        return firebaseIngredientsList;
     }
 }

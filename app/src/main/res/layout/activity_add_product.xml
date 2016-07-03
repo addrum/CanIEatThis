@@ -147,7 +147,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/input_layout_portion">
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/input_ingredients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -162,7 +162,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/input_layout_ingredients">
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/input_traces"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
