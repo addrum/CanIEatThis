@@ -188,22 +188,19 @@ public class AddProductActivity extends AppCompatActivity {
 
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
-                    // make ingredients lower case, compare them with traces to add the _ to make them appear bold
-                    // and recongised in the db as traces
-                    String ingredients = ListHelper.listToString(compareTwoLists(
-                            ListHelper.toLowerCase(ingredientsToDisplay), traces));
+                    String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
 
-                    if (DEBUG) {
-                        barcodeText = "072417136160";
-                        productNameText = "Maryland Choc Chip";
-                        itemTitle = productNameText;
-                        quantityText = "230g";
-                        energyPerText = "450";
-                        ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        writtenIngredients = ListHelper.stringToList(ingredients);
-                        tracesText = "Milk, Soya, Nuts, Wheat";
-                        writtenTraces = ListHelper.stringToList(tracesText);
-                    }
+//                    if (DEBUG) {
+//                        barcodeText = "072417136160";
+//                        productNameText = "Maryland Choc Chip";
+//                        itemTitle = productNameText;
+//                        quantityText = "230g";
+//                        energyPerText = "450";
+//                        ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+//                        writtenIngredients = ListHelper.stringToList(ingredients);
+//                        tracesText = "Milk, Soya, Nuts, Wheat";
+//                        writtenTraces = ListHelper.stringToList(tracesText);
+//                    }
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
@@ -225,6 +222,7 @@ public class AddProductActivity extends AppCompatActivity {
                     }
 
                     productNameText = productNameText.replace("+", "%20");
+                    ingredients = ingredients.toLowerCase();
                     ingredients = ingredients.replace("+", "%20");
                     ingredients = ingredients.replace("_", "%5F");
 

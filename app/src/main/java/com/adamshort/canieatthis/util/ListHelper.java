@@ -53,13 +53,4 @@ public class ListHelper {
         return ingredients;
     }
 
-    public static List<String> toLowerCase(List<String> list) {
-        for (int i = 0; i < list.size(); i++) {
-            String s = list.get(i);
-            s = s.toLowerCase();
-            list.add(i, s);
-        }
-        return list;
-    }
-
 }
