@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
                     // query is the value entered into the search bar
-                    boolean dairy = isLactoseFree(query);
+                    boolean lactose = isLactoseFree(query);
                     boolean vegan = isVegan(query);
                     boolean vegetarian = false;
                     // if something is vegan it is 100% vegetarian
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
                     dataPasser.setQuery(query);
 
-                    dataPasser.setDairy(dairy);
+                    dataPasser.setLactose(lactose);
                     dataPasser.setVegetarian(vegetarian);
                     dataPasser.setVegan(vegan);
                     dataPasser.setGluten(gluten);

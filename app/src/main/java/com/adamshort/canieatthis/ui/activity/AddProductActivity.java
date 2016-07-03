@@ -293,7 +293,7 @@ public class AddProductActivity extends AppCompatActivity {
         DataPasser dataPasser = DataPasser.getInstance(getBaseContext());
         dataPasser.setQuery(itemTitle);
 
-        dataPasser.setDairy(dairy);
+        dataPasser.setLactose(dairy);
         dataPasser.setVegetarian(vegetarian);
         dataPasser.setVegan(vegan);
         dataPasser.setGluten(gluten);

@@ -290,10 +290,10 @@ public class DataQuerier {
     }
 
     public static boolean isLactoseFree(String ingredient) {
-        for (String dairyIngredient : dairy) {
-            if (ingredient.toLowerCase().equals(dairyIngredient.toLowerCase())) {
-                return false;
-            }
+        for (String lactoseIngredient : dairy) {
+                if (ingredient.toLowerCase().equals(lactoseIngredient.toLowerCase())) {
+                    return false;
+                }
         }
         return true;
     }

@@ -72,7 +72,7 @@ public class DataPasser {
         return dairy;
     }
 
-    public void setDairy(boolean dairy) {
+    public void setLactose(boolean dairy) {
         this.dairy = dairy;
     }
 
