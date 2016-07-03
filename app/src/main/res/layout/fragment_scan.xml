@@ -53,6 +53,13 @@
             android:stretchColumns="0,1"
             android:visibility="invisible">
 
+            <TextView
+                android:id="@+id/suitableTitleText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/suitableTitleText"/>
+
             <TableRow
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp">

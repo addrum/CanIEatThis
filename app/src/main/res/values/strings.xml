@@ -54,4 +54,5 @@
     <string name="showMorePlaces">Show More</string>
     <string name="search">Search</string>
     <string name="placesUrl">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="</string>
+    <string name="suitableTitleText">Suitable for:</string>
 </resources>
