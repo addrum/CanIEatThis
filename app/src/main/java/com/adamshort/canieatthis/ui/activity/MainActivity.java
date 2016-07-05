@@ -246,8 +246,4 @@ public class MainActivity extends AppCompatActivity {
         this.position = position;
     }
 
-    public int getPosition() {
-        return position;
-    }
-
 }
