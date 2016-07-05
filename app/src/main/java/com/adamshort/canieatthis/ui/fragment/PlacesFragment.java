@@ -74,7 +74,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static String radius = "1000";
     private static String nextPageToken;
 
-    private boolean submittedPlacesRequest;
+    private boolean placesRequestSubmitted;
     private boolean connected;
     private boolean mapReady;
     private boolean isVisible;
@@ -225,22 +225,32 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    private void setUpMap() {
+        createGoogleAPIClient();
+        if (connected && !fromSearch) {
+            getUserLatLng();
+        }
+        if (mMap != null) {
+            moveCamera(mMap, getLatLng());
+
+            if (checkForPermission()) {
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            }
+            createNearbyMarkers(mMap);
+            if (fromSearch) {
+                createCustomMarker(getLatLng());
+            }
+        }
+        placesRequestSubmitted = false;
+    }
+
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d("onMapReady", "Map is ready");
         mapReady = true;
         mMap = googleMap;
-        createGoogleAPIClient();
-        if (connected) {
-            getUserLatLng();
-        }
-        moveCamera(googleMap, new LatLng(lat, lng));
-
-        if (checkForPermission()) {
-            googleMap.setMyLocationEnabled(true);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            createNearbyMarkers(googleMap);
-        }
+        setUpMap();
 
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
@@ -286,21 +296,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (!submittedPlacesRequest) {
-            if (googleMap != null) {
-                googleMap.clear();
+        if (googleMap != null) {
+            googleMap.clear();
+        }
+        if (checkForPermission()) {
+            if (lat != 0 && lng != 0) {
+                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+                queryPlacesURL(url);
             }
-            if (checkForPermission()) {
-                if (lat != 0 && lng != 0) {
-                    String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
-                    queryPlacesURL(url);
-                }
-            } else {
-                Log.d("createNearbyMarkers", "LatLng was null so won't make places request");
-            }
-            submittedPlacesRequest = true;
         } else {
-            submittedPlacesRequest = false;
+            Log.d("createNearbyMarkers", "Not checking for permission so won't do places request");
         }
     }
 
@@ -409,6 +414,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 return false;
             }
         }
+        Log.d("checkForPermission", "Not checking for permission, isVisible: " + isVisible
+                + " portrait: " + Utilities.isPortraitMode(getContext()));
         return false;
     }
 
@@ -477,10 +484,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     public void onConnected(@Nullable Bundle bundle) {
         Log.d("onConnected", "APIClient connected");
         connected = true;
-        if (mapReady && mMap != null) {
-            moveCamera(mMap, getUserLatLng());
-            createNearbyMarkers(mMap);
-        }
     }
 
     @Override
@@ -488,10 +491,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onResume();
         if (mMapView != null) {
             mMapView.onResume();
-            moveCamera(mMap, getLatLng());
-            createNearbyMarkers(mMap);
-            if (fromSearch) {
-                createCustomMarker(getLatLng());
+            if (!placesRequestSubmitted) {
+                placesRequestSubmitted = true;
+                setUpMap();
             }
         }
     }
@@ -541,12 +543,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
             isVisible = true;
-            if (mMap != null && checkForPermission()) {
-                mMap.setMyLocationEnabled(true);
-            }
-            createGoogleAPIClient();
-            if (connected && mapReady && checkForPermission()) {
-                moveCamera(mMap, getUserLatLng());
+            if (!placesRequestSubmitted) {
+                placesRequestSubmitted = true;
+                setUpMap();
             }
         }
     }
