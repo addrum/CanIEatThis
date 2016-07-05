@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -681,14 +682,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            inflater.inflate(R.menu.menu, menu);
+            super.onCreateOptionsMenu(menu, inflater);
+        }
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_search).setVisible(false);
-        super.onPrepareOptionsMenu(menu);
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            menu.findItem(R.id.action_search).setVisible(false);
+            super.onPrepareOptionsMenu(menu);
+        }
     }
 
 
