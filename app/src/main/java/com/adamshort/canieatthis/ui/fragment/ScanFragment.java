@@ -175,31 +175,27 @@ public class ScanFragment extends Fragment {
     //product barcode mode
     public void scanBar() {
         try {
-            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-//            Intent intent = new Intent(ACTION_SCAN);
-//            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-//            if (DEBUG) {
+            if (DEBUG) {
 //                getBarcodeInformation("7622210307668");
-            // McVities Digestives
+                // McVities Digestives
 //                getBarcodeInformation("5000168001142");
-            // Tesco Orange Juice from Concentrate
+                // Tesco Orange Juice from Concentrate
 //                getBarcodeInformation("5051140367282");
-            // Muller Corner Choco Digestives
+                // Muller Corner Choco Digestives
 //                getBarcodeInformation("4025500165574");
-            // Jammie Dodgers
-//                getBarcodeInformation("072417143700");
-            // Candy Crush Candy
+                // Jammie Dodgers
+                getBarcodeInformation("072417143700");
+                // Candy Crush Candy
 //                getBarcodeInformation("790310020");
-            // Honey Monster Puffs
+                // Honey Monster Puffs
 //                getBarcodeInformation("5060145250093");
-            // Salt and Vinegar Pringles - no info but is added to db
+                // Salt and Vinegar Pringles - no info but is added to db
 //                getBarcodeInformation("5053990101863");
 //                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-//            } else {
-//                startActivityForResult(intent, 0);
-            IntentIntegrator.forSupportFragment(this).initiateScan();
-//            }
+            } else {
+                IntentIntegrator.forSupportFragment(this).initiateScan();
+            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
