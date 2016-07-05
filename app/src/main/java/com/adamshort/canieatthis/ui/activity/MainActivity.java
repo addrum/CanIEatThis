@@ -2,7 +2,6 @@ package com.adamshort.canieatthis.ui.activity;
 
 import android.app.AlertDialog;
 import android.app.DownloadManager;
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,20 +16,16 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.LinearLayout;
 
-import com.adamshort.canieatthis.data.DataPasser;
-import com.adamshort.canieatthis.util.FragmentHandler;
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.ui.fragment.PlacesFragment;
 import com.adamshort.canieatthis.ui.fragment.ScanFragment;
+import com.adamshort.canieatthis.util.FragmentHandler;
+import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.Firebase;
 
 import java.io.File;
@@ -38,18 +33,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.adamshort.canieatthis.data.DataQuerier.isGlutenFree;
-import static com.adamshort.canieatthis.data.DataQuerier.isLactoseFree;
-import static com.adamshort.canieatthis.data.DataQuerier.isVegan;
-import static com.adamshort.canieatthis.data.DataQuerier.isVegetarian;
-
 public class MainActivity extends AppCompatActivity {
 
     private int position;
 
-    private List<Fragment> fragments;
-    private ViewPager viewPager;
-    private DataPasser dataPasser;
     private BroadcastReceiver downloadCompleteReceiver;
     private PlacesFragment placesFragment;
     private LinearLayout tabLayoutLinearLayout;
@@ -72,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        fragments = new ArrayList<>();
+        List<Fragment> fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
         placesFragment = new PlacesFragment();
         fragments.add(placesFragment);
@@ -80,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayoutLinearLayout = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         FragmentHandler fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
         viewPager.setAdapter(fragmentHandler);
 
@@ -110,81 +97,7 @@ public class MainActivity extends AppCompatActivity {
             tabLayout.setupWithViewPager(viewPager);
         }
 
-        dataPasser = DataPasser.getInstance(getBaseContext());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        final Menu actionMenu = menu;
-        getMenuInflater().inflate(R.menu.menu, actionMenu);
-
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView = (SearchView) actionMenu.findItem(R.id.action_search).getActionView();
-        if (null != searchView) {
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            searchView.setIconifiedByDefault(false);
-            searchView.setQueryHint(getString(R.string.searchViewQueryHint));
-        }
-
-        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
-            public boolean onQueryTextChange(String newText) {
-                // this is your adapter that will be filtered
-                return true;
-            }
-
-            public boolean onQueryTextSubmit(String query) {
-                if (!TextUtils.isEmpty(query)) {
-                    // query is the value entered into the search bar
-                    boolean lactose = isLactoseFree(query);
-                    boolean vegan = isVegan(query);
-                    boolean vegetarian = false;
-                    // if something is vegan it is 100% vegetarian
-                    if (!vegan) {
-                        vegetarian = isVegetarian(query);
-                    }
-                    boolean gluten = isGlutenFree(query);
-
-                    dataPasser.setQuery(query);
-
-                    dataPasser.setLactose(lactose);
-                    dataPasser.setVegetarian(vegetarian);
-                    dataPasser.setVegan(vegan);
-                    dataPasser.setGluten(gluten);
-
-                    dataPasser.setSwitchesVisible(true);
-                    dataPasser.setItemVisible(true);
-                    dataPasser.setIntroVisible(false);
-                    dataPasser.setResponseVisible(false);
-
-                    dataPasser.setFromSearch(true);
-
-                    actionMenu.findItem(R.id.action_search).collapseActionView();
-                    if (getPosition() != 0) {
-                        viewPager.setCurrentItem(0);
-                    } else {
-                        ScanFragment scanFragment = (ScanFragment) fragments.get(0);
-                        scanFragment.setItemsFromDataPasser();
-                    }
-                }
-                return true;
-            }
-        };
-
-        if (searchView != null) {
-            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View view, boolean queryTextFocused) {
-                    if (!queryTextFocused) {
-                        actionMenu.findItem(R.id.action_search).collapseActionView();
-                        searchView.setQuery("", false);
-                    }
-                }
-            });
-
-            searchView.setOnQueryTextListener(queryTextListener);
-        }
-
-        return super.onCreateOptionsMenu(menu);
+        DataPasser.getInstance(getBaseContext());
     }
 
     private void createBroadcastCompleteReceiver() {

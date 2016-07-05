@@ -2,7 +2,9 @@ package com.adamshort.canieatthis.ui.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,8 +13,12 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,6 +55,8 @@ import java.util.List;
 
 import static com.adamshort.canieatthis.data.DataQuerier.processData;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
+import static com.adamshort.canieatthis.data.DataQuerier.processIngredient;
+import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
 
 public class ScanFragment extends Fragment {
 
@@ -65,6 +73,7 @@ public class ScanFragment extends Fragment {
 
     private boolean resetIntro = false;
 
+    private static Menu actionMenu;
     private static CheckBox lactoseFreeSwitch;
     private static CheckBox vegetarianSwitch;
     private static CheckBox veganSwitch;
@@ -87,6 +96,7 @@ public class ScanFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
+        setHasOptionsMenu(true);
 
         coordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
@@ -440,6 +450,77 @@ public class ScanFragment extends Fragment {
         protected void onPostExecute(String response) {
             progressBar.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
+        actionMenu = menu;
+        inflater.inflate(R.menu.menu, menu);
+
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        if (null != searchView) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint(getString(R.string.searchViewQueryHint));
+        }
+
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                // this is your adapter that will be filtered
+                return true;
+            }
+
+            public boolean onQueryTextSubmit(final String query) {
+                if (!TextUtils.isEmpty(query)) {
+                    Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                    ref.keepSynced(true);
+                    ref.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            queryIngredientSearch(snapshot, query);
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError error) {
+                        }
+                    });
+                }
+                return true;
+            }
+        };
+
+        if (searchView != null) {
+            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean queryTextFocused) {
+                    if (!queryTextFocused) {
+                        menu.findItem(R.id.action_search).collapseActionView();
+                        searchView.setQuery("", false);
+                    }
+                }
+            });
+
+            searchView.setOnQueryTextListener(queryTextListener);
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void queryIngredientSearch(DataSnapshot snapshot, String ingredient) {
+        boolean[] bools;
+        if (snapshot != null) {
+            bools = processIngredientFirebase(ingredient, snapshot);
+        } else {
+            bools = processIngredient(ingredient);
+        }
+        setItemTitleText(ingredient);
+
+        setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
+        setSwitchesVisibility(View.VISIBLE);
+        introTextView.setVisibility(View.INVISIBLE);
+
+        actionMenu.findItem(R.id.action_search).collapseActionView();
     }
 
     public void setItemsFromDataPasser() {
