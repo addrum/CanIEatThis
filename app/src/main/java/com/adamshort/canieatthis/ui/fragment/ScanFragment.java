@@ -9,11 +9,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,6 +54,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.adamshort.canieatthis.data.DataQuerier.processData;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
@@ -184,15 +188,15 @@ public class ScanFragment extends Fragment {
                 // Muller Corner Choco Digestives
 //                getBarcodeInformation("4025500165574");
                 // Jammie Dodgers
-                getBarcodeInformation("072417143700");
+//                getBarcodeInformation("072417143700");
                 // Candy Crush Candy
 //                getBarcodeInformation("790310020");
                 // Honey Monster Puffs
 //                getBarcodeInformation("5060145250093");
                 // Salt and Vinegar Pringles - no info but is added to db
 //                getBarcodeInformation("5053990101863");
-//                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-//                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
             } else {
                 IntentIntegrator.forSupportFragment(this).initiateScan();
             }
@@ -556,7 +560,26 @@ public class ScanFragment extends Fragment {
 
             if (!dataPasser.isFromSearch()) {
                 if (ingredientResponseView != null) {
-                    ingredientResponseView.setText(dataPasser.getIngredients());
+                    String ingredients = dataPasser.getIngredients();
+                    if (!TextUtils.isEmpty(ingredients)) {
+                        Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
+                        Matcher matcher = pattern.matcher(ingredients);
+                        StringBuffer sb = new StringBuffer();
+                        while (matcher.find()) {
+                            String matched = matcher.group(1).replace("_", "<b>")
+                                    + matcher.group(2)
+                                    + matcher.group(3).replace("_", "</b>");
+                            matcher.appendReplacement(sb, matched);
+                        }
+                        matcher.appendTail(sb);
+                        Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            ingredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                        } else {
+                            //noinspection deprecation
+                            ingredientResponseView.setText(Html.fromHtml(sb.toString()));
+                        }
+                    }
                 }
                 if (tracesResponseView != null) {
                     if (dataPasser.getTraces() != null) {
