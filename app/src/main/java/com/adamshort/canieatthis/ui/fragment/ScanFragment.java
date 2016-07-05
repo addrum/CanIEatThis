@@ -433,7 +433,7 @@ public class ScanFragment extends Fragment {
             final JSONObject response = params[0];
             Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
             ref.keepSynced(true);
-            ref.addValueEventListener(new ValueEventListener() {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     if (response != null) {

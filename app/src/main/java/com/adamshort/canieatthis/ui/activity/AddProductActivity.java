@@ -254,7 +254,7 @@ public class AddProductActivity extends AppCompatActivity {
                             public void processFinish(String output) {
                                 Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                                 ref.keepSynced(true);
-                                ref.addValueEventListener(new ValueEventListener() {
+                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot snapshot) {
                                         Log.d("onDataChange", "Product submitted");
