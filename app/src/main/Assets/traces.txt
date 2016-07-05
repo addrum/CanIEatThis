@@ -33,3 +33,4 @@ lupin
 molluscs
 wholewheat
 barley
+lactose

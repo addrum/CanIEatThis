@@ -127,6 +127,10 @@ public class ScanFragment extends Fragment {
 
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
+        if (!Firebase.getDefaultConfig().isPersistenceEnabled()) {
+            Firebase.getDefaultConfig().setPersistenceEnabled(true);
+        }
+        Firebase.setAndroidContext(getContext());
         dataPasser = DataPasser.getInstance(getContext());
 
         dataQuerier = DataQuerier.getInstance(getActivity());
@@ -179,7 +183,7 @@ public class ScanFragment extends Fragment {
     //product barcode mode
     public void scanBar() {
         try {
-            if (DEBUG) {
+//            if (DEBUG) {
 //                getBarcodeInformation("7622210307668");
                 // McVities Digestives
 //                getBarcodeInformation("5000168001142");
@@ -195,11 +199,11 @@ public class ScanFragment extends Fragment {
 //                getBarcodeInformation("5060145250093");
                 // Salt and Vinegar Pringles - no info but is added to db
 //                getBarcodeInformation("5053990101863");
-                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-            } else {
+//                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//            } else {
                 IntentIntegrator.forSupportFragment(this).initiateScan();
-            }
+//            }
         } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();

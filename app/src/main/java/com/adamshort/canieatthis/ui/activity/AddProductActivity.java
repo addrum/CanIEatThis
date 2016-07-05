@@ -250,6 +250,7 @@ public class AddProductActivity extends AppCompatActivity {
                                 ref.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot snapshot) {
+                                        Log.d("onDataChange", "Product submitted");
                                         boolean[] bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
 
                                         setDataPasser(bools[0], bools[1], bools[2], bools[3]);

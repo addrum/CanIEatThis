@@ -68,33 +68,35 @@ public class MainActivity extends AppCompatActivity {
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        FragmentHandler fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
-        viewPager.setAdapter(fragmentHandler);
+        if (viewPager != null) {
+            FragmentHandler fragmentHandler = new FragmentHandler(getSupportFragmentManager(), fragments);
+            viewPager.setAdapter(fragmentHandler);
 
-        Intent intent = getIntent();
-        position = intent.getIntExtra("position", 0);
-        viewPager.setCurrentItem(position);
+            Intent intent = getIntent();
+            position = intent.getIntExtra("position", 0);
+            viewPager.setCurrentItem(position);
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    setPosition(position);
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
+                }
+            });
+
+            // Give the TabLayout the ViewPager
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            if (tabLayout != null) {
+                tabLayout.setupWithViewPager(viewPager);
             }
-
-            @Override
-            public void onPageSelected(int position) {
-                setPosition(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-        // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        if (tabLayout != null) {
-            tabLayout.setupWithViewPager(viewPager);
         }
 
         DataPasser.getInstance(getBaseContext());
