@@ -178,6 +178,18 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !DEBUG) return;
 
+                    if (DEBUG) {
+                        barcodeText = "072417136160";
+                        productNameText = "Maryland Choc Chip";
+                        itemTitle = productNameText;
+                        quantityText = "230g";
+                        energyPerText = "450";
+                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                        writtenIngredients = ListHelper.stringToList(ingredientsText);
+                        tracesText = "Milk, Soya, Nuts, Wheat";
+                        writtenTraces = ListHelper.stringToList(tracesText);
+                    }
+
                     final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
 
@@ -189,18 +201,6 @@ public class AddProductActivity extends AppCompatActivity {
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
                     String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
-
-//                    if (DEBUG) {
-//                        barcodeText = "072417136160";
-//                        productNameText = "Maryland Choc Chip";
-//                        itemTitle = productNameText;
-//                        quantityText = "230g";
-//                        energyPerText = "450";
-//                        ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-//                        writtenIngredients = ListHelper.stringToList(ingredients);
-//                        tracesText = "Milk, Soya, Nuts, Wheat";
-//                        writtenTraces = ListHelper.stringToList(tracesText);
-//                    }
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
@@ -242,7 +242,6 @@ public class AddProductActivity extends AppCompatActivity {
 
                     try {
                         String url = BASE_URL + params;
-                        Log.d("onCreate", "Url to execute at is: " + url);
                         rh = new QueryURLAsync(AddProductActivity.this, progressBar, new QueryURLAsync.AsyncResponse() {
                             @Override
                             public void processFinish(String output) {
