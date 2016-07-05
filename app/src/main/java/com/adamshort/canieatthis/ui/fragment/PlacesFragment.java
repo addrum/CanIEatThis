@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -29,6 +28,7 @@ import com.adamshort.canieatthis.data.Installation;
 import com.adamshort.canieatthis.ui.PopupAdapter;
 import com.adamshort.canieatthis.ui.activity.AddPlacesInfoActivity;
 import com.adamshort.canieatthis.util.QueryURLAsync;
+import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -69,14 +69,15 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int FORM_REQUEST_CODE = 11;
+    private static boolean fromSearch;
 
     private static String radius = "1000";
     private static String nextPageToken;
 
+    private boolean submittedPlacesRequest;
     private boolean connected;
     private boolean mapReady;
     private boolean isVisible;
-    private static boolean fromSearch;
     private double lat;
     private double lng;
     private String apiKey;
@@ -164,6 +165,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
+            connected = true;
 
             // http://stackoverflow.com/a/29872703/1860436
             LocationRequest locationRequest = LocationRequest.create();
@@ -215,10 +217,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void moveCamera(GoogleMap googleMap, LatLng latLng) {
-        if (isVisible && googleMap != null && latLng != null) {
+        if ((isVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng).zoom(15).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            Log.d("moveCamera", "Moving camera to: " + cameraPosition);
         }
     }
 
@@ -227,6 +230,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         Log.d("onMapReady", "Map is ready");
         mapReady = true;
         mMap = googleMap;
+        createGoogleAPIClient();
         if (connected) {
             getUserLatLng();
         }
@@ -282,16 +286,21 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (googleMap != null) {
-            googleMap.clear();
-        }
-        if (checkForPermission()) {
-            if (lat != 0 && lng != 0) {
-                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
-                queryPlacesURL(url);
+        if (!submittedPlacesRequest) {
+            if (googleMap != null) {
+                googleMap.clear();
             }
+            if (checkForPermission()) {
+                if (lat != 0 && lng != 0) {
+                    String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+                    queryPlacesURL(url);
+                }
+            } else {
+                Log.d("createNearbyMarkers", "LatLng was null so won't make places request");
+            }
+            submittedPlacesRequest = true;
         } else {
-            Log.d("createNearbyMarkers", "LatLng was null so won't make places request");
+            submittedPlacesRequest = false;
         }
     }
 
@@ -391,7 +400,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private boolean checkForPermission() {
-        if (isVisible) {
+        if (isVisible || !Utilities.isPortraitMode(getContext())) {
             if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 return true;
             } else {
@@ -682,7 +691,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        if (getResources().getBoolean(R.bool.portrait_only)) {
+        if (Utilities.isPortraitMode(getContext())) {
             inflater.inflate(R.menu.menu, menu);
             super.onCreateOptionsMenu(menu, inflater);
         }
@@ -690,12 +699,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if (getResources().getBoolean(R.bool.portrait_only)) {
+        if (Utilities.isPortraitMode(getContext())) {
             menu.findItem(R.id.action_search).setVisible(false);
             super.onPrepareOptionsMenu(menu);
         }
     }
-
 
     private LatLng getLatLng() {
         return new LatLng(lat, lng);

@@ -142,4 +142,8 @@ public class Utilities {
         return fileDownloader;
     }
 
+    public static boolean isPortraitMode(Context context) {
+        return context.getResources().getBoolean(R.bool.portrait_only);
+    }
+
 }
