@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -87,6 +89,22 @@ public class AddProductActivity extends AppCompatActivity {
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
         ingredientsTextView.setAdapter(ingredientsAdapter);
+        ingredientsTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.equals(",")) {
+                    ingredientsTextView.showDropDown();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
 
         tracesTextView = (AutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,

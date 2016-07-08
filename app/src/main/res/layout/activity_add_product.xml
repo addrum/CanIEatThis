@@ -177,7 +177,6 @@
                     android:id="@+id/input_ingredients"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text|textEmailAddress"
                     android:hint="@string/ingredientsHint"/>
 
             </android.support.design.widget.TextInputLayout>
@@ -192,7 +191,6 @@
                     android:id="@+id/input_traces"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:inputType="text|textEmailAddress"
                     android:hint="@string/tracesHint"/>
 
             </android.support.design.widget.TextInputLayout>
