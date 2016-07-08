@@ -185,17 +185,17 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !DEBUG) return;
 
-                    if (DEBUG) {
-                        barcodeText = "072417136160";
-                        productNameText = "Maryland Choc Chip";
-                        itemTitle = productNameText;
-                        quantityText = "230g";
-                        energyPerText = "450";
-                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        writtenIngredients = ListHelper.stringToList(ingredientsText);
-                        tracesText = "Milk, Soya, Nuts, Wheat";
-                        writtenTraces = ListHelper.stringToList(tracesText);
-                    }
+//                    if (DEBUG) {
+//                        barcodeText = "072417136160";
+//                        productNameText = "Maryland Choc Chip";
+//                        itemTitle = productNameText;
+//                        quantityText = "230g";
+//                        energyPerText = "450";
+//                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+//                        writtenIngredients = ListHelper.stringToList(ingredientsText);
+//                        tracesText = "Milk, Soya, Nuts, Wheat";
+//                        writtenTraces = ListHelper.stringToList(tracesText);
+//                    }
 
                     final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
