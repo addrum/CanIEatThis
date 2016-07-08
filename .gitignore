@@ -39,3 +39,4 @@ captures/
 *.iml
 *.stackdump
 wear/src/main/res/values/keys.xml
+.vscode
