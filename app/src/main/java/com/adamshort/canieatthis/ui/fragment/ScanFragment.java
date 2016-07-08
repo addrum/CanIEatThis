@@ -199,9 +199,11 @@ public class ScanFragment extends Fragment {
 //                getBarcodeInformation("5060145250093");
                 // Salt and Vinegar Pringles - no info but is added to db
 //                getBarcodeInformation("5053990101863");
+                // lemonade
+                getBarcodeInformation("0000000056434");
                 // go straight to add product
-                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
             } else {
                 IntentIntegrator.forSupportFragment(this).initiateScan();
             }
@@ -374,7 +376,7 @@ public class ScanFragment extends Fragment {
     }
 
     private void queryData(DataSnapshot snapshot, JSONObject product) {
-        Log.d("processResponse", "Product: " + product);
+        Log.d("queryData", "Product: " + product);
 
         try {
             if (product != null) {
