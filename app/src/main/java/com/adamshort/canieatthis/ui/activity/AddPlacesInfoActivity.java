@@ -128,23 +128,20 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
             final boolean[] data = params[0];
             String key = (latLng.latitude + " " + latLng.longitude).replace(".", ",");
             String partial = getString(R.string.firebase_url) + "/places/" + key;
-            Firebase fRef;
+            Firebase fRef = new Firebase(partial);
+            fRef.keepSynced(true);
 
             String lactose = partial + "/lactose_free/";
-            fRef = new Firebase(lactose + Boolean.toString(data[0]));
-            doFirebaseTransaction(fRef);
+            doFirebaseTransaction(fRef.child(lactose + Boolean.toString(data[0])));
 
             String vegetarian = partial + "/vegetarian/";
-            fRef = new Firebase(vegetarian + Boolean.toString(data[1]));
-            doFirebaseTransaction(fRef);
+            doFirebaseTransaction(fRef.child(vegetarian + Boolean.toString(data[1])));
 
             String vegan = partial + "/vegan/";
-            fRef = new Firebase(vegan + Boolean.toString(data[2]));
-            doFirebaseTransaction(fRef);
+            doFirebaseTransaction(fRef.child(vegan + Boolean.toString(data[2])));
 
             String gluten = partial + "/gluten_free/";
-            fRef = new Firebase(gluten + Boolean.toString(data[3]));
-            doFirebaseTransaction(fRef);
+            doFirebaseTransaction(fRef.child(gluten + Boolean.toString(data[3])));
 
             return "Successful firebase request";
         }
