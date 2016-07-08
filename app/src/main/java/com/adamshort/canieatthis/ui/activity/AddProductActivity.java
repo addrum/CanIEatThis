@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -55,8 +56,8 @@ public class AddProductActivity extends AppCompatActivity {
     private String portionText;
     private List<String> writtenIngredients, writtenTraces;
 
-    private AutoCompleteTextView ingredientsTextView;
-    private AutoCompleteTextView tracesTextView;
+    private MultiAutoCompleteTextView ingredientsTextView;
+    private MultiAutoCompleteTextView tracesTextView;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
@@ -85,31 +86,17 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
-        ingredientsTextView = (AutoCompleteTextView) findViewById(R.id.input_ingredients);
+        ingredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
         ingredientsTextView.setAdapter(ingredientsAdapter);
-        ingredientsTextView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+        ingredientsTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.equals(",")) {
-                    ingredientsTextView.showDropDown();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
-
-        tracesTextView = (AutoCompleteTextView) findViewById(R.id.input_traces);
+        tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataQuerier.getInstance(getParent()).getTraces());
         tracesTextView.setAdapter(tracesAdapter);
+        tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
