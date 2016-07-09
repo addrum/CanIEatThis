@@ -70,6 +70,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private boolean placesRequestSubmitted;
     private boolean isGoogleConnected;
     private boolean isVisible;
+    private boolean isMapSetup;
     private double lat;
     private double lng;
     private String apiKey;
@@ -171,15 +172,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setUpMap() {
         createGoogleAPIClient();
         if (mMap != null) {
-            checkLocationPermission();
-            LatLng latLng = getLatLng();
-            if (latLng.latitude != 0 && latLng.longitude != 0) {
-                moveCamera(mMap, getLatLng());
+            if (isVisible || !Utilities.isPortraitMode(getContext())) {
+                checkLocationPermission();
+                LatLng latLng = getLatLng();
+                if (latLng.latitude != 0 && latLng.longitude != 0) {
+                    moveCamera(mMap, getLatLng());
 
-                createNearbyMarkers(mMap);
-                if (fromSearch) {
-                    createCustomMarker(getLatLng());
+                    createNearbyMarkers(mMap);
+                    if (fromSearch) {
+                        createCustomMarker(getLatLng());
+                    }
                 }
+                isMapSetup = true;
             }
         }
         placesRequestSubmitted = false;
@@ -451,6 +455,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     public void onConnected(@Nullable Bundle bundle) {
         Log.d("onConnected", "APIClient isGoogleConnected");
         isGoogleConnected = true;
+        if (!isMapSetup) {
+            setUpMap();
+        }
     }
 
     @Override
