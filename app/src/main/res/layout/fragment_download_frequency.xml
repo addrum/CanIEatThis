@@ -37,6 +37,7 @@
         android:gravity="center"
         android:text="@string/slide3Desc"
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="#b3ffffff"
         tools:ignore="UnusedAttribute"/>
 
     <Spinner
