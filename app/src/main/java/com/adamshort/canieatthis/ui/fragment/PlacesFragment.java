@@ -129,7 +129,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 200); // left, top, right, bottom
+        rlp.setMargins(0, 0, 30, 205); // left, top, right, bottom
 
         try {
             MapsInitializer.initialize(getContext());
