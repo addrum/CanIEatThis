@@ -15,8 +15,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.adamshort.canieatthis.data.Installation;
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.data.Installation;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -93,9 +93,9 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         }
     }
 
-    private void doFirebaseTransaction(Firebase ref) {
-        if (ref != null) {
-            ref.runTransaction(new Transaction.Handler() {
+    private void doFirebaseTransaction(Firebase fRef) {
+        if (fRef != null) {
+            fRef.runTransaction(new Transaction.Handler() {
                 @Override
                 public Transaction.Result doTransaction(MutableData mutableData) {
                     if (mutableData.getValue() == null) {
@@ -118,6 +118,10 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         }
     }
 
+    private String removeUnsupportedFirebaseChars(String s) {
+        return s.replace(".", "").replace("#", "").replace("$", "").replace("[", "").replace("]", "");
+    }
+
     private class FirebaseAsyncRequest extends AsyncTask<boolean[], Void, String> {
         @Override
         protected void onPreExecute() {
@@ -129,19 +133,22 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
             String key = (latLng.latitude + " " + latLng.longitude).replace(".", ",");
             String partial = getString(R.string.firebase_url) + "/places/" + key;
             Firebase fRef = new Firebase(partial);
-            fRef.keepSynced(true);
 
-            String lactose = partial + "/lactose_free/";
-            doFirebaseTransaction(fRef.child(lactose + Boolean.toString(data[0])));
+            String lactose = "/lactose_free/" + Boolean.toString(data[0]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + lactose);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(lactose)));
 
-            String vegetarian = partial + "/vegetarian/";
-            doFirebaseTransaction(fRef.child(vegetarian + Boolean.toString(data[1])));
+            String vegetarian = "/vegetarian/" + Boolean.toString(data[1]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + vegetarian);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(vegetarian)));
 
-            String vegan = partial + "/vegan/";
-            doFirebaseTransaction(fRef.child(vegan + Boolean.toString(data[2])));
+            String vegan = "/vegan/" + Boolean.toString(data[2]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + vegan);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(vegan)));
 
-            String gluten = partial + "/gluten_free/";
-            doFirebaseTransaction(fRef.child(gluten + Boolean.toString(data[3])));
+            String gluten = "/gluten_free/" + Boolean.toString(data[3]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + gluten);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(gluten)));
 
             return "Successful firebase request";
         }
