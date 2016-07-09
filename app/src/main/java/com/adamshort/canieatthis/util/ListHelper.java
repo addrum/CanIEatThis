@@ -21,8 +21,12 @@ public class ListHelper {
         s = s.replaceAll("\\)\\),", ",");
         // replace all ( or )
         s = s.replaceAll("\\(|\\),|\\)", ", ");
+        // replace : or ; with ,
+        s = s.replaceAll(":|;", ",");
         // split "Or" into two
-        s = s.replaceAll("\\sOr\\s", ",");
+        s = s.replaceAll("(?i)\\sor\\s", ",");
+        // split "And" into two
+        s = s.replaceAll("(?i)\\sand\\s", ",");
         String [] array = s.split(",");
         return new ArrayList<>(Arrays.asList(trimArray(array)));
     }

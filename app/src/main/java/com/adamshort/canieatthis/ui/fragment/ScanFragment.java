@@ -2,17 +2,25 @@ package com.adamshort.canieatthis.ui.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -46,9 +54,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.adamshort.canieatthis.data.DataQuerier.processData;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
+import static com.adamshort.canieatthis.data.DataQuerier.processIngredient;
+import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
 
 public class ScanFragment extends Fragment {
 
@@ -58,13 +70,13 @@ public class ScanFragment extends Fragment {
     private static final int FORM_REQUEST_CODE = 11;
     private static final int SCAN_REQUEST_CODE = 49374;
 
-    public static boolean DEBUG;
     private static boolean fragmentCreated = false;
     public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     private static String barcode = "";
 
     private boolean resetIntro = false;
 
+    private static Menu actionMenu;
     private static CheckBox lactoseFreeSwitch;
     private static CheckBox vegetarianSwitch;
     private static CheckBox veganSwitch;
@@ -87,6 +99,7 @@ public class ScanFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
+        setHasOptionsMenu(true);
 
         coordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
         switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
@@ -113,6 +126,10 @@ public class ScanFragment extends Fragment {
 
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
+        if (!Firebase.getDefaultConfig().isPersistenceEnabled()) {
+            Firebase.getDefaultConfig().setPersistenceEnabled(true);
+        }
+        Firebase.setAndroidContext(getContext());
         dataPasser = DataPasser.getInstance(getContext());
 
         dataQuerier = DataQuerier.getInstance(getActivity());
@@ -127,8 +144,6 @@ public class ScanFragment extends Fragment {
         });
 
         fragmentCreated = true;
-
-        DEBUG = android.os.Debug.isDebuggerConnected();
 
         return view;
     }
@@ -164,36 +179,30 @@ public class ScanFragment extends Fragment {
 
     //product barcode mode
     public void scanBar() {
-        try {
-            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-//            Intent intent = new Intent(ACTION_SCAN);
-//            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            if (DEBUG) {
-//                getBarcodeInformation("7622210307668");
-            // McVities Digestives
-//                getBarcodeInformation("5000168001142");
-            // Tesco Orange Juice from Concentrate
-//                getBarcodeInformation("5051140367282");
-            // Muller Corner Choco Digestives
-//                getBarcodeInformation("4025500165574");
-            // Jammie Dodgers
-//                getBarcodeInformation("072417143700");
-            // Candy Crush Candy
-//                getBarcodeInformation("790310020");
-            // Honey Monster Puffs
-//                getBarcodeInformation("5060145250093");
-            // Salt and Vinegar Pringles - no info but is added to db
-//                getBarcodeInformation("5053990101863");
-//                Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-//                startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-            } else {
-//                startActivityForResult(intent, 0);
+//        if (Utilities.isInDebugMode()) {
+//            getBarcodeInformation("7622210307668");
+//            McVities Digestives
+//            getBarcodeInformation("5000168001142");
+//            Tesco Orange Juice from Concentrate
+//            getBarcodeInformation("5051140367282");
+//            Muller Corner Choco Digestives
+//            getBarcodeInformation("4025500165574");
+//            Jammie Dodgers
+//            getBarcodeInformation("072417143700");
+//            Candy Crush Candy
+//            getBarcodeInformation("790310020");
+//            Honey Monster Puffs
+//            getBarcodeInformation("5060145250093");
+//            Salt and Vinegar Pringles -no info but is added to db
+//            getBarcodeInformation("5053990101863");
+//            lemonade
+//            getBarcodeInformation("0000000056434");
+//            go straight to add product
+//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//        } else {
             IntentIntegrator.forSupportFragment(this).initiateScan();
-            }
-        } catch (ActivityNotFoundException anfe) {
-            //on catch, show the download dialog
-            showDialog(this.getActivity(), "No Scanner Found", "Download a scanner now?", "Yes", "No", DOWNLOAD).show();
-        }
+//        }
     }
 
     //alert dialog for downloadDialog
@@ -359,7 +368,7 @@ public class ScanFragment extends Fragment {
     }
 
     private void queryData(DataSnapshot snapshot, JSONObject product) {
-        Log.d("processResponse", "Product: " + product);
+        Log.d("queryData", "Product: " + product);
 
         try {
             if (product != null) {
@@ -419,7 +428,7 @@ public class ScanFragment extends Fragment {
             final JSONObject response = params[0];
             Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
             ref.keepSynced(true);
-            ref.addValueEventListener(new ValueEventListener() {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     if (response != null) {
@@ -440,6 +449,77 @@ public class ScanFragment extends Fragment {
         protected void onPostExecute(String response) {
             progressBar.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
+        actionMenu = menu;
+        inflater.inflate(R.menu.menu, menu);
+
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        if (searchView != null) {
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+            searchView.setIconifiedByDefault(false);
+            searchView.setQueryHint(getString(R.string.searchViewQueryHint));
+        }
+
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                // this is your adapter that will be filtered
+                return true;
+            }
+
+            public boolean onQueryTextSubmit(final String query) {
+                if (!TextUtils.isEmpty(query)) {
+                    Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                    ref.keepSynced(true);
+                    ref.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            queryIngredientSearch(snapshot, query);
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError error) {
+                        }
+                    });
+                }
+                return true;
+            }
+        };
+
+        if (searchView != null) {
+            searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean queryTextFocused) {
+                    if (!queryTextFocused) {
+                        menu.findItem(R.id.action_search).collapseActionView();
+                        searchView.setQuery("", false);
+                    }
+                }
+            });
+
+            searchView.setOnQueryTextListener(queryTextListener);
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void queryIngredientSearch(DataSnapshot snapshot, String ingredient) {
+        boolean[] bools;
+        if (snapshot != null) {
+            bools = processIngredientFirebase(ingredient, snapshot);
+        } else {
+            bools = processIngredient(ingredient);
+        }
+        setItemTitleText(ingredient);
+
+        setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
+        setSwitchesVisibility(View.VISIBLE);
+        introTextView.setVisibility(View.INVISIBLE);
+
+        actionMenu.findItem(R.id.action_search).collapseActionView();
     }
 
     public void setItemsFromDataPasser() {
@@ -479,7 +559,26 @@ public class ScanFragment extends Fragment {
 
             if (!dataPasser.isFromSearch()) {
                 if (ingredientResponseView != null) {
-                    ingredientResponseView.setText(dataPasser.getIngredients());
+                    String ingredients = dataPasser.getIngredients();
+                    if (!TextUtils.isEmpty(ingredients)) {
+                        Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
+                        Matcher matcher = pattern.matcher(ingredients);
+                        StringBuffer sb = new StringBuffer();
+                        while (matcher.find()) {
+                            String matched = matcher.group(1).replace("_", "<b>")
+                                    + matcher.group(2)
+                                    + matcher.group(3).replace("_", "</b>");
+                            matcher.appendReplacement(sb, matched);
+                        }
+                        matcher.appendTail(sb);
+                        Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            ingredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                        } else {
+                            //noinspection deprecation
+                            ingredientResponseView.setText(Html.fromHtml(sb.toString()));
+                        }
+                    }
                 }
                 if (tracesResponseView != null) {
                     if (dataPasser.getTraces() != null) {

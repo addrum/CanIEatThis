@@ -3,6 +3,7 @@ package com.adamshort.canieatthis.ui.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,8 +15,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.adamshort.canieatthis.data.Installation;
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.data.Installation;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -36,6 +37,12 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_places_info);
+
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
 
         final Context context = getBaseContext();
 
@@ -86,9 +93,9 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         }
     }
 
-    private void doFirebaseTransaction(Firebase ref) {
-        if (ref != null) {
-            ref.runTransaction(new Transaction.Handler() {
+    private void doFirebaseTransaction(Firebase fRef) {
+        if (fRef != null) {
+            fRef.runTransaction(new Transaction.Handler() {
                 @Override
                 public Transaction.Result doTransaction(MutableData mutableData) {
                     if (mutableData.getValue() == null) {
@@ -111,6 +118,10 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         }
     }
 
+    private String removeUnsupportedFirebaseChars(String s) {
+        return s.replace(".", "").replace("#", "").replace("$", "").replace("[", "").replace("]", "");
+    }
+
     private class FirebaseAsyncRequest extends AsyncTask<boolean[], Void, String> {
         @Override
         protected void onPreExecute() {
@@ -121,23 +132,23 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
             final boolean[] data = params[0];
             String key = (latLng.latitude + " " + latLng.longitude).replace(".", ",");
             String partial = getString(R.string.firebase_url) + "/places/" + key;
-            Firebase fRef;
+            Firebase fRef = new Firebase(partial);
 
-            String lactose = partial + "/lactose_free/";
-            fRef = new Firebase(lactose + Boolean.toString(data[0]));
-            doFirebaseTransaction(fRef);
+            String lactose = "/lactose_free/" + Boolean.toString(data[0]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + lactose);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(lactose)));
 
-            String vegetarian = partial + "/vegetarian/";
-            fRef = new Firebase(vegetarian + Boolean.toString(data[1]));
-            doFirebaseTransaction(fRef);
+            String vegetarian = "/vegetarian/" + Boolean.toString(data[1]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + vegetarian);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(vegetarian)));
 
-            String vegan = partial + "/vegan/";
-            fRef = new Firebase(vegan + Boolean.toString(data[2]));
-            doFirebaseTransaction(fRef);
+            String vegan = "/vegan/" + Boolean.toString(data[2]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + vegan);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(vegan)));
 
-            String gluten = partial + "/gluten_free/";
-            fRef = new Firebase(gluten + Boolean.toString(data[3]));
-            doFirebaseTransaction(fRef);
+            String gluten = "/gluten_free/" + Boolean.toString(data[3]);
+            Log.d("doFirebaseTranscation", "Doing firebase transaction at: " + gluten);
+            doFirebaseTransaction(fRef.child(removeUnsupportedFirebaseChars(gluten)));
 
             return "Successful firebase request";
         }

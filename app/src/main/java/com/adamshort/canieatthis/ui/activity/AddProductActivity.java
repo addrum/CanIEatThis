@@ -2,15 +2,16 @@ package com.adamshort.canieatthis.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -20,6 +21,7 @@ import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
+import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -36,8 +38,6 @@ import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class AddProductActivity extends AppCompatActivity {
 
-    public static boolean DEBUG;
-
     private static final String BASE_URL = "http://world.openfoodfacts.org/cgi/product_jqm2.pl?";
     private static String barcode = "";
 
@@ -52,8 +52,8 @@ public class AddProductActivity extends AppCompatActivity {
     private String portionText;
     private List<String> writtenIngredients, writtenTraces;
 
-    private AutoCompleteTextView ingredientsTextView;
-    private AutoCompleteTextView tracesTextView;
+    private MultiAutoCompleteTextView ingredientsTextView;
+    private MultiAutoCompleteTextView tracesTextView;
     private TextView barcodeNumberTextView;
     private TextView productNameTextView;
     private TextView quantityTextView;
@@ -69,22 +69,28 @@ public class AddProductActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_product);
 
-        DEBUG = android.os.Debug.isDebuggerConnected();
+        if (getResources().getBoolean(R.bool.portrait_only)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
             barcode = b.getString("barcode");
         }
 
-        ingredientsTextView = (AutoCompleteTextView) findViewById(R.id.input_ingredients);
+        ingredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
         ingredientsTextView.setAdapter(ingredientsAdapter);
+        ingredientsTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
-        tracesTextView = (AutoCompleteTextView) findViewById(R.id.input_traces);
+        tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataQuerier.getInstance(getParent()).getTraces());
         tracesTextView.setAdapter(tracesAdapter);
+        tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
         barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
         productNameTextView = (TextView) findViewById(R.id.input_product_name);
@@ -176,7 +182,19 @@ public class AddProductActivity extends AppCompatActivity {
                         wereErrors = true;
                     }
 
-                    if (wereErrors & !DEBUG) return;
+                    if (wereErrors & !Utilities.isInDebugMode()) return;
+
+//                    if (DEBUG) {
+//                        barcodeText = "072417136160";
+//                        productNameText = "Maryland Choc Chip";
+//                        itemTitle = productNameText;
+//                        quantityText = "230g";
+//                        energyPerText = "450";
+//                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+//                        writtenIngredients = ListHelper.stringToList(ingredientsText);
+//                        tracesText = "Milk, Soya, Nuts, Wheat";
+//                        writtenTraces = ListHelper.stringToList(tracesText);
+//                    }
 
                     final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
@@ -189,18 +207,6 @@ public class AddProductActivity extends AppCompatActivity {
                     List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
 
                     String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
-
-//                    if (DEBUG) {
-//                        barcodeText = "072417136160";
-//                        productNameText = "Maryland Choc Chip";
-//                        itemTitle = productNameText;
-//                        quantityText = "230g";
-//                        energyPerText = "450";
-//                        ingredients = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-//                        writtenIngredients = ListHelper.stringToList(ingredients);
-//                        tracesText = "Milk, Soya, Nuts, Wheat";
-//                        writtenTraces = ListHelper.stringToList(tracesText);
-//                    }
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
@@ -242,15 +248,15 @@ public class AddProductActivity extends AppCompatActivity {
 
                     try {
                         String url = BASE_URL + params;
-                        Log.d("onCreate", "Url to execute at is: " + url);
                         rh = new QueryURLAsync(AddProductActivity.this, progressBar, new QueryURLAsync.AsyncResponse() {
                             @Override
                             public void processFinish(String output) {
                                 Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                                 ref.keepSynced(true);
-                                ref.addValueEventListener(new ValueEventListener() {
+                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot snapshot) {
+                                        Log.d("onDataChange", "Product submitted");
                                         boolean[] bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
 
                                         setDataPasser(bools[0], bools[1], bools[2], bools[3]);
@@ -293,7 +299,7 @@ public class AddProductActivity extends AppCompatActivity {
         DataPasser dataPasser = DataPasser.getInstance(getBaseContext());
         dataPasser.setQuery(itemTitle);
 
-        dataPasser.setDairy(dairy);
+        dataPasser.setLactose(dairy);
         dataPasser.setVegetarian(vegetarian);
         dataPasser.setVegan(vegan);
         dataPasser.setGluten(gluten);

@@ -55,4 +55,13 @@
     <string name="search">Search</string>
     <string name="placesUrl">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="</string>
     <string name="suitableTitleText">Suitable for:</string>
+    <string name="fineLocationRationale">Access to your location is required to find places near you!</string>
+    <string name="permissionsRequestTitle">Permissions Request</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="goToAppSettings">Go to app settings to enable access to your location</string>
+    <string name="lactoseFreeQuestion">Does this place have a lactose free option?</string>
+    <string name="vegetarianQuestion">Does this place have a vegetarian option?</string>
+    <string name="veganQuestion">Does this place have a vegan option?</string>
+    <string name="glutenFreeQuestion">Does this place have a gluten free option?</string>
 </resources>

@@ -75,6 +75,21 @@ public class Utilities {
         Log.d("setFrequencyListPref", "frequency_list_pref: " + value);
     }
 
+    public static int getTimesAskedForPermPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int times_asked = preferences.getInt("times_asked", 0);
+        Log.d("getTimesAskedForPerm", "times_asked: " + times_asked);
+        return preferences.getInt("times_asked", 0);
+    }
+
+    public static void setTimesAskedForPermPref(Context context, int value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("times_asked", value);
+        editor.apply();
+        Log.d("setTimesAskedForPerm", "times_asked: " + value);
+    }
+
     public static boolean hasInternetConnection(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -140,6 +155,16 @@ public class Utilities {
 
     public static FileDownloader getFileDownloader() {
         return fileDownloader;
+    }
+
+    public static boolean isPortraitMode(Context context) {
+        boolean portrait = context.getResources().getBoolean(R.bool.portrait_only);
+        Log.d("isPortraitMode", "portrait only: " + portrait);
+        return portrait;
+    }
+
+    public static boolean isInDebugMode() {
+        return android.os.Debug.isDebuggerConnected();
     }
 
 }
