@@ -182,30 +182,30 @@ public class ScanFragment extends Fragment {
 
     //product barcode mode
     public void scanBar() {
-        if (DEBUG) {
-            getBarcodeInformation("7622210307668");
+//        if (DEBUG) {
+//            getBarcodeInformation("7622210307668");
 //            McVities Digestives
-            getBarcodeInformation("5000168001142");
+//            getBarcodeInformation("5000168001142");
 //            Tesco Orange Juice from Concentrate
-            getBarcodeInformation("5051140367282");
+//            getBarcodeInformation("5051140367282");
 //            Muller Corner Choco Digestives
-            getBarcodeInformation("4025500165574");
+//            getBarcodeInformation("4025500165574");
 //            Jammie Dodgers
-            getBarcodeInformation("072417143700");
+//            getBarcodeInformation("072417143700");
 //            Candy Crush Candy
-            getBarcodeInformation("790310020");
+//            getBarcodeInformation("790310020");
 //            Honey Monster Puffs
-            getBarcodeInformation("5060145250093");
+//            getBarcodeInformation("5060145250093");
 //            Salt and Vinegar Pringles -no info but is added to db
-            getBarcodeInformation("5053990101863");
+//            getBarcodeInformation("5053990101863");
 //            lemonade
-            getBarcodeInformation("0000000056434");
+//            getBarcodeInformation("0000000056434");
 //            go straight to add product
-            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-        } else {
+//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//        } else {
             IntentIntegrator.forSupportFragment(this).initiateScan();
-        }
+//        }
     }
 
     //alert dialog for downloadDialog
