@@ -75,6 +75,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private boolean isMapSetup;
     private double lat;
     private double lng;
+    private float mapZoom = 15;
     private String apiKey;
 
     private GoogleApiClient mGoogleApiClient;
@@ -165,7 +166,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void moveCamera(GoogleMap googleMap, LatLng latLng) {
         if ((isVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng).zoom(15).build();
+                    .target(latLng).zoom(mapZoom).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             Log.d("moveCamera", "Moving camera to: " + cameraPosition);
         }
@@ -482,6 +483,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         if (mMap != null) {
             mMap.clear();
+            mapZoom = mMap.getCameraPosition().zoom;
         }
     }
 
@@ -493,6 +495,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         if (mMap != null) {
             mMap.clear();
+            mapZoom = mMap.getCameraPosition().zoom;
         }
         isGoogleConnected = false;
     }
