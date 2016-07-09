@@ -68,7 +68,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static String nextPageToken;
 
     private boolean placesRequestSubmitted;
-    private boolean connected;
+    private boolean isGoogleConnected;
     private boolean isVisible;
     private double lat;
     private double lng;
@@ -155,7 +155,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
-            connected = true;
+            isGoogleConnected = true;
         }
     }
 
@@ -234,7 +234,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (connected) {
+        if (isGoogleConnected) {
             if (googleMap != null) {
                 googleMap.clear();
             }
@@ -397,7 +397,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    if (connected) {
+                    if (isGoogleConnected) {
                         setUserLocationSettings();
                     }
                 } else {
@@ -449,8 +449,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d("onConnected", "APIClient connected");
-        connected = true;
+        Log.d("onConnected", "APIClient isGoogleConnected");
+        isGoogleConnected = true;
     }
 
     @Override
@@ -485,7 +485,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mMap != null) {
             mMap.clear();
         }
-        connected = false;
+        isGoogleConnected = false;
     }
 
     @Override
@@ -498,7 +498,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnectionSuspended(int i) {
-        connected = false;
+        isGoogleConnected = false;
     }
 
     @Override
