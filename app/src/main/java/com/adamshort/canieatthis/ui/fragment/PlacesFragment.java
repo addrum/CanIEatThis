@@ -3,7 +3,6 @@ package com.adamshort.canieatthis.ui.fragment;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -36,14 +35,8 @@ import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -76,7 +69,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private boolean placesRequestSubmitted;
     private boolean connected;
-    private boolean mapReady;
     private boolean isVisible;
     private double lat;
     private double lng;
@@ -122,10 +114,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
                                     .build(getActivity());
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                } catch (GooglePlayServicesRepairableException e) {
-                    // TODO: Handle the error.
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    // TODO: Handle the error.
+                } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                    Log.e("onClick", "error starting place autocomplete: " + e.toString());
                 }
             }
         });
@@ -166,53 +156,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     .build();
             mGoogleApiClient.connect();
             connected = true;
-
-            // http://stackoverflow.com/a/29872703/1860436
-            LocationRequest locationRequest = LocationRequest.create();
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval(30 * 1000);
-            locationRequest.setFastestInterval(5 * 1000);
-            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                    .addLocationRequest(locationRequest);
-
-            builder.setAlwaysShow(true);
-
-            PendingResult<LocationSettingsResult> result =
-                    LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
-            result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-                @Override
-                public void onResult(@NonNull LocationSettingsResult result) {
-                    final Status status = result.getStatus();
-                    switch (status.getStatusCode()) {
-                        case LocationSettingsStatusCodes.SUCCESS:
-                            // All location settings are satisfied. The client can initialize location
-                            // requests here.
-                            if (mapReady && mMap != null) {
-                                moveCamera(mMap, getUserLatLng());
-                                if (connected) {
-                                    getUserLatLng();
-                                }
-                                createNearbyMarkers(mMap);
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            // Location settings are not satisfied. But could be fixed by showing the user
-                            // a dialog.
-                            try {
-                                // Show the dialog by calling startResolutionForResult(),
-                                // and check the result in onActivityResult().
-                                status.startResolutionForResult(getActivity(), 1000);
-                            } catch (IntentSender.SendIntentException e) {
-                                // Ignore the error.
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            // Location settings are not satisfied. However, we have no way to fix the
-                            // settings so we won't show the dialog.
-                            break;
-                    }
-                }
-            });
         }
     }
 
@@ -227,16 +170,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private void setUpMap() {
         createGoogleAPIClient();
-        if (connected && !fromSearch) {
-            getUserLatLng();
+        if (connected && !fromSearch && isVisible) {
+            checkLocationPermission();
         }
         if (mMap != null) {
             moveCamera(mMap, getLatLng());
 
-            if (checkForPermission()) {
-                mMap.setMyLocationEnabled(true);
-                mMap.getUiSettings().setMyLocationButtonEnabled(true);
-            }
             createNearbyMarkers(mMap);
             if (fromSearch) {
                 createCustomMarker(getLatLng());
@@ -248,14 +187,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d("onMapReady", "Map is ready");
-        mapReady = true;
         mMap = googleMap;
-        setUpMap();
 
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                getUserLatLng();
+                setUserLocation();
                 createNearbyMarkers(googleMap);
                 fromSearch = false;
                 return false;
@@ -299,13 +236,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (googleMap != null) {
             googleMap.clear();
         }
-        if (checkForPermission()) {
-            if (lat != 0 && lng != 0) {
-                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
-                queryPlacesURL(url);
-            }
+        if (lat != 0 && lng != 0) {
+            String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+            queryPlacesURL(url);
         } else {
-            Log.d("createNearbyMarkers", "Not checking for permission so won't do places request");
+            Log.d("createNearbyMarkers", "lat lng were 0");
         }
     }
 
@@ -390,35 +325,43 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         rh.execute(placesUrl);
     }
 
-    private LatLng getUserLatLng() {
-        if (checkForPermission()) {
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            try {
-                lat = mLastLocation.getLatitude();
-                lng = mLastLocation.getLongitude();
-            } catch (NullPointerException e) {
-                Log.e("getUserLatLng", "Couldn't get lat or long from last location: " + e.toString());
-            }
-            return new LatLng(lat, lng);
-        }
-        return null;
-    }
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Log.d("checkLocationPref", "permission already granted");
+            setUserLocationSettings();
+        } else {
+            // Should we show an explanation?
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                Log.d("checkLocationPer", "should show request permission rationale");
 
-    private boolean checkForPermission() {
-        if (isVisible || !Utilities.isPortraitMode(getContext())) {
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                return true;
             } else {
-                Log.d("checkForPermission", "Didn't have needed permission, requesting ACCESS_FINE_LOCATION");
-                requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-                return false;
+                Log.d("checkLocationPer", "request permission");
+                // No explanation needed, we can request the permission.
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSION_ACCESS_FINE_LOCATION);
             }
         }
-        Log.d("checkForPermission", "Not checking for permission, isVisible: " + isVisible
-                + " portrait: " + Utilities.isPortraitMode(getContext()));
-        return false;
     }
 
+    @SuppressWarnings("MissingPermission")
+    private void setUserLocationSettings() {
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        setUserLocation();
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void setUserLocation() {
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        try {
+            lat = mLastLocation.getLatitude();
+            lng = mLastLocation.getLongitude();
+        } catch (NullPointerException e) {
+            Log.e("getUserLatLng", "Couldn't get lat or long from last location: " + e.toString());
+        }
+    }
+
+    @SuppressWarnings("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         Log.d("onRequestPermissions", "Permissions have been requested");
@@ -430,17 +373,17 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     if (connected) {
-                        if (checkForPermission()) {
-                            moveCamera(mMap, getUserLatLng());
-                            mMap.setMyLocationEnabled(true);
-                            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-                            createNearbyMarkers(mMap);
-                        }
+                        setUserLocationSettings();
                     }
+                } else {
+                    Log.d("permissionsResult", "fine location not granted");
+                    mMap.setMyLocationEnabled(false);
                 }
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                // other 'case' lines to check for other
+                // permissions this app might request
         }
     }
 
@@ -468,10 +411,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 Log.i("onActivityResult", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getContext(), data);
-                // TODO: Handle the error.
                 Log.i("onActivityResult", status.getStatusMessage());
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // The user canceled the operation.
+                Log.i("onActivityResult", "result cancelled");
             }
         } else if (requestCode == FORM_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
@@ -507,7 +450,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mMap != null) {
             mMap.clear();
         }
-        mapReady = false;
     }
 
     @Override
@@ -520,7 +462,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mMap.clear();
         }
         connected = false;
-        mapReady = false;
     }
 
     @Override
@@ -534,7 +475,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onConnectionSuspended(int i) {
         connected = false;
-        mapReady = false;
     }
 
     @Override
