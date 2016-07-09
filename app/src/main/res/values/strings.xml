@@ -60,4 +60,8 @@
     <string name="yes">yes</string>
     <string name="no">no</string>
     <string name="goToAppSettings">Go to app settings to enable access to your location</string>
+    <string name="lactoseFreeQuestion">Does this place have a lactose free option?</string>
+    <string name="vegetarianQuestion">Does this place have a vegetarian option?</string>
+    <string name="veganQuestion">Does this place have a vegan option?</string>
+    <string name="glutenFreeQuestion">Does this place have a gluten free option?</string>
 </resources>

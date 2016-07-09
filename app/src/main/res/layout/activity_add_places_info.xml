@@ -22,6 +22,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/name_view"
         android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -29,9 +31,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.20"
             android:gravity="center_vertical"
-            android:text="Does this place have a lactose free option?"/>
+            android:text="@string/lactoseFreeQuestion"/>
 
         <CheckBox
             android:id="@+id/lactoseFreeCheckBox"
@@ -47,6 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/lactose_layout"
         android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -54,9 +58,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.20"
             android:gravity="center_vertical"
-            android:text="Does this place have a vegetarian option?"/>
+            android:text="@string/vegetarianQuestion"/>
 
         <CheckBox
             android:id="@+id/vegetarianCheckBox"
@@ -72,6 +76,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/vegetarian_layout"
         android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -79,9 +85,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.20"
             android:gravity="center_vertical"
-            android:text="Does this place have a vegan option?"/>
+            android:text="@string/veganQuestion"/>
 
         <CheckBox
             android:id="@+id/veganCheckBox"
@@ -97,6 +103,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/vegan_layout"
         android:layout_gravity="center_horizontal"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -104,9 +112,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.20"
             android:gravity="center_vertical"
-            android:text="Does this place have a gluten free option?"/>
+            android:text="@string/glutenFreeQuestion"/>
 
         <CheckBox
             android:id="@+id/glutenFreeCheckBox"
