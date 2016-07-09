@@ -158,7 +158,9 @@ public class Utilities {
     }
 
     public static boolean isPortraitMode(Context context) {
-        return context.getResources().getBoolean(R.bool.portrait_only);
+        boolean portrait = context.getResources().getBoolean(R.bool.portrait_only);
+        Log.d("isPortraitMode", "portrait only: " + portrait);
+        return portrait;
     }
 
 }
