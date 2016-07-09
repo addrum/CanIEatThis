@@ -56,6 +56,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
 
@@ -238,14 +240,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (isGoogleConnected && !placesRequestSubmitted) {
+        if (isGoogleConnected) {
             if (googleMap != null) {
                 googleMap.clear();
             }
             if (lat != 0 && lng != 0) {
                 String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
                 queryPlacesURL(url);
-                placesRequestSubmitted = true;
             } else {
                 Log.d("createNearbyMarkers", "lat lng were 0");
             }
@@ -330,8 +331,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                placesRequestSubmitted = false;
-
             }
         });
         rh.execute(placesUrl);
@@ -468,7 +467,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onResume();
         if (mMapView != null) {
             mMapView.onResume();
-            if (!isMapSetup) {
+            if (!placesRequestSubmitted) {
+                placesRequestSubmitted = true;
                 setUpMap();
             }
         }
@@ -516,7 +516,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
             isVisible = true;
-            if (!isMapSetup) {
+            if (!placesRequestSubmitted) {
+                placesRequestSubmitted = true;
                 setUpMap();
             }
         }
@@ -569,12 +570,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             final MarkerOptions marker = params[0];
             Firebase ref = new Firebase(getString(R.string.firebase_url) + "/places");
             ref.keepSynced(true);
-            ref.addValueEventListener(new ValueEventListener() {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @SuppressWarnings("unchecked")
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
                     LatLng markerLatLng = marker.getPosition();
                     String snippet = marker.getSnippet();
+                    Pattern lactosePattern = Pattern.compile("Lactose Free:\\s(\\w*)");
+                    Pattern vegetarianPattern = Pattern.compile("Vegetarian:\\s(\\w*)");
+                    Pattern veganPattern = Pattern.compile("Vegan:\\s(\\w*)");
+                    Pattern glutenPattern = Pattern.compile("Gluten Free:\\s(\\w*)");
                     for (DataSnapshot location : snapshot.getChildren()) {
                         // Firebase doesn't allow . in key's so had to submit as ,
                         // so now we need to replace it so we can get it back to latlng
@@ -595,11 +600,22 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long lactose_true = getKeyValue(lactose, "true");
                                     long lactose_false = getKeyValue(lactose, "false");
                                     if (shouldShowInfo(lactose_true, lactose_false)) {
-                                        snippet += ",Lactose Free: ";
-                                        if (lactose_true > lactose_false) {
-                                            snippet += "Yes";
+                                        Matcher m = lactosePattern.matcher(snippet);
+                                        StringBuffer sb = new StringBuffer();
+                                        if (m.find()) {
+                                            if (lactose_true > lactose_false) {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
+                                            } else {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
+                                            }
+                                            snippet = sb.toString();
                                         } else {
-                                            snippet += "No";
+                                            snippet += ",Lactose Free: ";
+                                            if (lactose_true > lactose_false) {
+                                                snippet += "Yes";
+                                            } else {
+                                                snippet += "No";
+                                            }
                                         }
                                     }
 
@@ -607,11 +623,22 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long vegetarian_true = getKeyValue(vegetarian, "true");
                                     long vegetarian_false = getKeyValue(vegetarian, "false");
                                     if (shouldShowInfo(vegetarian_true, vegetarian_false)) {
-                                        snippet += ",Vegetarian: ";
-                                        if (vegetarian_true > vegetarian_false) {
-                                            snippet += "Yes";
+                                        Matcher m = vegetarianPattern.matcher(snippet);
+                                        StringBuffer sb = new StringBuffer();
+                                        if (m.find()) {
+                                            if (vegetarian_true > vegetarian_false) {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
+                                            } else {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
+                                            }
+                                            snippet = sb.toString();
                                         } else {
-                                            snippet += "No";
+                                            snippet += ",Vegetarian: ";
+                                            if (vegetarian_true > vegetarian_false) {
+                                                snippet += "Yes";
+                                            } else {
+                                                snippet += "No";
+                                            }
                                         }
                                     }
 
@@ -619,11 +646,22 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long vegan_true = getKeyValue(vegan, "true");
                                     long vegan_false = getKeyValue(vegan, "false");
                                     if (shouldShowInfo(vegan_true, vegan_false)) {
-                                        snippet += ",Vegan: ";
-                                        if (vegan_true > vegan_false) {
-                                            snippet += "Yes";
+                                        Matcher m = veganPattern.matcher(snippet);
+                                        StringBuffer sb = new StringBuffer();
+                                        if (m.find()) {
+                                            if (vegan_true > vegan_false) {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
+                                            } else {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
+                                            }
+                                            snippet = sb.toString();
                                         } else {
-                                            snippet += "No";
+                                            snippet += ",Vegan: ";
+                                            if (vegan_true > vegan_false) {
+                                                snippet += "Yes";
+                                            } else {
+                                                snippet += "No";
+                                            }
                                         }
                                     }
 
@@ -631,11 +669,22 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long gluten_true = getKeyValue(gluten, "true");
                                     long gluten_false = getKeyValue(gluten, "false");
                                     if (shouldShowInfo(gluten_true, gluten_false)) {
-                                        snippet += ",Gluten Free: ";
-                                        if (gluten_true > gluten_false) {
-                                            snippet += "Yes";
+                                        Matcher m = glutenPattern.matcher(snippet);
+                                        StringBuffer sb = new StringBuffer();
+                                        if (m.find()) {
+                                            if (gluten_true > gluten_false) {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
+                                            } else {
+                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
+                                            }
+                                            snippet = sb.toString();
                                         } else {
-                                            snippet += "No";
+                                            snippet += ",Gluten Free: ";
+                                            if (gluten_true > gluten_false) {
+                                                snippet += "Yes";
+                                            } else {
+                                                snippet += "No";
+                                            }
                                         }
                                     }
                                 } catch (Exception e) {
