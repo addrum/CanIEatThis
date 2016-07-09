@@ -238,13 +238,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (isGoogleConnected) {
+        if (isGoogleConnected && !placesRequestSubmitted) {
             if (googleMap != null) {
                 googleMap.clear();
             }
             if (lat != 0 && lng != 0) {
                 String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
                 queryPlacesURL(url);
+                placesRequestSubmitted = true;
             } else {
                 Log.d("createNearbyMarkers", "lat lng were 0");
             }
@@ -329,6 +330,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                placesRequestSubmitted = false;
+
             }
         });
         rh.execute(placesUrl);
@@ -465,8 +468,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onResume();
         if (mMapView != null) {
             mMapView.onResume();
-            if (!placesRequestSubmitted) {
-                placesRequestSubmitted = true;
+            if (!isMapSetup) {
                 setUpMap();
             }
         }
@@ -514,8 +516,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
             isVisible = true;
-            if (!placesRequestSubmitted) {
-                placesRequestSubmitted = true;
+            if (!isMapSetup) {
                 setUpMap();
             }
         }
