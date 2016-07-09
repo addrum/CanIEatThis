@@ -163,4 +163,8 @@ public class Utilities {
         return portrait;
     }
 
+    public static boolean isInDebugMode() {
+        return android.os.Debug.isDebuggerConnected();
+    }
+
 }

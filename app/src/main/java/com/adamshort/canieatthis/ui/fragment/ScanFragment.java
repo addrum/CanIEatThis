@@ -70,7 +70,6 @@ public class ScanFragment extends Fragment {
     private static final int FORM_REQUEST_CODE = 11;
     private static final int SCAN_REQUEST_CODE = 49374;
 
-    public static boolean DEBUG;
     private static boolean fragmentCreated = false;
     public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     private static String barcode = "";
@@ -146,8 +145,6 @@ public class ScanFragment extends Fragment {
 
         fragmentCreated = true;
 
-        DEBUG = android.os.Debug.isDebuggerConnected();
-
         return view;
     }
 
@@ -182,7 +179,7 @@ public class ScanFragment extends Fragment {
 
     //product barcode mode
     public void scanBar() {
-//        if (DEBUG) {
+//        if (Utilities.isInDebugMode()) {
 //            getBarcodeInformation("7622210307668");
 //            McVities Digestives
 //            getBarcodeInformation("5000168001142");

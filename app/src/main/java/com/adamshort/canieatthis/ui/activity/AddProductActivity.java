@@ -5,13 +5,10 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.MultiAutoCompleteTextView;
@@ -24,6 +21,7 @@ import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
+import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -39,8 +37,6 @@ import java.util.List;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class AddProductActivity extends AppCompatActivity {
-
-    public static boolean DEBUG;
 
     private static final String BASE_URL = "http://world.openfoodfacts.org/cgi/product_jqm2.pl?";
     private static String barcode = "";
@@ -78,8 +74,6 @@ public class AddProductActivity extends AppCompatActivity {
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-
-        DEBUG = android.os.Debug.isDebuggerConnected();
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
@@ -188,7 +182,7 @@ public class AddProductActivity extends AppCompatActivity {
                         wereErrors = true;
                     }
 
-                    if (wereErrors & !DEBUG) return;
+                    if (wereErrors & !Utilities.isInDebugMode()) return;
 
 //                    if (DEBUG) {
 //                        barcodeText = "072417136160";
