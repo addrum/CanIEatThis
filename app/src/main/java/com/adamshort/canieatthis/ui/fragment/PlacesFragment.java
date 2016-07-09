@@ -170,15 +170,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private void setUpMap() {
         createGoogleAPIClient();
-        if (connected && !fromSearch && isVisible) {
-            checkLocationPermission();
-        }
         if (mMap != null) {
-            moveCamera(mMap, getLatLng());
+            checkLocationPermission();
+            LatLng latLng = getLatLng();
+            if (latLng.latitude != 0 && latLng.longitude != 0) {
+                moveCamera(mMap, getLatLng());
 
-            createNearbyMarkers(mMap);
-            if (fromSearch) {
-                createCustomMarker(getLatLng());
+                createNearbyMarkers(mMap);
+                if (fromSearch) {
+                    createCustomMarker(getLatLng());
+                }
             }
         }
         placesRequestSubmitted = false;
@@ -233,14 +234,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (googleMap != null) {
-            googleMap.clear();
-        }
-        if (lat != 0 && lng != 0) {
-            String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
-            queryPlacesURL(url);
+        if (connected) {
+            if (googleMap != null) {
+                googleMap.clear();
+            }
+            if (lat != 0 && lng != 0) {
+                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+                queryPlacesURL(url);
+            } else {
+                Log.d("createNearbyMarkers", "lat lng were 0");
+            }
         } else {
-            Log.d("createNearbyMarkers", "lat lng were 0");
+            Log.d("createNearbyMarkers", "Not connected so can't make places request");
         }
     }
 
@@ -333,12 +338,30 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             // Should we show an explanation?
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 Log.d("checkLocationPer", "should show request permission rationale");
-
+                // Need to show permission rationale, display a snackbar and then request
+                // the permission again when the snackbar is dismissed.
+                Snackbar.make(coordinatorLayout,
+                        R.string.fineLocationRationale,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(android.R.string.ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Log.d("checkLocationPer", "request permission");
+                                // Request the permission again.
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSION_ACCESS_FINE_LOCATION);
+                            }
+                        }).show();
             } else {
-                Log.d("checkLocationPer", "request permission");
-                // No explanation needed, we can request the permission.
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSION_ACCESS_FINE_LOCATION);
+                int timesAsked = Utilities.getTimesAskedForPermPref(getContext());
+                if (timesAsked < 2) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSION_ACCESS_FINE_LOCATION);
+                    timesAsked += 1;
+                    Utilities.setTimesAskedForPermPref(getContext(), timesAsked);
+                } else {
+                    Log.d("checkLocationPer", "don't show permission again");
+                }
             }
         }
     }
@@ -347,7 +370,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setUserLocationSettings() {
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        setUserLocation();
+        if (!fromSearch) {
+            setUserLocation();
+        }
     }
 
     @SuppressWarnings("MissingPermission")
@@ -378,12 +403,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 } else {
                     Log.d("permissionsResult", "fine location not granted");
                     mMap.setMyLocationEnabled(false);
+                    mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 }
             }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-                // other 'case' lines to check for other
-                // permissions this app might request
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
