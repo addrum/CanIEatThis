@@ -22,20 +22,15 @@ import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.adamshort.canieatthis.data.DataQuerier.processData;
-import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -183,19 +178,18 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !Utilities.isInDebugMode()) return;
 
-                    if (Utilities.isInDebugMode()) {
-                        barcodeText = "072417136160";
-                        productNameText = "Maryland Choc Chip";
-                        itemTitle = productNameText;
-                        quantityText = "230g";
-                        energyPerText = "450";
-                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        writtenIngredients = ListHelper.stringToList(ingredientsText);
-                        tracesText = "Milk, Soya, Nuts, Wheat";
-                        writtenTraces = ListHelper.stringToList(tracesText);
-                    }
+//                    if (Utilities.isInDebugMode()) {
+//                        barcodeText = "072417136160";
+//                        productNameText = "Maryland Choc Chip";
+//                        itemTitle = productNameText;
+//                        quantityText = "230g";
+//                        energyPerText = "450";
+//                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+//                        writtenIngredients = ListHelper.stringToList(ingredientsText);
+//                        tracesText = "Milk, Soya, Nuts, Wheat";
+//                        writtenTraces = ListHelper.stringToList(tracesText);
+//                    }
 
-                    final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
 
                     // Set values for passing back to scan fragment
@@ -209,6 +203,8 @@ public class AddProductActivity extends AppCompatActivity {
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
+
+                    String uneditedProductName = productNameText;
 
                     try {
                         productNameText = URLEncoder.encode(productNameText, "UTF-8");
@@ -247,7 +243,7 @@ public class AddProductActivity extends AppCompatActivity {
 
                     try {
                         String url = BASE_URL + params;
-                        submitData(url, progressBar, ingredientsToTest, writtenTraces, true, 0);
+                        submitData(url, progressBar, uneditedProductName, ingredientsToDisplay, writtenTraces, true, 0);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -256,7 +252,7 @@ public class AddProductActivity extends AppCompatActivity {
         }
     }
 
-    private void submitData(final String url, final ProgressBar progressBar, final List<String> ingredientsToTest, final List<String> writtenTraces, final boolean shouldQueryData, final int sleepAmounnt) {
+    private void submitData(final String url, final ProgressBar progressBar, final String name, final List<String> ingredientsToDisplay, final List<String> writtenTraces, final boolean shouldQueryData, final int sleepAmounnt) {
         QueryURLAsync rh = new QueryURLAsync(AddProductActivity.this, progressBar, sleepAmounnt, new QueryURLAsync.AsyncResponse() {
             @Override
             public void processFinish(String output) {
@@ -265,25 +261,14 @@ public class AddProductActivity extends AppCompatActivity {
                 if (output != null) {
                     if (shouldQueryData) {
                         Log.d("processFinish", "querying data");
-                        Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-                        ref.keepSynced(true);
-                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot snapshot) {
-                                finishSubmitting(ingredientsToTest, writtenTraces, snapshot);
-                            }
-
-                            @Override
-                            public void onCancelled(FirebaseError error) {
-                            }
-                        });
+                        finishSubmitting(name, ingredientsToDisplay, writtenTraces);
                     } else {
                         Log.d("processFinish", "Not querying data, probably recursive call");
                     }
                 } else {
-                    finishSubmitting(ingredientsToTest, writtenTraces, null);
+                    finishSubmitting(name, ingredientsToDisplay, writtenTraces);
                     Log.d("submitData", "retrying queryUrlAsync");
-                    submitData(url, null, ingredientsToTest, writtenTraces, false, 30000);
+                    submitData(url, null, name, ingredientsToDisplay, writtenTraces, false, 30000);
                 }
                 // else recursive call but don't do query again
             }
@@ -291,19 +276,19 @@ public class AddProductActivity extends AppCompatActivity {
         rh.execute(url);
     }
 
-    private void finishSubmitting(List<String> ingredientsToTest, List<String> writtenTraces, DataSnapshot snapshot) {
+    private void finishSubmitting(String name, List<String> ingredientsToDisplay, List<String> writtenTraces) {
         Log.d("onDataChange", "Product submitted");
-        boolean[] bools;
-        if (Utilities.hasInternetConnection(getBaseContext()) && snapshot != null) {
-            bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
-        } else {
-            bools = processData(ingredientsToTest, writtenTraces);
+        JSONObject product = new JSONObject();
+        try {
+            product.put("product_name", name);
+            product.put("ingredients_text", ListHelper.listToString(ingredientsToDisplay));
+            product.put("traces", ListHelper.listToString(writtenTraces));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-
-        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
-
         Intent intent = new Intent(getBaseContext(), MainActivity.class);
         intent.putExtra("result", RESULT_OK);
+        intent.putExtra("json", product.toString());
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

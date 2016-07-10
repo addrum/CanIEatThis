@@ -9,14 +9,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +29,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.ui.activity.AddProductActivity;
 import com.adamshort.canieatthis.util.ListHelper;
@@ -55,8 +52,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.adamshort.canieatthis.data.DataQuerier.processData;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
@@ -66,15 +61,11 @@ import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFireba
 public class ScanFragment extends Fragment {
 
     private static final String EXTENSION = ".json";
-    private static final int DOWNLOAD = 0;
-    private static final int PRODUCT = 1;
     private static final int FORM_REQUEST_CODE = 11;
     private static final int SCAN_REQUEST_CODE = 49374;
 
     private static boolean fragmentCreated = false;
     private static String barcode = "";
-
-    private boolean resetIntro = false;
 
     private static Menu actionMenu;
     private static CheckBox lactoseFreeSwitch;
@@ -91,7 +82,6 @@ public class ScanFragment extends Fragment {
     private TextView tracesResponseView;
     private TextView suitableTitleText;
     private ProgressBar progressBar;
-    private DataPasser dataPasser;
     private DataQuerier dataQuerier;
     private FloatingActionButton fab;
 
@@ -151,11 +141,10 @@ public class ScanFragment extends Fragment {
             Firebase.getDefaultConfig().setPersistenceEnabled(true);
         }
         Firebase.setAndroidContext(getContext());
-        dataPasser = DataPasser.getInstance(getContext());
 
         dataQuerier = DataQuerier.getInstance(getActivity());
 
-        setItemsFromDataPasser();
+//        setItemsFromDataPasser();
 
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,8 +165,6 @@ public class ScanFragment extends Fragment {
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "ScanFragment is visible.");
             Log.d("setUserVisibleHint", Boolean.toString(fragmentCreated));
-            if (fragmentCreated) setItemsFromDataPasser();
-            resetIntro = false;
         } else {
             Log.d("setUserVisibleHint", "ScanFragment is not visible.");
             setSwitchesVisibility(View.INVISIBLE);
@@ -188,19 +175,18 @@ public class ScanFragment extends Fragment {
             if (introTextView != null) {
                 introTextView.setVisibility(View.VISIBLE);
             }
-            resetIntro = true;
         }
     }
 
     @Override
     public void onViewStateRestored(Bundle inState) {
         super.onViewStateRestored(inState);
-        setItemsFromDataPasser();
+//        setItemsFromDataPasser();
     }
 
     //product barcode mode
     public void scanBar() {
-        if (Utilities.isInDebugMode()) {
+//        if (Utilities.isInDebugMode()) {
 //            getBarcodeInformation("7622210307668");
 //            McVities Digestives
 //            getBarcodeInformation("5000168001142");
@@ -220,90 +206,102 @@ public class ScanFragment extends Fragment {
 //            getBarcodeInformation("0000000056434");
 //            fab.show();
 //            go straight to add product
-            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-        } else {
-            IntentIntegrator.forSupportFragment(this).initiateScan();
-        }
+//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//        } else {
+        IntentIntegrator.forSupportFragment(this).initiateScan();
+//        }
     }
 
     //alert dialog for downloadDialog
-    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo, int dialogNumber) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(act);
+    private AlertDialog showDialog(CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
         dialog.setTitle(title);
         dialog.setMessage(message);
 
-        if (dialogNumber == DOWNLOAD) {
-            dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                try {
+                    Intent intent = new Intent(getContext(), AddProductActivity.class);
+                    intent.putExtra("barcode", barcode);
+
                     try {
-                        act.startActivity(intent);
+                        startActivityForResult(intent, FORM_REQUEST_CODE);
                     } catch (ActivityNotFoundException anfe) {
                         Log.e("showDialog", anfe.toString());
                     }
+                } catch (Exception e) {
+                    Log.e("showDialog", "Couldn't start new AddProductActivity");
                 }
-            });
-            dialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                }
-            });
-        }
-
-        if (dialogNumber == PRODUCT) {
-            dialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    try {
-                        Intent intent = new Intent(act, AddProductActivity.class);
-                        intent.putExtra("barcode", barcode);
-
-                        try {
-                            act.startActivityForResult(intent, FORM_REQUEST_CODE);
-                        } catch (ActivityNotFoundException anfe) {
-                            Log.e("showDialog", anfe.toString());
-                        }
-                    } catch (Exception e) {
-                        Log.e("showDialog", "Couldn't start new AddProductActivity");
-                    }
-                }
-            });
-            dialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                }
-            });
-        }
+            }
+        });
+        dialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
 
         return dialog.show();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == SCAN_REQUEST_CODE) {
-            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-            if (result != null) {
-                if (result.getContents() == null) {
-                    Snackbar.make(coordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
-                } else {
-                    Snackbar.make(coordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
-                    getBarcodeInformation(result.getContents());
-                    if (Utilities.hasInternetConnection(getContext())) {
-                        fab.show();
+        switch (requestCode) {
+            case SCAN_REQUEST_CODE:
+                IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+                if (result != null) {
+                    if (result.getContents() == null) {
+                        Snackbar.make(coordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
                     } else {
-                        Log.d("onActivityResult", "No internet connection, not showing fab");
+                        Snackbar.make(coordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
+                        getBarcodeInformation(result.getContents());
+                        if (Utilities.hasInternetConnection(getContext())) {
+                            fab.show();
+                        } else {
+                            Log.d("onActivityResult", "No internet connection, not showing fab");
+                        }
+                    }
+                } else {
+                    super.onActivityResult(requestCode, resultCode, intent);
+                }
+                break;
+
+            // http://stackoverflow.com/a/10407371/1860436
+            case FORM_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    Snackbar.make(coordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
+                    final String sProduct = intent.getStringExtra("json");
+                    if (sProduct != null) {
+                        if (Utilities.hasInternetConnection(getContext())) {
+                            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                            ref.keepSynced(true);
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    try {
+                                        queryData(snapshot, new JSONObject(sProduct));
+                                    } catch (JSONException e) {
+                                        Log.e("onActivityResult", "Error converting product string to json: " + e.toString());
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(FirebaseError error) {
+                                }
+                            });
+                        } else {
+                            try {
+                                queryData(null, new JSONObject(sProduct));
+                            } catch (JSONException e) {
+                                Log.e("onActivityResult", "Error converting product string to json: " + e.toString());
+                            }
+                        }
+                    } else {
+                        Log.d("onActivityResult", "sProduct was null");
                     }
                 }
-            } else {
-                super.onActivityResult(requestCode, resultCode, intent);
-            }
-
-        }
-        // http://stackoverflow.com/a/10407371/1860436
-        else if (requestCode == FORM_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                Snackbar.make(coordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
-                setItemsFromDataPasser();
-            }
+                break;
+            default:
+                super.onActivityResult(requestCode, requestCode, intent);
         }
     }
 
@@ -385,6 +383,14 @@ public class ScanFragment extends Fragment {
                 }
             } catch (FileNotFoundException e) {
                 Log.e("getBarcodeInformation", "Couldn't find file: " + e.toString());
+                Snackbar.make(coordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Download", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Utilities.downloadDatabase(getActivity(), getContext());
+                            }
+                        })
+                        .show();
             }
         }
     }
@@ -394,7 +400,7 @@ public class ScanFragment extends Fragment {
         fbar.execute(product);
     }
 
-    private void queryData(DataSnapshot snapshot, JSONObject product) {
+    public void queryData(DataSnapshot snapshot, JSONObject product) {
         Log.d("queryData", "Product: " + product);
 
         try {
@@ -421,8 +427,10 @@ public class ScanFragment extends Fragment {
                     setItemTitleText("Product name not found");
                 }
                 setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
+                Log.d("queryData", "ingredientsToDisplay: " + ingredientsToDisplay);
                 setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", "")
                         .replace("_", ""));
+                Log.d("queryData", "tracesToDisplay: " + tracesToDisplay);
                 setTracesResponseTextBox(tracesToDisplay.toString().replace("[", "").replace("]", ""));
 
                 setSwitchesVisibility(View.VISIBLE);
@@ -436,10 +444,11 @@ public class ScanFragment extends Fragment {
                     setTracesResponseTextBox("No traces found");
                 }
             } else {
-                showDialog(this.getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
+                showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
             }
         } catch (JSONException e) {
             Log.e("processResponse", "Issue processing response: " + e.toString());
+            showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
         }
     }
 
@@ -461,7 +470,7 @@ public class ScanFragment extends Fragment {
                     if (response != null) {
                         queryData(snapshot, response);
                     } else {
-                        showDialog(getActivity(), "Product Not Found", "Add the product to the database?", "Yes", "No", PRODUCT).show();
+                        showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
                     }
                 }
 
@@ -476,6 +485,7 @@ public class ScanFragment extends Fragment {
         protected void onPostExecute(String response) {
             progressBar.setVisibility(View.INVISIBLE);
         }
+
     }
 
     @Override
@@ -547,75 +557,6 @@ public class ScanFragment extends Fragment {
         introTextView.setVisibility(View.INVISIBLE);
 
         actionMenu.findItem(R.id.action_search).collapseActionView();
-    }
-
-    public void setItemsFromDataPasser() {
-        if (!resetIntro) {
-            if (dataPasser == null) dataPasser = DataPasser.getInstance(getContext());
-
-            setDietarySwitches(dataPasser.isDairy(), dataPasser.isVegetarian(), dataPasser.isVegan(), dataPasser.isGluten());
-
-            if (dataPasser.areSwitchesVisible()) {
-                setSwitchesVisibility(View.VISIBLE);
-            } else {
-                setSwitchesVisibility(View.INVISIBLE);
-            }
-
-            if (itemTextView != null) {
-                itemTextView.setText(dataPasser.getQuery());
-                if (dataPasser.isItemVisible()) {
-                    itemTextView.setVisibility(View.VISIBLE);
-                } else {
-                    itemTextView.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            if (introTextView != null) {
-                if (dataPasser.isIntroVisible()) {
-                    introTextView.setVisibility(View.VISIBLE);
-                } else {
-                    introTextView.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            if (dataPasser.isResponseVisible()) {
-                setResponseItemsVisibility(View.VISIBLE);
-            } else {
-                setResponseItemsVisibility(View.INVISIBLE);
-            }
-
-            if (!dataPasser.isFromSearch()) {
-                if (ingredientResponseView != null) {
-                    String ingredients = dataPasser.getIngredients();
-                    if (!TextUtils.isEmpty(ingredients)) {
-                        Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
-                        Matcher matcher = pattern.matcher(ingredients);
-                        StringBuffer sb = new StringBuffer();
-                        while (matcher.find()) {
-                            String matched = matcher.group(1).replace("_", "<b>")
-                                    + matcher.group(2)
-                                    + matcher.group(3).replace("_", "</b>");
-                            matcher.appendReplacement(sb, matched);
-                        }
-                        matcher.appendTail(sb);
-                        Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            ingredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
-                        } else {
-                            //noinspection deprecation
-                            ingredientResponseView.setText(Html.fromHtml(sb.toString()));
-                        }
-                    }
-                }
-                if (tracesResponseView != null) {
-                    if (dataPasser.getTraces() != null) {
-                        if (!dataPasser.getTraces().equals("")) {
-                            tracesResponseView.setText(dataPasser.getTraces());
-                        }
-                    }
-                }
-            }
-        }
     }
 
     public void setSwitchesVisibility(int visibility) {

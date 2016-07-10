@@ -27,6 +27,8 @@ public class ListHelper {
         s = s.replaceAll("(?i)\\sor\\s", ",");
         // split "And" into two
         s = s.replaceAll("(?i)\\sand\\s", ",");
+        // replace - with ,
+        s = s.replaceAll("-", ",");
         String [] array = s.split(",");
         return new ArrayList<>(Arrays.asList(trimArray(array)));
     }
