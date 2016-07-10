@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
@@ -93,6 +94,7 @@ public class ScanFragment extends Fragment {
     private ProgressBar progressBar;
     private DataPasser dataPasser;
     private DataQuerier dataQuerier;
+    private FloatingActionButton fab;
 
     @SuppressWarnings("ResourceType")
     @Override
@@ -125,6 +127,26 @@ public class ScanFragment extends Fragment {
         glutenFreeSwitch.setClickable(false);
 
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.hide();
+        fab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto", getString(R.string.aboutEmail), null));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.issueEmailSubject));
+                emailIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Product Name: " + itemTextView.getText() + "\n" +
+                                "\nLactose Free: " + lactoseFreeSwitch.isChecked() + "\n" +
+                                "Vegetarian: " + vegetarianSwitch.isChecked() + "\n" +
+                                "Vegan: " + veganSwitch.isChecked() + "\n" +
+                                "Gluten Free: " + glutenFreeSwitch.isChecked() + "\n" +
+                                "\nIngredients: " + ingredientResponseView.getText() + "\n" +
+                                "\nTraces: " + tracesResponseView.getText() + "\n" +
+                                "\nDescribe any issues you are having here:");
+                startActivity(Intent.createChooser(emailIntent, "Send information..."));
+            }
+        });
 
         if (!Firebase.getDefaultConfig().isPersistenceEnabled()) {
             Firebase.getDefaultConfig().setPersistenceEnabled(true);
@@ -179,10 +201,11 @@ public class ScanFragment extends Fragment {
 
     //product barcode mode
     public void scanBar() {
-//        if (Utilities.isInDebugMode()) {
+        if (Utilities.isInDebugMode()) {
 //            getBarcodeInformation("7622210307668");
 //            McVities Digestives
-//            getBarcodeInformation("5000168001142");
+            getBarcodeInformation("5000168001142");
+            fab.show();
 //            Tesco Orange Juice from Concentrate
 //            getBarcodeInformation("5051140367282");
 //            Muller Corner Choco Digestives
@@ -200,9 +223,9 @@ public class ScanFragment extends Fragment {
 //            go straight to add product
 //            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-//        } else {
+        } else {
             IntentIntegrator.forSupportFragment(this).initiateScan();
-//        }
+        }
     }
 
     //alert dialog for downloadDialog
@@ -265,6 +288,11 @@ public class ScanFragment extends Fragment {
                 } else {
                     Snackbar.make(coordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
                     getBarcodeInformation(result.getContents());
+                    if (Utilities.hasInternetConnection(getContext())) {
+                        fab.show();
+                    } else {
+                        Log.d("onActivityResult", "No internet connection, not showing fab");
+                    }
                 }
             } else {
                 super.onActivityResult(requestCode, resultCode, intent);
