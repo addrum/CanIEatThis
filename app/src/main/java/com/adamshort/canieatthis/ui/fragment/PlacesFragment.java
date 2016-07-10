@@ -523,6 +523,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 placesRequestSubmitted = true;
                 setUpMap();
             }
+        } else {
+            if (mMap != null) {
+                mapZoom = mMap.getCameraPosition().zoom;
+            }
         }
     }
 
