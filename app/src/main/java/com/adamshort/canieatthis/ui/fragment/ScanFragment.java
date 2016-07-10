@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.ui.activity.AddProductActivity;
+import com.adamshort.canieatthis.util.CSVAsync;
 import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
@@ -40,20 +41,14 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Arrays;
 import java.util.List;
 
-import static com.adamshort.canieatthis.data.DataQuerier.processData;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 import static com.adamshort.canieatthis.data.DataQuerier.processIngredient;
 import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
@@ -271,30 +266,22 @@ public class ScanFragment extends Fragment {
                     Snackbar.make(coordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
                     final String sProduct = intent.getStringExtra("json");
                     if (sProduct != null) {
-                        if (Utilities.hasInternetConnection(getContext())) {
-                            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-                            ref.keepSynced(true);
-                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot snapshot) {
-                                    try {
-                                        queryData(snapshot, new JSONObject(sProduct));
-                                    } catch (JSONException e) {
-                                        Log.e("onActivityResult", "Error converting product string to json: " + e.toString());
-                                    }
+                        Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                        ref.keepSynced(true);
+                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                try {
+                                    queryData(snapshot, new JSONObject(sProduct));
+                                } catch (JSONException e) {
+                                    Log.e("onActivityResult", "Error converting product string to json: " + e.toString());
                                 }
-
-                                @Override
-                                public void onCancelled(FirebaseError error) {
-                                }
-                            });
-                        } else {
-                            try {
-                                queryData(null, new JSONObject(sProduct));
-                            } catch (JSONException e) {
-                                Log.e("onActivityResult", "Error converting product string to json: " + e.toString());
                             }
-                        }
+
+                            @Override
+                            public void onCancelled(FirebaseError error) {
+                            }
+                        });
                     } else {
                         Log.d("onActivityResult", "sProduct was null");
                     }
@@ -319,70 +306,35 @@ public class ScanFragment extends Fragment {
             });
             rh.execute(getString(R.string.offBaseUrl) + barcode + EXTENSION);
         } else {
-
+            Log.d("getBarcodeInformation", "going to try and query csv file");
             File products = null;
             try {
-                //noinspection ConstantConditions
+//                noinspection ConstantConditions
                 products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
             } catch (NullPointerException e) {
                 Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
             }
-            try {
-                if (products != null) {
-                    CsvParserSettings settings = new CsvParserSettings();
-                    settings.getFormat().setDelimiter('\t');
-                    settings.setMaxCharsPerColumn(10000);
-                    // limits to barcode, name, ingredients and traces
-                    settings.selectIndexes(0, 7, 34, 35);
+            if (products != null && products.exists()) {
+                CSVAsync csvAsync = new CSVAsync(barcode, progressBar, new CSVAsync.AsyncResponse() {
+                    @Override
+                    public void processFinish(final JSONObject output) {
+                        Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                        ref.keepSynced(true);
+                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                queryData(snapshot, output);
+                            }
 
-                    CsvParser parser = new CsvParser(settings);
-
-                    // call beginParsing to read records one by one, iterator-style.
-                    parser.beginParsing(new FileReader(products));
-
-                    String[] info = null;
-                    String[] row;
-                    while ((row = parser.parseNext()) != null) {
-                        if (StringUtils.leftPad(row[0], 13, "0").equals(barcode)) {
-                            info = row;
-                            parser.stopParsing();
-                        }
+                            @Override
+                            public void onCancelled(FirebaseError error) {
+                            }
+                        });
                     }
-                    if (info != null) {
-                        Log.d("getBarcodeInformation", Arrays.toString(info));
-                        JSONObject product = new JSONObject();
-                        try {
-                            int length = info.length;
-                            if (length > 0 && info[0] != null) {
-                                product.put("barcode", info[0]);
-                            } else {
-                                product.put("barcode", "");
-                            }
-                            if (length > 1 && info[1] != null) {
-                                product.put("product_name", info[1]);
-                            } else {
-                                product.put("product_name", "");
-                            }
-                            if (length > 2 && info[2] != null) {
-                                product.put("ingredients_text", info[2]);
-                            } else {
-                                product.put("ingredients_text", "");
-                            }
-                            if (length > 3 && info[3] != null) {
-                                product.put("traces", info[3]);
-                            } else {
-                                product.put("traces", "");
-                            }
-                        } catch (JSONException e) {
-                            Log.e("getBarcodeInformation", "Couldn't create jsonobject: " + e.toString());
-                        }
-                        queryData(null, product);
-                    } else {
-                        queryData(null, null);
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                Log.e("getBarcodeInformation", "Couldn't find file: " + e.toString());
+                });
+                csvAsync.execute(products);
+            } else {
+                Log.e("getBarcodeInformation", "Couldn't find file");
                 Snackbar.make(coordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
                         .setAction("Download", new View.OnClickListener() {
                             @Override
@@ -415,12 +367,7 @@ public class ScanFragment extends Fragment {
                 List<String> ingredientsToDisplay = ListHelper.stringToList(ingredients);
                 List<String> tracesToDisplay = ListHelper.stringToList(traces);
 
-                boolean[] bools;
-                if (snapshot != null) {
-                    bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
-                } else {
-                    bools = processData(ingredientsToTest, tracesToTest);
-                }
+                boolean[] bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
 
                 setItemTitleText(item);
                 if (item.equals("")) {

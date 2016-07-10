@@ -76,7 +76,6 @@ public class QueryURLAsync extends AsyncTask<String, Void, String> {
             }
             Log.d("onPostExecute", "Issue with response");
         } else if (response.equals("")) {
-            Log.d("onPostExecute", "Couldn't find matching barcode in local csv");
             if (progressBar != null) {
                 progressBar.setVisibility(View.INVISIBLE);
             }

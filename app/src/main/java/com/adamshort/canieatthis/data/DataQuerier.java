@@ -106,40 +106,6 @@ public class DataQuerier {
                 vegan != null && vegan, gluten != null && gluten};
     }
 
-    public static boolean[] processData(List<String> ingredients, List<String> traces) {
-        Log.d("processData", "Processing data with text files");
-        Boolean lactose = isLactoseFree(ingredients);
-        Boolean vegan = isVegan(ingredients);
-        Boolean vegetarian = null;
-        // if something is vegan it is 100% vegetarian
-        if (!vegan) {
-            vegetarian = isVegetarian(ingredients);
-        }
-        Boolean gluten = isGlutenFree(ingredients);
-
-        if (traces.size() > 0) {
-            if (!traces.get(0).equals("")) {
-                for (String trace : traces) {
-                    if (lactose) {
-                        lactose = isLactoseFree(trace);
-                    }
-                    if (vegetarian == null || vegetarian) {
-                        vegetarian = isVegetarian(trace);
-                    }
-                    if (vegan) {
-                        vegan = isVegan(trace);
-                    }
-                    if (gluten) {
-                        gluten = isGlutenFree(trace);
-                    }
-                }
-            }
-        }
-
-        return new boolean[]{lactose, vegetarian != null && vegetarian,
-                vegan, gluten};
-    }
-
     public static boolean[] processIngredientFirebase(String ingredient, DataSnapshot snapshot) {
         Log.d("processDataFirebase", "Processing ingredient with firebase");
         Boolean lactose = null;
@@ -282,35 +248,11 @@ public class DataQuerier {
         }
     }
 
-    public static boolean isLactoseFree(List<String> list) {
-        for (String ingredient : list) {
-            ingredient = replaceSpecialChars(ingredient);
-            for (String dairyIngredient : dairy) {
-                if (ingredient.toLowerCase().equals(dairyIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public static boolean isLactoseFree(String ingredient) {
         for (String lactoseIngredient : dairy) {
                 if (ingredient.toLowerCase().equals(lactoseIngredient.toLowerCase())) {
                     return false;
                 }
-        }
-        return true;
-    }
-
-    public static boolean isVegetarian(List<String> list) {
-        for (String ingredient : list) {
-            ingredient = replaceSpecialChars(ingredient);
-            for (String vegetarianIngredient : vegetarian) {
-                if (ingredient.toLowerCase().equals(vegetarianIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
         }
         return true;
     }
@@ -324,34 +266,10 @@ public class DataQuerier {
         return true;
     }
 
-    public static boolean isVegan(List<String> list) {
-        for (String ingredient : list) {
-            ingredient = replaceSpecialChars(ingredient);
-            for (String veganIngredient : vegan) {
-                if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public static boolean isVegan(String ingredient) {
         for (String veganIngredient : vegan) {
             if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
                 return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isGlutenFree(List<String> list) {
-        for (String ingredient : list) {
-            ingredient = replaceSpecialChars(ingredient);
-            for (String glutenIngredient : gluten) {
-                if (ingredient.toLowerCase().equals(glutenIngredient.toLowerCase())) {
-                    return false;
-                }
             }
         }
         return true;
