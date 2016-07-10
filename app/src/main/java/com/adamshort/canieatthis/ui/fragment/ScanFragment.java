@@ -72,7 +72,6 @@ public class ScanFragment extends Fragment {
     private static final int SCAN_REQUEST_CODE = 49374;
 
     private static boolean fragmentCreated = false;
-    public static String BASE_URL = "http://world.openfoodfacts.org/api/v0/product/";
     private static String barcode = "";
 
     private boolean resetIntro = false;
@@ -320,7 +319,7 @@ public class ScanFragment extends Fragment {
                     processResponseFirebase(product);
                 }
             });
-            rh.execute(BASE_URL + barcode + EXTENSION);
+            rh.execute(getString(R.string.offBaseUrl) + barcode + EXTENSION);
         } else {
 
             File products = null;
