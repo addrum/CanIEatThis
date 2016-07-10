@@ -204,8 +204,7 @@ public class ScanFragment extends Fragment {
         if (Utilities.isInDebugMode()) {
 //            getBarcodeInformation("7622210307668");
 //            McVities Digestives
-            getBarcodeInformation("5000168001142");
-            fab.show();
+//            getBarcodeInformation("5000168001142");
 //            Tesco Orange Juice from Concentrate
 //            getBarcodeInformation("5051140367282");
 //            Muller Corner Choco Digestives
@@ -220,9 +219,10 @@ public class ScanFragment extends Fragment {
 //            getBarcodeInformation("5053990101863");
 //            lemonade
 //            getBarcodeInformation("0000000056434");
+//            fab.show();
 //            go straight to add product
-//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
         } else {
             IntentIntegrator.forSupportFragment(this).initiateScan();
         }
@@ -313,7 +313,7 @@ public class ScanFragment extends Fragment {
         barcode = StringUtils.leftPad(barcode, 13, "0");
         ScanFragment.barcode = barcode;
         if (Utilities.hasInternetConnection(getContext())) {
-            QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, new QueryURLAsync.AsyncResponse() {
+            QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, 0, new QueryURLAsync.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
                     JSONObject product = dataQuerier.parseIntoJSON(output);

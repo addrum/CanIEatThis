@@ -34,6 +34,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.adamshort.canieatthis.data.DataQuerier.processData;
 import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class AddProductActivity extends AppCompatActivity {
@@ -61,8 +62,6 @@ public class AddProductActivity extends AppCompatActivity {
     private CheckBox energyPerServingCheckBox;
     private CheckBox energyPer100CheckBox;
     private TextView portionTextView;
-
-    private QueryURLAsync rh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -184,17 +183,17 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !Utilities.isInDebugMode()) return;
 
-//                    if (DEBUG) {
-//                        barcodeText = "072417136160";
-//                        productNameText = "Maryland Choc Chip";
-//                        itemTitle = productNameText;
-//                        quantityText = "230g";
-//                        energyPerText = "450";
-//                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-//                        writtenIngredients = ListHelper.stringToList(ingredientsText);
-//                        tracesText = "Milk, Soya, Nuts, Wheat";
-//                        writtenTraces = ListHelper.stringToList(tracesText);
-//                    }
+                    if (Utilities.isInDebugMode()) {
+                        barcodeText = "072417136160";
+                        productNameText = "Maryland Choc Chip";
+                        itemTitle = productNameText;
+                        quantityText = "230g";
+                        energyPerText = "450";
+                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                        writtenIngredients = ListHelper.stringToList(ingredientsText);
+                        tracesText = "Milk, Soya, Nuts, Wheat";
+                        writtenTraces = ListHelper.stringToList(tracesText);
+                    }
 
                     final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
@@ -248,39 +247,65 @@ public class AddProductActivity extends AppCompatActivity {
 
                     try {
                         String url = BASE_URL + params;
-                        rh = new QueryURLAsync(AddProductActivity.this, progressBar, new QueryURLAsync.AsyncResponse() {
-                            @Override
-                            public void processFinish(String output) {
-                                Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-                                ref.keepSynced(true);
-                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot snapshot) {
-                                        Log.d("onDataChange", "Product submitted");
-                                        boolean[] bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
-
-                                        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
-
-                                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                                        intent.putExtra("result", RESULT_OK);
-                                        setResult(Activity.RESULT_OK, intent);
-                                        finish();
-                                    }
-
-                                    @Override
-                                    public void onCancelled(FirebaseError error) {
-                                    }
-                                });
-                            }
-                        });
-                        rh.execute(url);
+                        submitData(url, progressBar, ingredientsToTest, writtenTraces, true, 0);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             });
         }
+    }
+
+    private void submitData(final String url, final ProgressBar progressBar, final List<String> ingredientsToTest, final List<String> writtenTraces, final boolean shouldQueryData, final int sleepAmounnt) {
+        QueryURLAsync rh = new QueryURLAsync(AddProductActivity.this, progressBar, sleepAmounnt, new QueryURLAsync.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                // if response ok
+                Log.d("processFinish", "output was: " + output);
+                if (output != null) {
+                    if (shouldQueryData) {
+                        Log.d("processFinish", "querying data");
+                        Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                        ref.keepSynced(true);
+                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                finishSubmitting(ingredientsToTest, writtenTraces, snapshot);
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError error) {
+                            }
+                        });
+                    } else {
+                        Log.d("processFinish", "Not querying data, probably recursive call");
+                    }
+                } else {
+                    finishSubmitting(ingredientsToTest, writtenTraces, null);
+                    Log.d("submitData", "retrying queryUrlAsync");
+                    submitData(url, null, ingredientsToTest, writtenTraces, false, 30000);
+                }
+                // else recursive call but don't do query again
+            }
+        });
+        rh.execute(url);
+    }
+
+    private void finishSubmitting(List<String> ingredientsToTest, List<String> writtenTraces, DataSnapshot snapshot) {
+        Log.d("onDataChange", "Product submitted");
+        boolean[] bools;
+        if (Utilities.hasInternetConnection(getBaseContext()) && snapshot != null) {
+            bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
+        } else {
+            bools = processData(ingredientsToTest, writtenTraces);
+        }
+
+        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
+
+        Intent intent = new Intent(getBaseContext(), MainActivity.class);
+        intent.putExtra("result", RESULT_OK);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
     }
 
     private List<String> compareTwoLists(List<String> list1, List<String> list2) {
