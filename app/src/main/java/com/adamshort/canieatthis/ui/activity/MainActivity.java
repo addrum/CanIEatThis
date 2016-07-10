@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int APP_INTRO_REQUEST_CODE = 3;
 
     private int position;
 
@@ -61,9 +62,8 @@ public class MainActivity extends AppCompatActivity {
         // show intro if not shown before
         if (!Utilities.getIntroShownPref(getBaseContext())) {
             Log.d("onCreate", "Showing intro activity");
-            Utilities.setIntroShownPref(this, true);
             Intent intent = new Intent(this, AppIntroActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, APP_INTRO_REQUEST_CODE);
         }
 
         List<Fragment> fragments = new ArrayList<>();
@@ -198,6 +198,21 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             Log.d("showDownloadPrompt", "Has no internet connection");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        switch (requestCode) {
+            // Make sure the request was successful
+            case APP_INTRO_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Utilities.setIntroShownPref(this, true);
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
