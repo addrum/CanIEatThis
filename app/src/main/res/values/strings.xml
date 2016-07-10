@@ -64,4 +64,9 @@
     <string name="vegetarianQuestion">Does this place have a vegetarian option?</string>
     <string name="veganQuestion">Does this place have a vegan option?</string>
     <string name="glutenFreeQuestion">Does this place have a gluten free option?</string>
+    <string name="email_address">Email Address</string>
+    <string name="description">Describe any issues with the product info</string>
+    <string name="submit">Submit</string>
+    <string name="helpErrorText">Please describe any issues you are having, or tap outside the box to dismiss this window.</string>
+    <string name="issueEmailSubject">Issue with Product Information</string>
 </resources>

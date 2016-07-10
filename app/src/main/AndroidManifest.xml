@@ -47,8 +47,7 @@
             android:name=".ui.activity.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
-        <activity
-            android:name=".ui.activity.AboutActivity">
+        <activity android:name=".ui.activity.AboutActivity">
         </activity>
         <activity
             android:name=".ui.activity.AddPlacesInfoActivity"
@@ -61,7 +60,8 @@
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
-            tools:replace="screenOrientation"/>>
+            tools:replace="screenOrientation">
+        </activity>
     </application>
 
 </manifest>
