@@ -70,4 +70,6 @@
     <string name="vegetarianQuestion">Does this place have a vegetarian option?</string>
     <string name="vegetarianSwitchText">Vegetarian</string>
     <string name="yes">yes</string>
+    <string name="noIngredientsFoundText">No ingredients found</string>
+    <string name="noTracesFound">No traces found</string>
 </resources>

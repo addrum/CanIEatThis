@@ -9,12 +9,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +50,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.adamshort.canieatthis.data.DataQuerier.*;
 
@@ -376,8 +380,7 @@ public class ScanFragment extends Fragment {
                 }
                 setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
                 Log.d("queryData", "ingredientsToDisplay: " + ingredientsToDisplay);
-                setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", "")
-                        .replace("_", ""));
+                setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", ""));
                 Log.d("queryData", "tracesToDisplay: " + tracesToDisplay);
                 setTracesResponseTextBox(tracesToDisplay.toString().replace("[", "").replace("]", ""));
 
@@ -386,10 +389,10 @@ public class ScanFragment extends Fragment {
                 setResponseItemsVisibility(View.VISIBLE);
 
                 if (ingredientsToDisplay.size() < 1 || ingredientsToDisplay.get(0).equals("")) {
-                    setIngredientsResponseTextBox("No ingredients found");
+                    setIngredientsResponseTextBox(getString(R.string.noIngredientsFoundText));
                 }
                 if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
-                    setTracesResponseTextBox("No traces found");
+                    setTracesResponseTextBox(getString(R.string.noTracesFound));
                 }
             } else {
                 showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
@@ -560,8 +563,28 @@ public class ScanFragment extends Fragment {
     }
 
     public void setIngredientsResponseTextBox(String response) {
-        ingredientResponseView.setText(response);
         ingredientResponseView.setVisibility(View.VISIBLE);
+        if (!TextUtils.isEmpty(response) && !response.equals(getString(R.string.noIngredientsFoundText))) {
+            Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
+            Matcher matcher = pattern.matcher(response);
+            StringBuffer sb = new StringBuffer();
+            while (matcher.find()) {
+                String matched = matcher.group(1).replace("_", "<b>") +
+                        matcher.group(2) +
+                        matcher.group(3).replace("_", "</b>");
+                matcher.appendReplacement(sb, matched);
+            }
+            matcher.appendTail(sb);
+            Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                ingredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+            } else {
+                //noinspection deprecation
+                ingredientResponseView.setText(Html.fromHtml(sb.toString()));
+            }
+        } else {
+            ingredientResponseView.setText(response);
+        }
     }
 
     public void setTracesResponseTextBox(String response) {
