@@ -503,6 +503,13 @@ public class ScanFragment extends Fragment {
         actionMenu.findItem(R.id.action_search).collapseActionView();
     }
 
+    @Override
+    public void onPause() {
+        Log.e("onPause", "OnPause of HomeFragment");
+        isSearching = false;
+        super.onPause();
+    }
+
     public void setSwitchesVisibility(int visibility) {
         if (switchesTableLayout != null) {
             switchesTableLayout.setVisibility(visibility);
