@@ -302,7 +302,7 @@ public class ScanFragment extends Fragment {
             QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, 0, new QueryURLAsync.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
-                    DataQuerier.getInstance(getActivity());
+                    DataQuerier.getInstance();
                     JSONObject product = DataQuerier.parseIntoJSON(output);
                     processResponseFirebase(product);
                     isSearching = false;

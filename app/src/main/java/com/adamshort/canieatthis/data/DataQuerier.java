@@ -1,6 +1,5 @@
 package com.adamshort.canieatthis.data;
 
-import android.app.Activity;
 import android.util.Log;
 
 import com.adamshort.canieatthis.util.ListHelper;
@@ -15,12 +14,12 @@ import java.util.Map;
 public class DataQuerier {
     private static DataQuerier mInstance = null;
 
-    private DataQuerier(Activity activity) {
+    private DataQuerier() {
     }
 
-    public static DataQuerier getInstance(Activity activity) {
+    public static DataQuerier getInstance() {
         if (mInstance == null) {
-            mInstance = new DataQuerier(activity);
+            mInstance = new DataQuerier();
         }
         return mInstance;
     }

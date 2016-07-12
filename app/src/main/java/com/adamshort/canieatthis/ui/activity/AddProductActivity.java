@@ -73,7 +73,7 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
-        DataQuerier.getInstance(this);
+        DataQuerier.getInstance();
 
         ingredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
