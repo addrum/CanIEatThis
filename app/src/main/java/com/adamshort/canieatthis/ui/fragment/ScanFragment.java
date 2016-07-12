@@ -190,7 +190,7 @@ public class ScanFragment extends Fragment {
 //            Tesco Orange Juice from Concentrate
 //            getBarcodeInformation("5051140367282");
 //            Muller Corner Choco Digestives
-            getBarcodeInformation("4025500165574");
+//            getBarcodeInformation("4025500165574");
 //            Jammie Dodgers
 //            getBarcodeInformation("072417143700");
 //            Candy Crush Candy
@@ -208,7 +208,7 @@ public class ScanFragment extends Fragment {
 //            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
 
-//            IntentIntegrator.forSupportFragment(this).initiateScan();
+            IntentIntegrator.forSupportFragment(this).initiateScan();
     }
 
     //alert dialog for downloadDialog
