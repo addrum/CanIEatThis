@@ -37,11 +37,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final int APP_INTRO_REQUEST_CODE = 3;
 
-    private int position;
+    private int mPosition;
 
-    private BroadcastReceiver downloadCompleteReceiver;
-    private PlacesFragment placesFragment;
-    private LinearLayout tabLayoutLinearLayout;
+    private BroadcastReceiver mDownloadCompleteReceiver;
+    private LinearLayout mTabLayoutLinearLayout;
+    private PlacesFragment mPlacesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
-        placesFragment = new PlacesFragment();
-        fragments.add(placesFragment);
+        mPlacesFragment = new PlacesFragment();
+        fragments.add(mPlacesFragment);
 
-        tabLayoutLinearLayout = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
+        mTabLayoutLinearLayout = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -80,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
             viewPager.setAdapter(fragmentHandler);
 
             Intent intent = getIntent();
-            position = intent.getIntExtra("position", 0);
-            viewPager.setCurrentItem(position);
+            mPosition = intent.getIntExtra("position", 0);
+            viewPager.setCurrentItem(mPosition);
 
             viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     private void createBroadcastCompleteReceiver() {
         Log.d("createBroadcast", "Registering download complete receiver");
         IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        downloadCompleteReceiver = new BroadcastReceiver() {
+        mDownloadCompleteReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
                     switch (status) {
                         case DownloadManager.STATUS_SUCCESSFUL:
-                            Snackbar.make(tabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
                             editor.putString("download_status", "downloaded");
                             editor.apply();
                             try {
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case DownloadManager.STATUS_FAILED:
                             Log.d("onReceive", "Download failed: " + reason);
-                            Snackbar.make(tabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(mTabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
                             editor.putString("download_status", "failed");
                             break;
                         case DownloadManager.STATUS_PAUSED:
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        registerReceiver(downloadCompleteReceiver, intentFilter);
+        registerReceiver(mDownloadCompleteReceiver, intentFilter);
     }
 
     private void showDownloadPrompt() {
@@ -219,8 +219,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (placesFragment != null) {
-            placesFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (mPlacesFragment != null) {
+            mPlacesFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         createBroadcastCompleteReceiver();
         long current = System.currentTimeMillis();
         Timestamp cur = new Timestamp(current);
-        if (Utilities.timeForUpdatePrompt(getBaseContext(), cur)) {
+        if (Utilities.isTimeForUpdatePrompt(getBaseContext(), cur)) {
             Log.d("onResume", "Time for update prompt was true");
             showDownloadPrompt();
         }
@@ -254,11 +254,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(downloadCompleteReceiver);
+        unregisterReceiver(mDownloadCompleteReceiver);
     }
 
-    public void setPosition(int position) {
-        this.position = position;
+    public void setPosition(int mPosition) {
+        this.mPosition = mPosition;
     }
 
 }

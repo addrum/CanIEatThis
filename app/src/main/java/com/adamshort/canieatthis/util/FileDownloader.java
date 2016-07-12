@@ -15,7 +15,7 @@ public class FileDownloader {
 
     private static FileDownloader mInstance = null;
 
-    private long downloadReference;
+    private long mDownloadReference;
 
     private FileDownloader(Activity activity, DownloadManager downloadManager, String url, String filename) {
         Log.d("FileDownloader", "Download file at: " + url);
@@ -24,6 +24,7 @@ public class FileDownloader {
         String storageState = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(storageState)) {
             try {
+                //noinspection ConstantConditions
                 File file = new File(activity.getExternalFilesDir(null).getPath(), filename);
                 if (file.exists()) {
                     Log.d("FileDownloader", "File exists!");
@@ -37,7 +38,7 @@ public class FileDownloader {
                 request.setDestinationInExternalFilesDir(activity, null, filename);
                 request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 
-                downloadReference = downloadManager.enqueue(request);
+                mDownloadReference = downloadManager.enqueue(request);
                 SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("download_status", "downloading");
@@ -59,6 +60,6 @@ public class FileDownloader {
     }
 
     public long getDownloadReference() {
-        return downloadReference;
+        return mDownloadReference;
     }
 }

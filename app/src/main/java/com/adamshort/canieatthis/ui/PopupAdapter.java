@@ -24,8 +24,6 @@ import com.adamshort.canieatthis.R;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.model.Marker;
 
-import java.util.List;
-
 public class PopupAdapter implements InfoWindowAdapter {
 
     private View popup = null;

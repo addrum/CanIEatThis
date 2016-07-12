@@ -64,34 +64,35 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int FORM_REQUEST_CODE = 11;
-    private static boolean fromSearch;
 
-    private static String radius = "1000";
-    private static String nextPageToken;
+    private static boolean mFromSearch;
 
-    private boolean placesRequestSubmitted;
-    private boolean isGoogleConnected;
-    private boolean isVisible;
-    private boolean isMapSetup;
-    private double lat;
-    private double lng;
-    private float mapZoom = 15;
-    private String apiKey;
+    private static String mRadius = "1000";
+    private static String mNextPageToken;
 
+    private boolean mIsGoogleConnected;
+    private boolean mIsMapSetup;
+    private boolean mIsVisible;
+    private boolean mPlacesRequestSubmitted;
+    private double mLat;
+    private double mLng;
+    private float mMapZoom = 15;
+    private String mApiKey;
+
+    private Button mShowMoreButton;
+    private CoordinatorLayout mCoordinatorLayout;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private MapView mMapView;
-    private CoordinatorLayout coordinatorLayout;
-    private Button showMoreButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // inflate and return the layout
         View v = inflater.inflate(R.layout.fragment_places, container, false);
         setHasOptionsMenu(true);
-        apiKey = getResources().getString(R.string.server_key);
+        mApiKey = getResources().getString(R.string.server_key);
 
-        coordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
+        mCoordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
 
         // https://code.google.com/p/gmaps-api-issues/issues/detail?id=6237#c9
         final Bundle mapViewSavedInstanceState = savedInstanceState != null ? savedInstanceState.getBundle("mapViewSaveState") : null;
@@ -100,12 +101,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
 
-        showMoreButton = (Button) v.findViewById(R.id.showMoreButton);
-        showMoreButton.setOnClickListener(new View.OnClickListener() {
+        mShowMoreButton = (Button) v.findViewById(R.id.showMoreButton);
+        mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showMore(nextPageToken);
-                showMoreButton.setVisibility(View.INVISIBLE);
+                showMore(mNextPageToken);
+                mShowMoreButton.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -152,6 +153,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Creates a Google API Client which is needed for using the Places API.
+     */
     private void createGoogleAPIClient() {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(getContext())
@@ -159,37 +163,49 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
-            isGoogleConnected = true;
+            mIsGoogleConnected = true;
         }
     }
 
+    /**
+     * Moves the camera to a specified location.
+     *
+     * @param googleMap The map to move the camera of.
+     * @param latLng    The position to move the camera too.
+     */
     private void moveCamera(GoogleMap googleMap, LatLng latLng) {
-        if ((isVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
+        if ((mIsVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng).zoom(mapZoom).build();
+                    .target(latLng).zoom(mMapZoom).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             Log.d("moveCamera", "Moving camera to: " + cameraPosition);
         }
     }
 
+    /**
+     * Sets all the properties of the map view, including:
+     * - moving camera to either the last location or the users current location
+     * - creates any nearby markers
+     * - creates a marker at the last location if the user used the search function
+     */
     private void setUpMap() {
         createGoogleAPIClient();
         if (mMap != null) {
-            if (isVisible || !Utilities.isPortraitMode(getContext())) {
+            if (mIsVisible || !Utilities.isPortraitMode(getContext())) {
                 checkLocationPermission();
                 LatLng latLng = getLatLng();
                 if (latLng.latitude != 0 && latLng.longitude != 0) {
                     moveCamera(mMap, getLatLng());
 
                     createNearbyMarkers(mMap);
-                    if (fromSearch) {
+                    if (mFromSearch) {
                         createCustomMarker(getLatLng());
                     }
                 }
-                isMapSetup = true;
+                mIsMapSetup = true;
             }
         }
-        placesRequestSubmitted = false;
+        mPlacesRequestSubmitted = false;
     }
 
     @Override
@@ -202,7 +218,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             public boolean onMyLocationButtonClick() {
                 setUserLocation();
                 createNearbyMarkers(googleMap);
-                fromSearch = false;
+                mFromSearch = false;
                 return false;
             }
         });
@@ -216,13 +232,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     Installation.id(getContext());
                     if (!Installation.isInInstallationFile(getContext(),
                             marker.getPosition().toString())) {
-                        showMoreButton.setVisibility(View.INVISIBLE);
+                        mShowMoreButton.setVisibility(View.INVISIBLE);
                         Intent intent = new Intent(getContext(), AddPlacesInfoActivity.class);
                         intent.putExtra("name", marker.getTitle());
                         intent.putExtra("latlng", marker.getPosition().toString());
                         startActivityForResult(intent, FORM_REQUEST_CODE);
                     } else {
-                        Snackbar.make(coordinatorLayout, "You have already submitted information about this place"
+                        Snackbar.make(mCoordinatorLayout, "You have already submitted information about this place"
                                 , Snackbar.LENGTH_LONG)
                                 .show();
                     }
@@ -240,22 +256,32 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         });
     }
 
+    /**
+     * Creates markers near to the latlng position by making an async Places API request.
+     *
+     * @param googleMap The map to create the markers on.
+     */
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (isGoogleConnected) {
+        if (mIsGoogleConnected) {
             if (googleMap != null) {
                 googleMap.clear();
             }
-            if (lat != 0 && lng != 0) {
-                String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey;
+            if (mLat != 0 && mLng != 0) {
+                String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&radius=" + mRadius + "&type=restaurant&key=" + mApiKey;
                 queryPlacesURL(url);
             } else {
-                Log.d("createNearbyMarkers", "lat lng were 0");
+                Log.d("createNearbyMarkers", "mLat mLng were 0");
             }
         } else {
             Log.d("createNearbyMarkers", "Not connected so can't make places request");
         }
     }
 
+    /**
+     * Creates a singular marker at a specified location taken from the place's JSONObject.
+     *
+     * @param location JSONObject of information of a location.
+     */
     private void createMarker(JSONObject location) {
         try {
             String name = location.getString("name");
@@ -299,30 +325,41 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    /**
+     * Shows more markers from a paginated Places API query. Shows up to 60 markers (limit by Google).
+     *
+     * @param nextPageToken The token needed to get the next set of markers.
+     */
     private void showMore(String nextPageToken) {
         if (!nextPageToken.equals("")) {
-            String url = getString(R.string.placesUrl) + lat + "," + lng + "&radius=" + radius + "&type=restaurant&key=" + apiKey
+            String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&mRadius=" + mRadius + "&type=restaurant&key=" + mApiKey
                     + "&pagetoken=" + nextPageToken;
             queryPlacesURL(url);
         }
         Log.d("showMore", "Next page token was null, won't show more");
     }
 
+    /**
+     * Asynchronously sends a Places API request, setting the mNextPageToken and creating a marker at
+     * each location returned in the JSONObject.
+     *
+     * @param placesUrl The URL to send an HTTP request to.
+     */
     private void queryPlacesURL(String placesUrl) {
-        QueryURLAsync rh = new QueryURLAsync(getContext(), null, 0, new QueryURLAsync.AsyncResponse() {
+        QueryURLAsync rh = new QueryURLAsync(null, 0, new QueryURLAsync.AsyncResponse() {
             @Override
             public void processFinish(String output) {
                 try {
                     JSONObject response = new JSONObject(output);
                     JSONArray results = response.getJSONArray("results");
                     try {
-                        PlacesFragment.nextPageToken = response.getString("next_page_token");
-                        if (!nextPageToken.equals("")) {
-                            showMoreButton.setVisibility(View.VISIBLE);
+                        PlacesFragment.mNextPageToken = response.getString("next_page_token");
+                        if (!mNextPageToken.equals("")) {
+                            mShowMoreButton.setVisibility(View.VISIBLE);
                         }
                     } catch (JSONException e) {
-                        nextPageToken = "";
-                        showMoreButton.setVisibility(View.INVISIBLE);
+                        mNextPageToken = "";
+                        mShowMoreButton.setVisibility(View.INVISIBLE);
                     }
 
                     for (int i = 0; i < results.length(); i++) {
@@ -337,6 +374,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         rh.execute(placesUrl);
     }
 
+    /**
+     * Checks if the user has provided permission to use their location. Limits to asking twice.
+     * After the first ask, shows a snackbar indefinitely which shows the permissions dialog again.
+     */
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d("checkLocationPref", "permission already granted");
@@ -347,7 +388,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 Log.d("checkLocationPer", "should show request permission rationale");
                 // Need to show permission rationale, display a snackbar and then request
                 // the permission again when the snackbar is dismissed.
-                Snackbar.make(coordinatorLayout,
+                Snackbar.make(mCoordinatorLayout,
                         R.string.fineLocationRationale,
                         Snackbar.LENGTH_INDEFINITE)
                         .setAction(android.R.string.ok, new View.OnClickListener() {
@@ -373,23 +414,29 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    /**
+     * Shows the user location button and sets latlng to the users location if a search has NOT been performed.
+     */
     @SuppressWarnings("MissingPermission")
     private void setUserLocationSettings() {
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        if (!fromSearch) {
+        if (!mFromSearch) {
             setUserLocation();
         }
     }
 
+    /**
+     * Gets the users last location.
+     */
     @SuppressWarnings("MissingPermission")
     private void setUserLocation() {
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         try {
-            lat = mLastLocation.getLatitude();
-            lng = mLastLocation.getLongitude();
+            mLat = mLastLocation.getLatitude();
+            mLng = mLastLocation.getLongitude();
         } catch (NullPointerException e) {
-            Log.e("getUserLatLng", "Couldn't get lat or long from last location: " + e.toString());
+            Log.e("getUserLatLng", "Couldn't get mLat or long from last location: " + e.toString());
         }
     }
 
@@ -404,7 +451,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    if (isGoogleConnected) {
+                    if (mIsGoogleConnected) {
                         setUserLocationSettings();
                     }
                 } else {
@@ -418,6 +465,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    /**
+     * Creates a marker at the specified location. Used when returning from a search.
+     *
+     * @param placeLatLng The location to create a marker at.
+     */
     private void createCustomMarker(LatLng placeLatLng) {
         if (mMap != null) {
             MarkerOptions marker = new MarkerOptions().position(placeLatLng)
@@ -438,7 +490,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 moveCamera(mMap, placeLatLng);
                 createNearbyMarkers(mMap);
                 createCustomMarker(placeLatLng);
-                fromSearch = true;
+                mFromSearch = true;
                 Log.i("onActivityResult", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getContext(), data);
@@ -449,16 +501,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
         } else if (requestCode == FORM_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                Snackbar.make(coordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mCoordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
             }
         }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d("onConnected", "APIClient isGoogleConnected");
-        isGoogleConnected = true;
-        if (!isMapSetup) {
+        Log.d("onConnected", "APIClient mIsGoogleConnected");
+        mIsGoogleConnected = true;
+        if (!mIsMapSetup) {
             setUpMap();
         }
     }
@@ -468,8 +520,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.onResume();
         if (mMapView != null) {
             mMapView.onResume();
-            if (!placesRequestSubmitted) {
-                placesRequestSubmitted = true;
+            if (!mPlacesRequestSubmitted) {
+                mPlacesRequestSubmitted = true;
                 setUpMap();
             }
         }
@@ -483,7 +535,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         if (mMap != null) {
             mMap.clear();
-            mapZoom = mMap.getCameraPosition().zoom;
+            mMapZoom = mMap.getCameraPosition().zoom;
         }
     }
 
@@ -495,9 +547,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         if (mMap != null) {
             mMap.clear();
-            mapZoom = mMap.getCameraPosition().zoom;
+            mMapZoom = mMap.getCameraPosition().zoom;
         }
-        isGoogleConnected = false;
+        mIsGoogleConnected = false;
     }
 
     @Override
@@ -510,7 +562,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnectionSuspended(int i) {
-        isGoogleConnected = false;
+        mIsGoogleConnected = false;
     }
 
     @Override
@@ -518,18 +570,28 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
-            isVisible = true;
-            if (!placesRequestSubmitted) {
-                placesRequestSubmitted = true;
+            mIsVisible = true;
+            if (!mPlacesRequestSubmitted) {
+                mPlacesRequestSubmitted = true;
                 setUpMap();
             }
         } else {
             if (mMap != null) {
-                mapZoom = mMap.getCameraPosition().zoom;
+                mMapZoom = mMap.getCameraPosition().zoom;
             }
         }
     }
 
+    /**
+     * Calculates a ratio that is used to determine if the info about a place should be displayed.
+     * If the number of values already submitted for both true and false is greater than a threshold (5)
+     * and if the ratio of the true to false values is less than 20% then we can assume that the information
+     * provided by users is corrected, and therefore should show info.
+     *
+     * @param true_value  The true values submitted by users stored in firebase.
+     * @param false_value The false values submitted by users stored in firbase.
+     * @return True or False based on the ratio and the threshold of the true and false values.
+     */
     private boolean shouldShowInfo(double true_value, double false_value) {
         double ratio = 1;
         if (true_value > 0 && false_value > 0) {
@@ -557,6 +619,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         return ratio < 0.2 && (true_value > 5 || false_value > 5);
     }
 
+    /**
+     * Gets the value of a specified key.
+     *
+     * @param dietary The object of a place which is stored in firebase.
+     * @param key     The key to return the value of.
+     * @return The value of the specified key.
+     */
     private long getKeyValue(Map<String, Object> dietary, String key) {
         long value = 0;
         try {
@@ -567,6 +636,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         return value;
     }
 
+    /**
+     * Queries firebase asynchronously and adds information about the place to the custom info marker.
+     */
     private class FirebaseAsyncRequest extends AsyncTask<MarkerOptions, Void, String> {
         @Override
         protected void onPreExecute() {
@@ -733,11 +805,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private LatLng getLatLng() {
-        return new LatLng(lat, lng);
+        return new LatLng(mLat, mLng);
     }
 
     private void setLatLng(LatLng latLng) {
-        lat = latLng.latitude;
-        lng = latLng.longitude;
+        mLat = latLng.latitude;
+        mLng = latLng.longitude;
     }
 }

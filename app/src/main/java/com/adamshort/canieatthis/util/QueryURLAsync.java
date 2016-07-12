@@ -1,11 +1,9 @@
 package com.adamshort.canieatthis.util;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,40 +11,36 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class QueryURLAsync extends AsyncTask<String, Void, String> {
-    private int sleepAmount;
-    private String url;
+    public AsyncResponse mDelegate = null;
 
-    private Context context;
-    private ProgressBar progressBar;
+    private int mSleepAmount;
+
+    private ProgressBar mProgressBar;
 
     // based on this solution: http://stackoverflow.com/a/12575319/1860436
     public interface AsyncResponse {
         void processFinish(String output);
     }
 
-    public AsyncResponse delegate = null;
-
-    public QueryURLAsync(Context context, ProgressBar progressBar, int sleepAmount, AsyncResponse delegate) {
-        this.context = context;
-        this.progressBar = progressBar;
-        this.sleepAmount = sleepAmount;
-        this.delegate = delegate;
+    public QueryURLAsync(ProgressBar progressBar, int sleepAmount, AsyncResponse delegate) {
+        mProgressBar = progressBar;
+        mSleepAmount = sleepAmount;
+        mDelegate = delegate;
     }
 
     @Override
     protected void onPreExecute() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.VISIBLE);
         }
-        Log.d("onPreExecute", "Sleep amount: " + sleepAmount);
+        Log.d("onPreExecute", "Sleep amount: " + mSleepAmount);
     }
 
     @Override
     protected String doInBackground(String... urls) {
         try {
-            Thread.sleep(sleepAmount);
+            Thread.sleep(mSleepAmount);
             URL url = new URL(urls[0]);
-            this.url = urls[0];
             Log.d("doInBackground", "Executing response at " + url);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             try {
@@ -71,22 +65,22 @@ public class QueryURLAsync extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String response) {
         if (response == null) {
             Log.d("onPostExecute", "Response was null");
-            if (progressBar != null) {
-                progressBar.setVisibility(View.INVISIBLE);
+            if (mProgressBar != null) {
+                mProgressBar.setVisibility(View.INVISIBLE);
             }
             Log.d("onPostExecute", "Issue with response");
         } else if (response.equals("")) {
-            if (progressBar != null) {
-                progressBar.setVisibility(View.INVISIBLE);
+            if (mProgressBar != null) {
+                mProgressBar.setVisibility(View.INVISIBLE);
             }
             Log.d("onPostExecute", "Issue with response");
         } else {
             Log.i("onPostExecute", response);
         }
-        if (progressBar != null) {
-            progressBar.setVisibility(View.INVISIBLE);
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.INVISIBLE);
         }
-        delegate.processFinish(response);
+        mDelegate.processFinish(response);
     }
 
 }

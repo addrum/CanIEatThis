@@ -7,28 +7,28 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.List;
 
 public class FragmentHandler extends FragmentPagerAdapter {
-    private String tabTitles[] = new String[] { "Scan", "Places to Eat" };
-    private List<Fragment> fragments;
+    private List<Fragment> mFragments;
+    private String mTabTitles[] = new String[]{"Scan", "Places to Eat"};
 
     public FragmentHandler(FragmentManager fm, List<Fragment> fragments) {
         super(fm);
-        this.fragments = fragments;
+        mFragments = fragments;
     }
 
     @Override
     public int getCount() {
-        return this.fragments.size();
+        return this.mFragments.size();
     }
 
     @Override
     public Fragment getItem(int position) {
-        return this.fragments.get(position);
+        return this.mFragments.get(position);
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
-        return tabTitles[position];
+        return mTabTitles[position];
     }
 
     @Override

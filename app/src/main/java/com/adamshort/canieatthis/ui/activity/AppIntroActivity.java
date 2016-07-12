@@ -3,17 +3,20 @@ package com.adamshort.canieatthis.ui.activity;
 import android.Manifest;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.ui.fragment.DownloadFrequencySlideFragment;
+import com.adamshort.canieatthis.ui.fragment.LocationPermissionSlideFragment;
 import com.adamshort.canieatthis.util.Utilities;
-import com.adamshort.canieatthis.ui.fragment.DownloadFrequencyFragment;
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
+import com.heinrichreimersoftware.materialintro.app.NavigationPolicy;
 import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
-import com.heinrichreimersoftware.materialintro.slide.Slide;
 
 public class AppIntroActivity extends IntroActivity {
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +27,18 @@ public class AppIntroActivity extends IntroActivity {
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
+
+        setNavigationPolicy(new NavigationPolicy() {
+            @Override
+            public boolean canGoForward(int position) {
+                return true;
+            }
+
+            @Override
+            public boolean canGoBackward(int position) {
+                return true;
+            }
+        });
 
         addSlide(new SimpleSlide.Builder()
                 .title(R.string.slide1Title)
@@ -51,17 +66,20 @@ public class AppIntroActivity extends IntroActivity {
         addSlide(new FragmentSlide.Builder()
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
-                .fragment(DownloadFrequencyFragment.newInstance())
+                .fragment(DownloadFrequencySlideFragment.newInstance())
                 .build());
 
-        addSlide(new SimpleSlide.Builder()
-                .title(R.string.slide4Title)
-                .description(R.string.slide4Desc)
-                .permission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .image(R.mipmap.ic_launcher)
+        addSlide(new FragmentSlide.Builder()
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
-                .canGoForward(true)
+                .fragment(LocationPermissionSlideFragment.newInstance())
+                .buttonCtaLabel(R.string.grantPermissionText)
+                .buttonCtaClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ActivityCompat.requestPermissions(getParent(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+                    }
+                })
                 .build());
     }
 }

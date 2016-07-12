@@ -34,27 +34,28 @@ import java.util.List;
 public class AddProductActivity extends AppCompatActivity {
 
     private static final String BASE_URL = "http://world.openfoodfacts.org/cgi/product_jqm2.pl?";
-    private static String barcode = "";
 
-    private String barcodeText;
-    private String productNameText;
-    private String quantityText;
-    private String unitText;
-    private String energyPerText;
-    private String ingredientsText;
-    private String tracesText;
-    private String portionText;
-    private List<String> writtenTraces;
+    private static String mBarcode = "";
 
-    private MultiAutoCompleteTextView ingredientsTextView;
-    private MultiAutoCompleteTextView tracesTextView;
-    private TextView barcodeNumberTextView;
-    private TextView productNameTextView;
-    private TextView quantityTextView;
-    private TextView energyPerTextView;
-    private CheckBox energyPerServingCheckBox;
-    private CheckBox energyPer100CheckBox;
-    private TextView portionTextView;
+    private List<String> mWrittenTraces;
+    private String mBarcodeText;
+    private String mEnergyPerText;
+    private String mIngredientsText;
+    private String mPortionText;
+    private String mProductNameText;
+    private String mQuantityText;
+    private String mTracesText;
+    private String mUnitText;
+
+    private MultiAutoCompleteTextView mIngredientsTextView;
+    private MultiAutoCompleteTextView mTracesTextView;
+    private TextView mBarcodeNumberTextView;
+    private TextView mProductNameTextView;
+    private CheckBox mEnergyPer100CheckBox;
+    private CheckBox mEnergyPerServingCheckBox;
+    private TextView mEnergyPerTextView;
+    private TextView mPortionTextView;
+    private TextView mQuantityTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,54 +70,54 @@ public class AddProductActivity extends AppCompatActivity {
 
         Bundle b = getIntent().getExtras();
         if (b != null) {
-            barcode = b.getString("barcode");
+            mBarcode = b.getString("barcode");
         }
 
         DataQuerier.getInstance();
 
-        ingredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
+        mIngredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
-        ingredientsTextView.setAdapter(ingredientsAdapter);
-        ingredientsTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        mIngredientsTextView.setAdapter(ingredientsAdapter);
+        mIngredientsTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
-        tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
+        mTracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getFirebaseTracesList());
-        tracesTextView.setAdapter(tracesAdapter);
-        tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        mTracesTextView.setAdapter(tracesAdapter);
+        mTracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
-        barcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
-        productNameTextView = (TextView) findViewById(R.id.input_product_name);
-        quantityTextView = (TextView) findViewById(R.id.input_quantity);
-        energyPerTextView = (TextView) findViewById(R.id.input_energy_per);
-        energyPerServingCheckBox = (CheckBox) findViewById(R.id.input_energy_per_serving);
-        energyPer100CheckBox = (CheckBox) findViewById(R.id.input_energy_per_100g);
-        portionTextView = (TextView) findViewById(R.id.input_portion);
+        mBarcodeNumberTextView = (TextView) findViewById(R.id.input_barcode_number);
+        mProductNameTextView = (TextView) findViewById(R.id.input_product_name);
+        mQuantityTextView = (TextView) findViewById(R.id.input_quantity);
+        mEnergyPerTextView = (TextView) findViewById(R.id.input_energy_per);
+        mEnergyPerServingCheckBox = (CheckBox) findViewById(R.id.input_energy_per_serving);
+        mEnergyPer100CheckBox = (CheckBox) findViewById(R.id.input_energy_per_100g);
+        mPortionTextView = (TextView) findViewById(R.id.input_portion);
 
-        energyPerServingCheckBox.setOnClickListener(new View.OnClickListener() {
+        mEnergyPerServingCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (energyPer100CheckBox.isChecked()) {
-                    energyPer100CheckBox.setChecked(false);
+                if (mEnergyPer100CheckBox.isChecked()) {
+                    mEnergyPer100CheckBox.setChecked(false);
                 }
-                energyPerTextView.setError(null);
-                portionTextView.setEnabled(!portionTextView.isEnabled());
+                mEnergyPerTextView.setError(null);
+                mPortionTextView.setEnabled(!mPortionTextView.isEnabled());
             }
         });
-        energyPer100CheckBox.setOnClickListener(new View.OnClickListener() {
+        mEnergyPer100CheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (energyPerServingCheckBox.isChecked()) {
-                    energyPerServingCheckBox.setChecked(false);
+                if (mEnergyPerServingCheckBox.isChecked()) {
+                    mEnergyPerServingCheckBox.setChecked(false);
                 }
-                energyPerTextView.setError(null);
-                portionTextView.setEnabled(false);
-                portionTextView.setError(null);
+                mEnergyPerTextView.setError(null);
+                mPortionTextView.setEnabled(false);
+                mPortionTextView.setError(null);
             }
         });
 
-        if (productNameTextView.requestFocus()) {
+        if (mProductNameTextView.requestFocus()) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
 
@@ -129,27 +130,27 @@ public class AddProductActivity extends AppCompatActivity {
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         Button submitProductButton = (Button) findViewById(R.id.product_submit_button);
 
-        barcodeNumberTextView.setText(barcode);
+        mBarcodeNumberTextView.setText(mBarcode);
 
         if (submitProductButton != null) {
             submitProductButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    barcodeText = barcodeNumberTextView.getText().toString();
-                    productNameText = productNameTextView.getText().toString();
-                    quantityText = quantityTextView.getText().toString();
+                    mBarcodeText = mBarcodeNumberTextView.getText().toString();
+                    mProductNameText = mProductNameTextView.getText().toString();
+                    mQuantityText = mQuantityTextView.getText().toString();
                     if (unitSpinner != null) {
-                        unitText = unitSpinner.getSelectedItem().toString();
+                        mUnitText = unitSpinner.getSelectedItem().toString();
                     }
-                    energyPerText = energyPerTextView.getText().toString();
-                    ingredientsText = ingredientsTextView.getText().toString();
-                    tracesText = tracesTextView.getText().toString();
-                    portionText = portionTextView.getText().toString();
+                    mEnergyPerText = mEnergyPerTextView.getText().toString();
+                    mIngredientsText = mIngredientsTextView.getText().toString();
+                    mTracesText = mTracesTextView.getText().toString();
+                    mPortionText = mPortionTextView.getText().toString();
 
                     List<TextView> required = new ArrayList<>();
-                    required.add(barcodeNumberTextView);
-                    required.add(productNameTextView);
-                    required.add(ingredientsTextView);
+                    required.add(mBarcodeNumberTextView);
+                    required.add(mProductNameTextView);
+                    required.add(mIngredientsTextView);
 
                     boolean wereErrors = false;
 
@@ -160,55 +161,55 @@ public class AddProductActivity extends AppCompatActivity {
                         }
                     }
 
-                    if (!energyPerText.equals("") && (!energyPerServingCheckBox.isChecked() &&
-                            !energyPer100CheckBox.isChecked())) {
-                        setErrorHints(energyPerTextView, getString(R.string.noEnergyCheckedError));
+                    if (!mEnergyPerText.equals("") && (!mEnergyPerServingCheckBox.isChecked() &&
+                            !mEnergyPer100CheckBox.isChecked())) {
+                        setErrorHints(mEnergyPerTextView, getString(R.string.noEnergyCheckedError));
                         wereErrors = true;
                     }
 
-                    if (energyPerText.equals("") && (energyPerServingCheckBox.isChecked() ||
-                            energyPer100CheckBox.isChecked())) {
-                        setErrorHints(energyPerTextView, getString(R.string.energyError));
+                    if (mEnergyPerText.equals("") && (mEnergyPerServingCheckBox.isChecked() ||
+                            mEnergyPer100CheckBox.isChecked())) {
+                        setErrorHints(mEnergyPerTextView, getString(R.string.energyError));
                     }
 
-                    if (energyPerServingCheckBox.isChecked() && portionText.equals("")) {
-                        setErrorHints(portionTextView, getString(R.string.portionError));
+                    if (mEnergyPerServingCheckBox.isChecked() && mPortionText.equals("")) {
+                        setErrorHints(mPortionTextView, getString(R.string.portionError));
                         wereErrors = true;
                     }
 
                     if (wereErrors & !Utilities.isInDebugMode()) return;
 
                     if (Utilities.isInDebugMode()) {
-                        barcodeText = "072417136160";
-                        productNameText = "Maryland Choc Chip";
-                        quantityText = "230g";
-                        energyPerText = "450";
-                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        tracesText = "Milk, Soya, Nuts, Wheat";
-                        writtenTraces = ListHelper.stringToList(tracesText);
+                        mBarcodeText = "072417136160";
+                        mProductNameText = "Maryland Choc Chip";
+                        mQuantityText = "230g";
+                        mEnergyPerText = "450";
+                        mIngredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                        mTracesText = "Milk, Soya, Nuts, Wheat";
+                        mWrittenTraces = ListHelper.stringToList(mTracesText);
                     }
 
-                    List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
+                    List<String> ingredientsToDisplay = ListHelper.stringToList(mIngredientsText);
 
                     // Set values for passing back to scan fragment
-                    writtenTraces = ListHelper.stringToList(tracesText);
+                    mWrittenTraces = ListHelper.stringToList(mTracesText);
 
                     String ingredients = ListHelper.listToString(ingredientsToDisplay);
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
 
-                    String uneditedProductName = productNameText;
+                    String uneditedProductName = mProductNameText;
 
                     try {
-                        productNameText = URLEncoder.encode(productNameText, "UTF-8");
-                        if (!quantityText.equals("")) {
-                            quantityText = quantityText + unitText;
+                        mProductNameText = URLEncoder.encode(mProductNameText, "UTF-8");
+                        if (!mQuantityText.equals("")) {
+                            mQuantityText = mQuantityText + mUnitText;
                         }
-                        quantityText = URLEncoder.encode(quantityText, "UTF-8");
-                        energyPerText = URLEncoder.encode(energyPerText, "UTF-8");
+                        mQuantityText = URLEncoder.encode(mQuantityText, "UTF-8");
+                        mEnergyPerText = URLEncoder.encode(mEnergyPerText, "UTF-8");
                         ingredients = URLEncoder.encode(ingredients, "UTF-8");
-                        tracesText = URLEncoder.encode(tracesText.toLowerCase(), "UTF-8");
+                        mTracesText = URLEncoder.encode(mTracesText.toLowerCase(), "UTF-8");
                         user_id = URLEncoder.encode(user_id, "UTF-8");
                         password = URLEncoder.encode(password, "UTF-8");
                     } catch (UnsupportedEncodingException e) {
@@ -216,28 +217,28 @@ public class AddProductActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    productNameText = productNameText.replace("+", "%20");
+                    mProductNameText = mProductNameText.replace("+", "%20");
                     ingredients = ingredients.toLowerCase();
                     ingredients = ingredients.replace("+", "%20");
                     ingredients = ingredients.replace("_", "%5F");
 
                     String params = "user_id=" + user_id +
                             "&password=" + password +
-                            "&code=" + barcodeText + "&product_name=" + productNameText +
-                            "&quantity=" + quantityText + "&nutriment_energy=" + energyPerText +
+                            "&code=" + mBarcodeText + "&product_name=" + mProductNameText +
+                            "&quantity=" + mQuantityText + "&nutriment_energy=" + mEnergyPerText +
                             "&nutriment_energy_unit=kJ&nutrition_data_per=";
 
-                    if (energyPerServingCheckBox.isChecked() && !energyPerText.equals("")) {
+                    if (mEnergyPerServingCheckBox.isChecked() && !mEnergyPerText.equals("")) {
                         params += "serving";
-                    } else if (energyPer100CheckBox.isChecked() && !energyPerText.equals("")) {
+                    } else if (mEnergyPer100CheckBox.isChecked() && !mEnergyPerText.equals("")) {
                         params += "100g";
                     }
 
-                    params += "&ingredients_text=" + ingredients + "&traces=" + tracesText;
+                    params += "&ingredients_text=" + ingredients + "&traces=" + mTracesText;
 
                     try {
                         String url = BASE_URL + params;
-                        submitData(url, progressBar, uneditedProductName, ingredientsToDisplay, writtenTraces, true, 0);
+                        submitData(url, progressBar, uneditedProductName, ingredientsToDisplay, mWrittenTraces, true, 0);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -246,8 +247,24 @@ public class AddProductActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Submits the product data to Open Food Facts. Retries every 30 seconds if no response (i.e. no connectivity).
+     *
+     * @param url                  API call with encoded parameters.
+     * @param progressBar          Progress Bar used to show the user that there is something happening.
+     *                             Only used first time round, as after that the user may want to continue
+     *                             using the rest of the app.
+     * @param name                 The name of the product.
+     * @param ingredientsToDisplay The "cleaned" version of the ingredients which are shown to the user.
+     *                             This should have any special characters removed e.g. _
+     * @param writtenTraces        The list of traces the product has or may have.
+     * @param shouldQueryData      If true, the data is also queried and displayed to the user. If false
+     *                             it is usually because of a recursive call meaning we have already submitted
+     *                             the data.
+     * @param sleepAmounnt         The amount of time to wait between each retry.
+     */
     private void submitData(final String url, final ProgressBar progressBar, final String name, final List<String> ingredientsToDisplay, final List<String> writtenTraces, final boolean shouldQueryData, final int sleepAmounnt) {
-        QueryURLAsync rh = new QueryURLAsync(AddProductActivity.this, progressBar, sleepAmounnt, new QueryURLAsync.AsyncResponse() {
+        QueryURLAsync rh = new QueryURLAsync(progressBar, sleepAmounnt, new QueryURLAsync.AsyncResponse() {
             @Override
             public void processFinish(String output) {
                 // if response ok
@@ -270,6 +287,15 @@ public class AddProductActivity extends AppCompatActivity {
         rh.execute(url);
     }
 
+    /**
+     * Converts parameters to a JSON object which is passed as a string. This is handled in onActivityResult
+     * in ScanFragment and displayed to the user.
+     *
+     * @param name                 The name of the product.
+     * @param ingredientsToDisplay The "cleaned" version of the ingredients which are shown to the user.
+     *                             This should have any special characters removed e.g. _
+     * @param writtenTraces        The list of traces the product has or may have.
+     */
     private void finishSubmitting(String name, List<String> ingredientsToDisplay, List<String> writtenTraces) {
         Log.d("onDataChange", "Product submitted");
         JSONObject product = new JSONObject();
@@ -287,10 +313,21 @@ public class AddProductActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Sets a customised error message of a TextView.
+     *
+     * @param tv    The TextView to set the error message of.
+     * @param error The error message.
+     */
     private void setErrorHints(TextView tv, String error) {
         tv.setError(error);
     }
 
+    /**
+     * Sets a default error message of a TextView.
+     *
+     * @param tv The TextView to set the error message of.
+     */
     private void setErrorHints(TextView tv) {
         tv.setError(getString(R.string.requiredField));
     }
