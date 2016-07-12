@@ -48,12 +48,11 @@ public class AppIntroActivity extends IntroActivity {
                 .backgroundDark(R.color.colorPrimaryDark)
                 .build());
 
-        final Slide downloadFrequencySlide = new FragmentSlide.Builder()
+        addSlide(new FragmentSlide.Builder()
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)
                 .fragment(DownloadFrequencyFragment.newInstance())
-                .build();
-        addSlide(downloadFrequencySlide);
+                .build());
 
         addSlide(new SimpleSlide.Builder()
                 .title(R.string.slide4Title)

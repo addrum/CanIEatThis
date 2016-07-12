@@ -22,19 +22,14 @@ import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
-import org.apache.commons.lang3.text.WordUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -48,9 +43,8 @@ public class AddProductActivity extends AppCompatActivity {
     private String energyPerText;
     private String ingredientsText;
     private String tracesText;
-    private String itemTitle;
     private String portionText;
-    private List<String> writtenIngredients, writtenTraces;
+    private List<String> writtenTraces;
 
     private MultiAutoCompleteTextView ingredientsTextView;
     private MultiAutoCompleteTextView tracesTextView;
@@ -61,8 +55,6 @@ public class AddProductActivity extends AppCompatActivity {
     private CheckBox energyPerServingCheckBox;
     private CheckBox energyPer100CheckBox;
     private TextView portionTextView;
-
-    private QueryURLAsync rh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +72,8 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
+        DataQuerier.getInstance();
+
         ingredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
@@ -88,7 +82,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                DataQuerier.getInstance(getParent()).getTraces());
+                DataPasser.getFirebaseTracesList());
         tracesTextView.setAdapter(tracesAdapter);
         tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
@@ -184,32 +178,27 @@ public class AddProductActivity extends AppCompatActivity {
 
                     if (wereErrors & !Utilities.isInDebugMode()) return;
 
-//                    if (DEBUG) {
-//                        barcodeText = "072417136160";
-//                        productNameText = "Maryland Choc Chip";
-//                        itemTitle = productNameText;
-//                        quantityText = "230g";
-//                        energyPerText = "450";
-//                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-//                        writtenIngredients = ListHelper.stringToList(ingredientsText);
-//                        tracesText = "Milk, Soya, Nuts, Wheat";
-//                        writtenTraces = ListHelper.stringToList(tracesText);
-//                    }
+                    if (Utilities.isInDebugMode()) {
+                        barcodeText = "072417136160";
+                        productNameText = "Maryland Choc Chip";
+                        quantityText = "230g";
+                        energyPerText = "450";
+                        ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+                        tracesText = "Milk, Soya, Nuts, Wheat";
+                        writtenTraces = ListHelper.stringToList(tracesText);
+                    }
 
-                    final List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredientsText);
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
 
                     // Set values for passing back to scan fragment
-                    itemTitle = productNameText;
-                    writtenIngredients = ingredientsToDisplay;
                     writtenTraces = ListHelper.stringToList(tracesText);
 
-                    List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
-
-                    String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
+                    String ingredients = ListHelper.listToString(ingredientsToDisplay);
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
+
+                    String uneditedProductName = productNameText;
 
                     try {
                         productNameText = URLEncoder.encode(productNameText, "UTF-8");
@@ -248,71 +237,54 @@ public class AddProductActivity extends AppCompatActivity {
 
                     try {
                         String url = BASE_URL + params;
-                        rh = new QueryURLAsync(AddProductActivity.this, progressBar, new QueryURLAsync.AsyncResponse() {
-                            @Override
-                            public void processFinish(String output) {
-                                Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-                                ref.keepSynced(true);
-                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot snapshot) {
-                                        Log.d("onDataChange", "Product submitted");
-                                        boolean[] bools = processDataFirebase(ingredientsToTest, writtenTraces, snapshot);
-
-                                        setDataPasser(bools[0], bools[1], bools[2], bools[3]);
-
-                                        Intent intent = new Intent(getBaseContext(), MainActivity.class);
-                                        intent.putExtra("result", RESULT_OK);
-                                        setResult(Activity.RESULT_OK, intent);
-                                        finish();
-                                    }
-
-                                    @Override
-                                    public void onCancelled(FirebaseError error) {
-                                    }
-                                });
-                            }
-                        });
-                        rh.execute(url);
+                        submitData(url, progressBar, uneditedProductName, ingredientsToDisplay, writtenTraces, true, 0);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                 }
             });
         }
     }
 
-    private List<String> compareTwoLists(List<String> list1, List<String> list2) {
-        for (int i = 0; i < list1.size(); i++) {
-            String ing = list1.get(i).toLowerCase();
-            for (int j = 0; j < list2.size(); j++) {
-                if (ing.contains(list2.get(j))) {
-                    list1.set(i, WordUtils.capitalize(ing.replace(list2.get(j), "_" + list2.get(j) + "_")));
+    private void submitData(final String url, final ProgressBar progressBar, final String name, final List<String> ingredientsToDisplay, final List<String> writtenTraces, final boolean shouldQueryData, final int sleepAmounnt) {
+        QueryURLAsync rh = new QueryURLAsync(AddProductActivity.this, progressBar, sleepAmounnt, new QueryURLAsync.AsyncResponse() {
+            @Override
+            public void processFinish(String output) {
+                // if response ok
+                Log.d("processFinish", "output was: " + output);
+                if (output != null) {
+                    if (shouldQueryData) {
+                        Log.d("processFinish", "querying data");
+                        finishSubmitting(name, ingredientsToDisplay, writtenTraces);
+                    } else {
+                        Log.d("processFinish", "Not querying data, probably recursive call");
+                    }
+                } else {
+                    finishSubmitting(name, ingredientsToDisplay, writtenTraces);
+                    Log.d("submitData", "retrying queryUrlAsync");
+                    submitData(url, null, name, ingredientsToDisplay, writtenTraces, false, 30000);
                 }
+                // else recursive call but don't do query again
             }
-        }
-        return list1;
+        });
+        rh.execute(url);
     }
 
-    private void setDataPasser(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
-        DataPasser dataPasser = DataPasser.getInstance(getBaseContext());
-        dataPasser.setQuery(itemTitle);
-
-        dataPasser.setLactose(dairy);
-        dataPasser.setVegetarian(vegetarian);
-        dataPasser.setVegan(vegan);
-        dataPasser.setGluten(gluten);
-
-        dataPasser.setSwitchesVisible(true);
-        dataPasser.setItemVisible(true);
-        dataPasser.setIntroVisible(false);
-        dataPasser.setResponseVisible(true);
-
-        dataPasser.setFromSearch(false);
-
-        dataPasser.setIngredients(ListHelper.listToString(writtenIngredients));
-        dataPasser.setTraces(ListHelper.listToString(writtenTraces));
+    private void finishSubmitting(String name, List<String> ingredientsToDisplay, List<String> writtenTraces) {
+        Log.d("onDataChange", "Product submitted");
+        JSONObject product = new JSONObject();
+        try {
+            product.put("product_name", name);
+            product.put("ingredients_text", ListHelper.listToString(ingredientsToDisplay));
+            product.put("traces", ListHelper.listToString(writtenTraces));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Intent intent = new Intent(getBaseContext(), MainActivity.class);
+        intent.putExtra("result", RESULT_OK);
+        intent.putExtra("json", product.toString());
+        setResult(Activity.RESULT_OK, intent);
+        finish();
     }
 
     private void setErrorHints(TextView tv, String error) {

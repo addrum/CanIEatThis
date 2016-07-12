@@ -13,32 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataPasser {
+    private static List<String> firebaseIngredientsList;
+    private static List<String> firebaseTracesList;
+
     private static DataPasser mInstance = null;
 
-    private boolean dairy, vegetarian, vegan, gluten;
-    private boolean switchesVisible, introVisible, responseVisible, itemVisible;
-    private boolean fromSearch;
-
-    private List<String> firebaseIngredientsList;
-    private String query;
-    private String ingredients;
-    private String traces;
-
-
     private DataPasser(Context context) {
-        dairy = false;
-        vegetarian = false;
-        vegan = false;
-        gluten = false;
-        switchesVisible = false;
-        introVisible = true;
-        responseVisible = false;
-        itemVisible = false;
-
         firebaseIngredientsList = new ArrayList<>();
-        Firebase ref = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
-        ref.keepSynced(true);
-        ref.addValueEventListener(new ValueEventListener() {
+        Firebase ingredientsRef = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
+        ingredientsRef.keepSynced(true);
+        ingredientsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
@@ -50,6 +34,24 @@ public class DataPasser {
             public void onCancelled(FirebaseError error) {
             }
         });
+
+        firebaseTracesList = new ArrayList<>();
+        Firebase tracesRef = new Firebase(context.getString(R.string.firebase_url) + "/traces");
+        tracesRef.keepSynced(true);
+        tracesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot tracesSnapshot : snapshot.getChildren()) {
+                    // traces are in array so it's safe to cast to List
+                    String traces = (String) tracesSnapshot.getValue();
+                    firebaseTracesList.add(traces);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     public static DataPasser getInstance(Context context) {
@@ -59,107 +61,9 @@ public class DataPasser {
         return mInstance;
     }
 
-    public String getQuery() {
-        Log.d("getQuery", "Query: " + query);
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public boolean isDairy() {
-        return dairy;
-    }
-
-    public void setLactose(boolean dairy) {
-        this.dairy = dairy;
-    }
-
-    public boolean isVegetarian() {
-        return vegetarian;
-    }
-
-    public void setVegetarian(boolean vegetarian) {
-        this.vegetarian = vegetarian;
-    }
-
-    public boolean isVegan() {
-        return vegan;
-    }
-
-    public void setVegan(boolean vegan) {
-        this.vegan = vegan;
-    }
-
-    public boolean isGluten() {
-        return gluten;
-    }
-
-    public void setGluten(boolean gluten) {
-        this.gluten = gluten;
-    }
-
-    public boolean areSwitchesVisible() {
-        return switchesVisible;
-    }
-
-    public void setSwitchesVisible(boolean switchesVisible) {
-        this.switchesVisible = switchesVisible;
-    }
-
-    public boolean isItemVisible() {
-        return itemVisible;
-    }
-
-    public void setItemVisible(boolean itemVisible) {
-        this.itemVisible = itemVisible;
-    }
-
-    public boolean isIntroVisible() {
-        return introVisible;
-    }
-
-    public void setIntroVisible(boolean introVisible) {
-        this.introVisible = introVisible;
-    }
-
-    public boolean isResponseVisible() {
-        return responseVisible;
-    }
-
-    public void setResponseVisible(boolean responseVisible) {
-        this.responseVisible = responseVisible;
-    }
-
-    public void setIngredients(String ingredients) {
-        Log.d("setIngredients", "Ingredients: " + ingredients);
-        this.ingredients = ingredients;
-    }
-
-    public String getIngredients() {
-        Log.d("getIngredients", "Ingredients: " + ingredients);
-        return ingredients;
-    }
-
-    public void setFromSearch(boolean fromSearch) {
-        Log.d("setFromSearch", "From Search: " + fromSearch);
-        this.fromSearch = fromSearch;
-    }
-
-    public boolean isFromSearch() {
-        Log.d("isFromSearch", "From Search: " + fromSearch);
-        return fromSearch;
-    }
-
-    public void setTraces(String traces) {
-        Log.d("setTraces", "Traces: " + traces);
-        this.traces = traces;
-    }
-
-    public String getTraces() {
-        Log.d("getTraces", "Traces: " + traces);
-        return traces;
+    public static List<String> getFirebaseTracesList() {
+        Log.d("fbTracesList", firebaseTracesList.toString());
+        return firebaseTracesList;
     }
 
     public List<String> getFirebaseIngredientsList() {

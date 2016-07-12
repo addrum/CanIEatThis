@@ -309,7 +309,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void queryPlacesURL(String placesUrl) {
-        QueryURLAsync rh = new QueryURLAsync(getContext(), null, new QueryURLAsync.AsyncResponse() {
+        QueryURLAsync rh = new QueryURLAsync(getContext(), null, 0, new QueryURLAsync.AsyncResponse() {
             @Override
             public void processFinish(String output) {
                 try {
