@@ -21,6 +21,7 @@
     <string name="glutenFreeQuestion">Does this place have a gluten free option?</string>
     <string name="glutenFreeSwitchText">Gluten Free</string>
     <string name="goToAppSettings">Go to app settings to enable access to your location</string>
+    <string name="grantPermissionText">Grant Permission</string>
     <string name="helpErrorText">Please describe any issues you are having, or tap outside the box to dismiss this window.</string>
     <string name="infoWindowProvideInfoText">Have you been here?\nClick here to provide information!</string>
     <string name="ingredient">"Ingredient: %1$s"</string>
@@ -33,6 +34,8 @@
     <string name="lactoseFreeQuestion">Does this place have a lactose free option?</string>
     <string name="no">no</string>
     <string name="noEnergyCheckedError">Please check either energy per serving or energy per 100g/ml</string>
+    <string name="noIngredientsFoundText">No ingredients found</string>
+    <string name="noTracesFound">No traces found</string>
     <string name="offBaseUrl">http://world.openfoodfacts.org/api/v0/product/</string>
     <string name="packageName">com.adamshort.canieatthis</string>
     <string name="permissionsRequestTitle">Permissions Request</string>
@@ -70,6 +73,4 @@
     <string name="vegetarianQuestion">Does this place have a vegetarian option?</string>
     <string name="vegetarianSwitchText">Vegetarian</string>
     <string name="yes">yes</string>
-    <string name="noIngredientsFoundText">No ingredients found</string>
-    <string name="noTracesFound">No traces found</string>
 </resources>
