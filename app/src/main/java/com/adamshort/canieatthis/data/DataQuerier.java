@@ -45,65 +45,49 @@ public class DataQuerier {
         ingredients = ListHelper.removeUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
         traces = ListHelper.removeUnwantedCharacters(traces, "[_]|\\s+$\"", "");
 
-        Boolean lactose = null;
-        Boolean vegetarian = null;
-        Boolean vegan = null;
-        Boolean gluten = null;
-
         int ingSize = ingredients.size();
         int traSize = traces.size();
         if ((ingSize == 0 || ingredients.get(0).equals("")) && (traSize == 0 || traces.get(0).equals(""))) {
             return new boolean[]{false, false, false, false};
         }
 
-        if (ingSize > 0 && !ingredients.get(0).equals("")) {
-            for (String resIngredient : ingredients) {
-                // replace any special characters as we need an exact match
-                String lowerResIngredient = DataQuerier.replaceSpecialChars(resIngredient).toLowerCase();
+        Boolean[] bools = new Boolean[]{null, null, null, null};
+
+        bools = checkIfValuesAreSuitable(ingredients, snapshot, bools);
+        bools = checkIfValuesAreSuitable(traces, snapshot, bools);
+
+        return new boolean[]{bools[0] != null && bools[0], bools[1] != null && bools[1],
+                bools[2] != null && bools[2], bools[3] != null && bools[3]};
+    }
+
+    private static Boolean[] checkIfValuesAreSuitable(List<String> values, DataSnapshot snapshot, Boolean[] bools) {
+        if (values.size() > 0 && !values.get(0).equals("")) {
+            for (String value : values) {
+                String lowerResValue = replaceSpecialChars(value.toLowerCase());
                 for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
                     String name = ingredientSnapshot.getKey().toLowerCase();
-                    if (name.equals(lowerResIngredient)) {
-                        if (lactose == null || lactose) {
-                            lactose = (Boolean) ing.get("lactose_free");
+                    if (name.equals(lowerResValue)) {
+                        if (bools[0] == null || bools[0]) {
+                            bools[0] = (Boolean) ing.get("lactose_free");
                         }
-                        if (vegetarian == null || vegetarian) {
-                            vegetarian = (Boolean) ing.get("vegetarian");
+                        if (bools[1] == null || bools[1]) {
+                            bools[1] = (Boolean) ing.get("vegetarian");
                         }
-                        if (vegan == null || vegan) {
-                            vegan = (Boolean) ing.get("vegan");
+                        if (bools[2] == null || bools[2]) {
+                            bools[2] = (Boolean) ing.get("vegan");
                         }
-                        if (gluten == null || gluten) {
-                            gluten = (Boolean) ing.get("gluten_free");
+                        if (bools[3] == null || bools[3]) {
+                            bools[3] = (Boolean) ing.get("gluten_free");
                         }
-                        Log.d("processDataFirebase", name + " " + lactose + " " + vegetarian +
-                                " " + vegan + " " + gluten);
+                        Log.d("processDataFirebase", name + " lactose_free: " + bools[0] + " vegetarian: " + bools[1] +
+                                " vegan: " + bools[2] + " gluten_free: " + bools[3]);
                     }
                 }
             }
         }
-
-        if (traSize > 0 && !traces.get(0).equals("")) {
-            if (!traces.get(0).equals("")) {
-                for (String trace : traces) {
-                    if (lactose == null || lactose) {
-                        lactose = isLactoseFree(trace);
-                    }
-                    if (vegetarian == null || vegetarian) {
-                        vegetarian = isVegetarian(trace);
-                    }
-                    if (vegan == null || vegan) {
-                        vegan = isVegan(trace);
-                    }
-                    if (gluten == null || gluten) {
-                        gluten = isGlutenFree(trace);
-                    }
-                }
-            }
-        }
-        return new boolean[]{lactose != null && lactose, vegetarian != null && vegetarian,
-                vegan != null && vegan, gluten != null && gluten};
+        return bools;
     }
 
     public static boolean[] processIngredientFirebase(String ingredient, DataSnapshot snapshot) {
@@ -140,23 +124,6 @@ public class DataQuerier {
 
         return new boolean[]{lactose != null && lactose, vegetarian != null && vegetarian,
                 vegan != null && vegan, gluten != null && gluten};
-    }
-
-    public static boolean[] processIngredient(String ingredient) {
-        Log.d("processData", "Processing ingredient with text files");
-        boolean lactose = isLactoseFree(ingredient);
-        boolean vegan = isVegan(ingredient);
-        boolean vegetarian = false;
-        // if something is vegan it is 100% vegetarian
-        if (!vegan) {
-            vegetarian = isVegetarian(ingredient);
-        }
-        boolean gluten = isGlutenFree(ingredient);
-
-        Log.d("processIngredient", ingredient + " " + lactose + " " + vegetarian +
-                " " + vegan + " " + gluten);
-
-        return new boolean[]{lactose, vegan, vegetarian, gluten};
     }
 
     public JSONObject parseIntoJSON(String response) {
@@ -246,42 +213,6 @@ public class DataQuerier {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-    }
-
-    public static boolean isLactoseFree(String ingredient) {
-        for (String lactoseIngredient : dairy) {
-                if (ingredient.toLowerCase().equals(lactoseIngredient.toLowerCase())) {
-                    return false;
-                }
-        }
-        return true;
-    }
-
-    public static boolean isVegetarian(String ingredient) {
-        for (String vegetarianIngredient : vegetarian) {
-            if (ingredient.toLowerCase().equals(vegetarianIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isVegan(String ingredient) {
-        for (String veganIngredient : vegan) {
-            if (ingredient.toLowerCase().equals(veganIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static boolean isGlutenFree(String ingredient) {
-        for (String glutenIngredient : gluten) {
-            if (ingredient.toLowerCase().equals(glutenIngredient.toLowerCase())) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static String replaceSpecialChars(String s) {

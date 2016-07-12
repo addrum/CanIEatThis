@@ -49,9 +49,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.List;
 
-import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
-import static com.adamshort.canieatthis.data.DataQuerier.processIngredient;
-import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
+import static com.adamshort.canieatthis.data.DataQuerier.*;
 
 public class ScanFragment extends Fragment {
 
@@ -67,6 +65,9 @@ public class ScanFragment extends Fragment {
     private static CheckBox vegetarianSwitch;
     private static CheckBox veganSwitch;
     private static CheckBox glutenFreeSwitch;
+
+    private boolean isSearching;
+
     private CoordinatorLayout coordinatorLayout;
     private TableLayout switchesTableLayout;
     private TextView introTextView;
@@ -144,7 +145,10 @@ public class ScanFragment extends Fragment {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanBar();
+                if (!isSearching) {
+                    scanBar();
+                    isSearching = true;
+                }
             }
         });
 
@@ -176,12 +180,11 @@ public class ScanFragment extends Fragment {
     @Override
     public void onViewStateRestored(Bundle inState) {
         super.onViewStateRestored(inState);
-//        setItemsFromDataPasser();
     }
 
     //product barcode mode
     public void scanBar() {
-//        if (Utilities.isInDebugMode()) {
+        if (Utilities.isInDebugMode()) {
 //            getBarcodeInformation("7622210307668");
 //            McVities Digestives
 //            getBarcodeInformation("5000168001142");
@@ -192,7 +195,7 @@ public class ScanFragment extends Fragment {
 //            Jammie Dodgers
 //            getBarcodeInformation("072417143700");
 //            Candy Crush Candy
-//            getBarcodeInformation("790310020");
+            getBarcodeInformation("790310020");
 //            Honey Monster Puffs
 //            getBarcodeInformation("5060145250093");
 //            Salt and Vinegar Pringles -no info but is added to db
@@ -203,9 +206,9 @@ public class ScanFragment extends Fragment {
 //            go straight to add product
 //            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-//        } else {
-        IntentIntegrator.forSupportFragment(this).initiateScan();
-//        }
+        } else {
+            IntentIntegrator.forSupportFragment(this).initiateScan();
+        }
     }
 
     //alert dialog for downloadDialog
@@ -302,6 +305,7 @@ public class ScanFragment extends Fragment {
                 public void processFinish(String output) {
                     JSONObject product = dataQuerier.parseIntoJSON(output);
                     processResponseFirebase(product);
+                    isSearching = false;
                 }
             });
             rh.execute(getString(R.string.offBaseUrl) + barcode + EXTENSION);
@@ -330,10 +334,12 @@ public class ScanFragment extends Fragment {
                             public void onCancelled(FirebaseError error) {
                             }
                         });
+                        isSearching = false;
                     }
                 });
                 csvAsync.execute(products);
             } else {
+                isSearching = false;
                 Log.e("getBarcodeInformation", "Couldn't find file");
                 Snackbar.make(coordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
                         .setAction("Download", new View.OnClickListener() {
@@ -491,12 +497,8 @@ public class ScanFragment extends Fragment {
     }
 
     private void queryIngredientSearch(DataSnapshot snapshot, String ingredient) {
-        boolean[] bools;
-        if (snapshot != null) {
-            bools = processIngredientFirebase(ingredient, snapshot);
-        } else {
-            bools = processIngredient(ingredient);
-        }
+        boolean[] bools = processIngredientFirebase(ingredient, snapshot);
+
         setItemTitleText(ingredient);
 
         setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
