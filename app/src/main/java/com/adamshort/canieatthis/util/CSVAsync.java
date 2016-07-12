@@ -49,12 +49,12 @@ public class CSVAsync extends AsyncTask<File, Void, JSONObject> {
             CsvParserSettings settings = new CsvParserSettings();
             settings.getFormat().setDelimiter('\t');
             settings.setMaxCharsPerColumn(10000);
-//                     limits to barcode, name, ingredients and traces
-            settings.selectIndexes(0, 7, 34, 35);
+            // limits to barcode, name, ingredients and traces
+            settings.selectIndexes(0, 7, 34, 39);
 
             CsvParser parser = new CsvParser(settings);
 
-//                     call beginParsing to read records one by one, iterator-style.
+            // call beginParsing to read records one by one, iterator-style.
             parser.beginParsing(new FileReader(products));
 
             String[] info = null;
