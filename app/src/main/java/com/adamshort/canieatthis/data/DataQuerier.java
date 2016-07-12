@@ -18,11 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 public class DataQuerier {
-
+    private static DataQuerier mInstance = null;
     public static List<String> traces;
 
     private DataQuerier(Activity activity) {
         setTracesFromFile(activity);
+    }
+
+    public static DataQuerier getInstance(Activity activity) {
+        if (mInstance == null) {
+            mInstance = new DataQuerier(activity);
+        }
+        return mInstance;
     }
 
     public static boolean[] processDataFirebase(List<String> ingredients, List<String> traces, DataSnapshot snapshot) {
@@ -147,10 +154,7 @@ public class DataQuerier {
         return s;
     }
 
-    public static List<String> getTraces(Activity activity) {
-        if (traces == null || traces.size() == 0) {
-            setTracesFromFile(activity);
-        }
+    public static List<String> getTraces() {
         return traces;
     }
 

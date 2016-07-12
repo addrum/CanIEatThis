@@ -73,6 +73,8 @@ public class AddProductActivity extends AppCompatActivity {
             barcode = b.getString("barcode");
         }
 
+        DataQuerier.getInstance(this);
+
         ingredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
                 DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
@@ -81,7 +83,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                DataQuerier.getTraces(this));
+                DataQuerier.getTraces());
         tracesTextView.setAdapter(tracesAdapter);
         tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
@@ -192,7 +194,7 @@ public class AddProductActivity extends AppCompatActivity {
                     // Set values for passing back to scan fragment
                     writtenTraces = ListHelper.stringToList(tracesText);
 
-                    List<String> traces = DataQuerier.getTraces(AddProductActivity.this);
+                    List<String> traces = DataQuerier.getTraces();
 
                     String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
 
