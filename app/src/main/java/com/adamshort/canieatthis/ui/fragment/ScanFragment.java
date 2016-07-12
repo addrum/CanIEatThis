@@ -31,6 +31,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.data.DataPasser;
 import com.adamshort.canieatthis.data.DataQuerier;
 import com.adamshort.canieatthis.ui.activity.AddProductActivity;
 import com.adamshort.canieatthis.util.CSVAsync;
@@ -371,6 +372,7 @@ public class ScanFragment extends Fragment {
                 List<String> tracesToTest = ListHelper.stringToListAndTrim(traces);
 
                 List<String> ingredientsToDisplay = ListHelper.stringToList(ingredients);
+                ingredientsToDisplay = ListHelper.compareTwoLists(ingredientsToDisplay, DataPasser.getTraces());
                 List<String> tracesToDisplay = ListHelper.stringToList(traces);
 
                 boolean[] bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);

@@ -23,7 +23,6 @@ import com.adamshort.canieatthis.util.ListHelper;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -196,7 +195,7 @@ public class AddProductActivity extends AppCompatActivity {
 
                     List<String> traces = DataPasser.getTraces();
 
-                    String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
+                    String ingredients = ListHelper.listToString(ListHelper.compareTwoLists(ingredientsToDisplay, traces));
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
@@ -288,18 +287,6 @@ public class AddProductActivity extends AppCompatActivity {
         intent.putExtra("json", product.toString());
         setResult(Activity.RESULT_OK, intent);
         finish();
-    }
-
-    private List<String> compareTwoLists(List<String> list1, List<String> list2) {
-        for (int i = 0; i < list1.size(); i++) {
-            String ing = list1.get(i).toLowerCase();
-            for (int j = 0; j < list2.size(); j++) {
-                if (ing.contains(list2.get(j))) {
-                    list1.set(i, WordUtils.capitalize(ing.replace(list2.get(j), "_" + list2.get(j) + "_")));
-                }
-            }
-        }
-        return list1;
     }
 
     private void setErrorHints(TextView tv, String error) {
