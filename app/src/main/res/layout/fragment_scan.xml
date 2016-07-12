@@ -66,7 +66,7 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/itemTitleText"
+                    android:id="@+id/productNameTextView"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
@@ -79,7 +79,7 @@
                     android:id="@+id/switchesTableLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/itemTitleText"
+                    android:layout_below="@+id/productNameTextView"
                     android:layout_margin="10dp"
                     android:stretchColumns="0,1"
                     android:visibility="invisible">

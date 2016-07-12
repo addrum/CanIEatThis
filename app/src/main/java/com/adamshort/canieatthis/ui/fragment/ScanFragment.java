@@ -58,32 +58,32 @@ import static com.adamshort.canieatthis.data.DataQuerier.*;
 
 public class ScanFragment extends Fragment {
 
-    private static final String EXTENSION = ".json";
     private static final int FORM_REQUEST_CODE = 11;
     private static final int SCAN_REQUEST_CODE = 49374;
+    private static final String EXTENSION = ".json";
 
-    private static boolean fragmentCreated = false;
-    private static String barcode = "";
+    private static boolean mFragmentCreated = false;
+    private static String mBarcode = "";
 
-    private static Menu actionMenu;
-    private static CheckBox lactoseFreeSwitch;
-    private static CheckBox vegetarianSwitch;
-    private static CheckBox veganSwitch;
-    private static CheckBox glutenFreeSwitch;
+    private static CheckBox mGlutenFreeSwitch;
+    private static CheckBox mLactoseFreeSwitch;
+    private static CheckBox mVeganSwitch;
+    private static CheckBox mVegetarianSwitch;
+    private static Menu mActionMenu;
 
-    private boolean isSearching;
+    private boolean mIsSearching;
 
-    private CoordinatorLayout coordinatorLayout;
-    private TableLayout switchesTableLayout;
-    private TextView introTextView;
-    private TextView itemTextView;
-    private TextView ingredientsTitleText;
-    private TextView ingredientResponseView;
-    private TextView tracesTitleText;
-    private TextView tracesResponseView;
-    private TextView suitableTitleText;
-    private ProgressBar progressBar;
-    private FloatingActionButton fab;
+    private CoordinatorLayout mCoordinatorLayout;
+    private FloatingActionButton mFab;
+    private ProgressBar mProgressBar;
+    private TableLayout mSwitchesTableLayout;
+    private TextView mIngredientResponseView;
+    private TextView mIngredientsTitleText;
+    private TextView mIntroTextView;
+    private TextView mProductNameTextView;
+    private TextView mSuitableTitleText;
+    private TextView mTracesResponseView;
+    private TextView mTracesTitleText;
 
     @SuppressWarnings("ResourceType")
     @Override
@@ -92,47 +92,47 @@ public class ScanFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
         setHasOptionsMenu(true);
 
-        coordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
-        switchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
+        mCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
+        mSwitchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
-        introTextView = (TextView) view.findViewById(R.id.introTextView);
-        itemTextView = (TextView) view.findViewById(R.id.itemTitleText);
-        ingredientsTitleText = (TextView) view.findViewById(R.id.ingredientsTitleText);
-        ingredientResponseView = (TextView) view.findViewById(R.id.ingredientsResponseView);
-        tracesTitleText = (TextView) view.findViewById(R.id.tracesTitleText);
-        tracesResponseView = (TextView) view.findViewById(R.id.tracesResponseView);
-        suitableTitleText = (TextView) view.findViewById(R.id.suitableTitleText);
+        mIntroTextView = (TextView) view.findViewById(R.id.introTextView);
+        mProductNameTextView = (TextView) view.findViewById(R.id.productNameTextView);
+        mIngredientsTitleText = (TextView) view.findViewById(R.id.ingredientsTitleText);
+        mIngredientResponseView = (TextView) view.findViewById(R.id.ingredientsResponseView);
+        mTracesTitleText = (TextView) view.findViewById(R.id.tracesTitleText);
+        mTracesResponseView = (TextView) view.findViewById(R.id.tracesResponseView);
+        mSuitableTitleText = (TextView) view.findViewById(R.id.suitableTitleText);
 
         Button scanButton = (Button) view.findViewById(R.id.scanButton);
 
-        lactoseFreeSwitch = (CheckBox) view.findViewById(R.id.lactoseFreeSwitch);
-        vegetarianSwitch = (CheckBox) view.findViewById(R.id.vegetarianSwitch);
-        veganSwitch = (CheckBox) view.findViewById(R.id.veganSwitch);
-        glutenFreeSwitch = (CheckBox) view.findViewById(R.id.glutenFreeSwitch);
+        mLactoseFreeSwitch = (CheckBox) view.findViewById(R.id.lactoseFreeSwitch);
+        mVegetarianSwitch = (CheckBox) view.findViewById(R.id.vegetarianSwitch);
+        mVeganSwitch = (CheckBox) view.findViewById(R.id.veganSwitch);
+        mGlutenFreeSwitch = (CheckBox) view.findViewById(R.id.glutenFreeSwitch);
 
-        lactoseFreeSwitch.setClickable(false);
-        vegetarianSwitch.setClickable(false);
-        veganSwitch.setClickable(false);
-        glutenFreeSwitch.setClickable(false);
+        mLactoseFreeSwitch.setClickable(false);
+        mVegetarianSwitch.setClickable(false);
+        mVeganSwitch.setClickable(false);
+        mGlutenFreeSwitch.setClickable(false);
 
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.progressBar);
 
-        fab = (FloatingActionButton) view.findViewById(R.id.fab);
-        fab.hide();
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFab = (FloatingActionButton) view.findViewById(R.id.fab);
+        mFab.hide();
+        mFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                         "mailto", getString(R.string.aboutEmail), null));
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.issueEmailSubject));
                 emailIntent.putExtra(Intent.EXTRA_TEXT,
-                        "Barcode: " + barcode + "\n" +
-                                "\nProduct Name: " + itemTextView.getText() + "\n" +
-                                "\nLactose Free: " + lactoseFreeSwitch.isChecked() + "\n" +
-                                "Vegetarian: " + vegetarianSwitch.isChecked() + "\n" +
-                                "Vegan: " + veganSwitch.isChecked() + "\n" +
-                                "Gluten Free: " + glutenFreeSwitch.isChecked() + "\n" +
-                                "\nIngredients: " + ingredientResponseView.getText() + "\n" +
-                                "\nTraces: " + tracesResponseView.getText() + "\n" +
+                        "Barcode: " + mBarcode + "\n" +
+                                "\nProduct Name: " + mProductNameTextView.getText() + "\n" +
+                                "\nLactose Free: " + mLactoseFreeSwitch.isChecked() + "\n" +
+                                "Vegetarian: " + mVegetarianSwitch.isChecked() + "\n" +
+                                "Vegan: " + mVeganSwitch.isChecked() + "\n" +
+                                "Gluten Free: " + mGlutenFreeSwitch.isChecked() + "\n" +
+                                "\nIngredients: " + mIngredientResponseView.getText() + "\n" +
+                                "\nTraces: " + mTracesResponseView.getText() + "\n" +
                                 "\nDescribe any issues you are having here:");
                 startActivity(Intent.createChooser(emailIntent, "Send information..."));
             }
@@ -146,14 +146,14 @@ public class ScanFragment extends Fragment {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isSearching) {
+                if (!mIsSearching) {
                     scanBar();
-                    isSearching = true;
+                    mIsSearching = true;
                 }
             }
         });
 
-        fragmentCreated = true;
+        mFragmentCreated = true;
 
         return view;
     }
@@ -164,16 +164,16 @@ public class ScanFragment extends Fragment {
 
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "ScanFragment is visible.");
-            Log.d("setUserVisibleHint", Boolean.toString(fragmentCreated));
+            Log.d("setUserVisibleHint", Boolean.toString(mFragmentCreated));
         } else {
             Log.d("setUserVisibleHint", "ScanFragment is not visible.");
-            setSwitchesVisibility(View.INVISIBLE);
+            setCheckBoxesVisibility(View.INVISIBLE);
             setResponseItemsVisibility(View.INVISIBLE);
-            if (itemTextView != null) {
-                itemTextView.setVisibility(View.INVISIBLE);
+            if (mProductNameTextView != null) {
+                mProductNameTextView.setVisibility(View.INVISIBLE);
             }
-            if (introTextView != null) {
-                introTextView.setVisibility(View.VISIBLE);
+            if (mIntroTextView != null) {
+                mIntroTextView.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -183,7 +183,9 @@ public class ScanFragment extends Fragment {
         super.onViewStateRestored(inState);
     }
 
-    //product barcode mode
+    /**
+     * This method is called when we press the Scan Barcode button.
+     */
     public void scanBar() {
 //        empty product
 //        getBarcodeInformation("7622210307668");
@@ -205,7 +207,7 @@ public class ScanFragment extends Fragment {
 //        getBarcodeInformation("0000000056434");
 //        maryland cookies
 //        getBarcodeInformation("072417136160");
-//        fab.show();
+//        mFab.show();
 //        go straight to add product
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
@@ -213,7 +215,15 @@ public class ScanFragment extends Fragment {
         IntentIntegrator.forSupportFragment(this).initiateScan();
     }
 
-    //alert dialog for downloadDialog
+    /**
+     * Shows a dialog when a product is not found.
+     *
+     * @param title     The title of the Dialog.
+     * @param message   The message to display in the Dialog.
+     * @param buttonYes The label of the "yes" button.
+     * @param buttonNo  The label of the "no" button.
+     * @return The dialog to show.
+     */
     private AlertDialog showDialog(CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
         dialog.setTitle(title);
@@ -223,7 +233,7 @@ public class ScanFragment extends Fragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 try {
                     Intent intent = new Intent(getContext(), AddProductActivity.class);
-                    intent.putExtra("barcode", barcode);
+                    intent.putExtra("barcode", mBarcode);
 
                     try {
                         startActivityForResult(intent, FORM_REQUEST_CODE);
@@ -250,12 +260,12 @@ public class ScanFragment extends Fragment {
                 IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
                 if (result != null) {
                     if (result.getContents() == null) {
-                        Snackbar.make(coordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mCoordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
                     } else {
-                        Snackbar.make(coordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(mCoordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
                         getBarcodeInformation(result.getContents());
                         if (Utilities.hasInternetConnection(getContext())) {
-                            fab.show();
+                            mFab.show();
                         } else {
                             Log.d("onActivityResult", "No internet connection, not showing fab");
                         }
@@ -268,7 +278,7 @@ public class ScanFragment extends Fragment {
             // http://stackoverflow.com/a/10407371/1860436
             case FORM_REQUEST_CODE:
                 if (resultCode == Activity.RESULT_OK) {
-                    Snackbar.make(coordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mCoordinatorLayout, "Product was submitted successfully", Snackbar.LENGTH_LONG).show();
                     final String sProduct = intent.getStringExtra("json");
                     if (sProduct != null) {
                         Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
@@ -297,18 +307,24 @@ public class ScanFragment extends Fragment {
         }
     }
 
+    /**
+     * Queries the mBarcode with either a GET request to Open Food Facts or uses the Open Food Facts
+     * CSV dump if it has been downloaded to the device.
+     *
+     * @param barcode The mBarcode to query.
+     */
     public void getBarcodeInformation(String barcode) {
         // 2nd param is output length, 3rd param is padding char
         barcode = StringUtils.leftPad(barcode, 13, "0");
-        ScanFragment.barcode = barcode;
+        ScanFragment.mBarcode = barcode;
         if (Utilities.hasInternetConnection(getContext())) {
-            QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, 0, new QueryURLAsync.AsyncResponse() {
+            QueryURLAsync rh = new QueryURLAsync(mProgressBar, 0, new QueryURLAsync.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
                     DataQuerier.getInstance();
                     JSONObject product = DataQuerier.parseIntoJSON(output);
                     processResponseFirebase(product);
-                    isSearching = false;
+                    mIsSearching = false;
                 }
             });
             rh.execute(getString(R.string.offBaseUrl) + barcode + EXTENSION);
@@ -322,7 +338,7 @@ public class ScanFragment extends Fragment {
                 Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
             }
             if (products != null && products.exists()) {
-                CSVAsync csvAsync = new CSVAsync(barcode, progressBar, new CSVAsync.AsyncResponse() {
+                CSVAsync csvAsync = new CSVAsync(barcode, mProgressBar, new CSVAsync.AsyncResponse() {
                     @Override
                     public void processFinish(final JSONObject output) {
                         Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
@@ -337,14 +353,14 @@ public class ScanFragment extends Fragment {
                             public void onCancelled(FirebaseError error) {
                             }
                         });
-                        isSearching = false;
+                        mIsSearching = false;
                     }
                 });
                 csvAsync.execute(products);
             } else {
-                isSearching = false;
+                mIsSearching = false;
                 Log.e("getBarcodeInformation", "Couldn't find file");
-                Snackbar.make(coordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
+                Snackbar.make(mCoordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
                         .setAction("Download", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -356,11 +372,22 @@ public class ScanFragment extends Fragment {
         }
     }
 
+    /**
+     * Launches a new FireBaseAsyncRequest which queries the product data.
+     *
+     * @param product The information about the product in a JSONObject.
+     */
     public void processResponseFirebase(JSONObject product) {
         FirebaseAsyncRequest fbar = new FirebaseAsyncRequest();
         fbar.execute(product);
     }
 
+    /**
+     * Queries the data fetched from the mBarcode and displays it to the user.
+     *
+     * @param snapshot A firebase snapshot which is passed to processDataFirebase for comparison to @values.
+     * @param product  The information about the product in JSONObject format.
+     */
     public void queryData(DataSnapshot snapshot, JSONObject product) {
         Log.d("queryData", "Product: " + product);
 
@@ -370,8 +397,8 @@ public class ScanFragment extends Fragment {
                 String ingredients = product.getString("ingredients_text");
                 String traces = product.getString("traces");
 
-                List<String> ingredientsToTest = ListHelper.stringToListAndTrim(ingredients);
-                List<String> tracesToTest = ListHelper.stringToListAndTrim(traces);
+                List<String> ingredientsToTest = ListHelper.stringToListAndModify(ingredients);
+                List<String> tracesToTest = ListHelper.stringToListAndModify(traces);
 
                 List<String> ingredientsToDisplay = ListHelper.stringToList(ingredients);
                 ingredientsToDisplay = ListHelper.compareTwoLists(ingredientsToDisplay, DataPasser.getFirebaseTracesList());
@@ -379,18 +406,18 @@ public class ScanFragment extends Fragment {
 
                 boolean[] bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
 
-                setItemTitleText(item);
+                setProductName(item);
                 if (item.equals("")) {
-                    setItemTitleText("Product name not found");
+                    setProductName("Product name not found");
                 }
-                setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
+                setDietaryCheckBoxes(bools[0], bools[1], bools[2], bools[3]);
                 Log.d("queryData", "ingredientsToDisplay: " + ingredientsToDisplay);
                 setIngredientsResponseTextBox(ingredientsToDisplay.toString().replace("[", "").replace("]", ""));
                 Log.d("queryData", "tracesToDisplay: " + tracesToDisplay);
                 setTracesResponseTextBox(tracesToDisplay.toString().replace("[", "").replace("]", ""));
 
-                setSwitchesVisibility(View.VISIBLE);
-                introTextView.setVisibility(View.INVISIBLE);
+                setCheckBoxesVisibility(View.VISIBLE);
+                mIntroTextView.setVisibility(View.INVISIBLE);
                 setResponseItemsVisibility(View.VISIBLE);
 
                 if (ingredientsToDisplay.size() < 1 || ingredientsToDisplay.get(0).equals("")) {
@@ -411,7 +438,7 @@ public class ScanFragment extends Fragment {
     private class FirebaseAsyncRequest extends AsyncTask<JSONObject, Void, String> {
         @Override
         protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -439,14 +466,14 @@ public class ScanFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String response) {
-            progressBar.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.INVISIBLE);
         }
 
     }
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        actionMenu = menu;
+        mActionMenu = menu;
         inflater.inflate(R.menu.menu, menu);
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
@@ -499,75 +526,109 @@ public class ScanFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    /**
+     * Queries a singular ingredient.
+     *
+     * @param snapshot   A firebase snapshot which is also looped over for comparison to @values.
+     * @param ingredient The singular ingredient to query.
+     */
     private void queryIngredientSearch(DataSnapshot snapshot, String ingredient) {
         boolean[] bools = processIngredientFirebase(ingredient, snapshot);
 
-        setItemTitleText(ingredient);
+        setProductName(ingredient);
 
-        setDietarySwitches(bools[0], bools[1], bools[2], bools[3]);
-        setSwitchesVisibility(View.VISIBLE);
-        introTextView.setVisibility(View.INVISIBLE);
+        setDietaryCheckBoxes(bools[0], bools[1], bools[2], bools[3]);
+        setCheckBoxesVisibility(View.VISIBLE);
+        mIntroTextView.setVisibility(View.INVISIBLE);
 
-        actionMenu.findItem(R.id.action_search).collapseActionView();
+        mActionMenu.findItem(R.id.action_search).collapseActionView();
     }
 
     @Override
     public void onPause() {
-        isSearching = false;
+        mIsSearching = false;
         super.onPause();
     }
 
-    public void setSwitchesVisibility(int visibility) {
-        if (switchesTableLayout != null) {
-            switchesTableLayout.setVisibility(visibility);
+    /**
+     * Sets the viibility of the dietary requirement switches.
+     *
+     * @param visibility The visibility state.
+     */
+    public void setCheckBoxesVisibility(int visibility) {
+        if (mSwitchesTableLayout != null) {
+            mSwitchesTableLayout.setVisibility(visibility);
         }
-        if (lactoseFreeSwitch != null) {
-            lactoseFreeSwitch.setVisibility(visibility);
+        if (mLactoseFreeSwitch != null) {
+            mLactoseFreeSwitch.setVisibility(visibility);
         }
-        if (vegetarianSwitch != null) {
-            vegetarianSwitch.setVisibility(visibility);
+        if (mVegetarianSwitch != null) {
+            mVegetarianSwitch.setVisibility(visibility);
         }
-        if (veganSwitch != null) {
-            veganSwitch.setVisibility(visibility);
+        if (mVeganSwitch != null) {
+            mVeganSwitch.setVisibility(visibility);
         }
-        if (glutenFreeSwitch != null) {
-            glutenFreeSwitch.setVisibility(visibility);
+        if (mGlutenFreeSwitch != null) {
+            mGlutenFreeSwitch.setVisibility(visibility);
         }
-        if (suitableTitleText != null) {
-            suitableTitleText.setVisibility(visibility);
+        if (mSuitableTitleText != null) {
+            mSuitableTitleText.setVisibility(visibility);
         }
     }
 
+    /**
+     * Sets a group of views for displaying data about a product.
+     *
+     * @param visibility The visibility state.
+     */
     public void setResponseItemsVisibility(int visibility) {
-        if (ingredientsTitleText != null) {
-            ingredientsTitleText.setVisibility(visibility);
+        if (mIngredientsTitleText != null) {
+            mIngredientsTitleText.setVisibility(visibility);
         }
-        if (ingredientResponseView != null) {
-            ingredientResponseView.setVisibility(visibility);
+        if (mIngredientResponseView != null) {
+            mIngredientResponseView.setVisibility(visibility);
         }
-        if (tracesTitleText != null) {
-            tracesTitleText.setVisibility(visibility);
+        if (mTracesTitleText != null) {
+            mTracesTitleText.setVisibility(visibility);
         }
-        if (tracesResponseView != null) {
-            tracesResponseView.setVisibility(visibility);
+        if (mTracesResponseView != null) {
+            mTracesResponseView.setVisibility(visibility);
         }
     }
 
-    public void setItemTitleText(String item) {
-        itemTextView.setText(item);
-        itemTextView.setVisibility(View.VISIBLE);
+    /**
+     * Sets the text of the products name view.
+     *
+     * @param item The text to display.
+     */
+    public void setProductName(String item) {
+        mProductNameTextView.setText(item);
+        mProductNameTextView.setVisibility(View.VISIBLE);
     }
 
-    public void setDietarySwitches(boolean lactose, boolean vegetarian, boolean vegan,
-                                   boolean gluten) {
-        lactoseFreeSwitch.setChecked(lactose);
-        vegetarianSwitch.setChecked(vegetarian);
-        veganSwitch.setChecked(vegan);
-        glutenFreeSwitch.setChecked(gluten);
+    /**
+     * Sets the checked state of the dietary switches.
+     *
+     * @param lactose    The state of the lactose free checkbox.
+     * @param vegetarian The state of the vegetarian checkbox.
+     * @param vegan      The state of the vegan checkbox.
+     * @param gluten     The state of the gluten free checkbox.
+     */
+    public void setDietaryCheckBoxes(boolean lactose, boolean vegetarian, boolean vegan,
+                                     boolean gluten) {
+        mLactoseFreeSwitch.setChecked(lactose);
+        mVegetarianSwitch.setChecked(vegetarian);
+        mVeganSwitch.setChecked(vegan);
+        mGlutenFreeSwitch.setChecked(gluten);
     }
 
+    /**
+     * Sets the contents of the ingredients text view. Replaces words enclosed in _ with html bold tags.
+     *
+     * @param response The ingredients of a product.
+     */
     public void setIngredientsResponseTextBox(String response) {
-        ingredientResponseView.setVisibility(View.VISIBLE);
+        mIngredientResponseView.setVisibility(View.VISIBLE);
         if (!TextUtils.isEmpty(response) && !response.equals(getString(R.string.noIngredientsFoundText))) {
             Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
             Matcher matcher = pattern.matcher(response);
@@ -581,18 +642,23 @@ public class ScanFragment extends Fragment {
             matcher.appendTail(sb);
             Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                ingredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                mIngredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
             } else {
                 //noinspection deprecation
-                ingredientResponseView.setText(Html.fromHtml(sb.toString()));
+                mIngredientResponseView.setText(Html.fromHtml(sb.toString()));
             }
         } else {
-            ingredientResponseView.setText(response);
+            mIngredientResponseView.setText(response);
         }
     }
 
+    /**
+     * Sets the contents of the traces text view.
+     *
+     * @param response The traces of a product.
+     */
     public void setTracesResponseTextBox(String response) {
-        tracesResponseView.setText(response);
-        tracesResponseView.setVisibility(View.VISIBLE);
+        mTracesResponseView.setText(response);
+        mTracesResponseView.setVisibility(View.VISIBLE);
     }
 }

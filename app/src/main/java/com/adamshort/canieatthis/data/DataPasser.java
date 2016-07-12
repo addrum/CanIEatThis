@@ -13,20 +13,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataPasser {
-    private static List<String> firebaseIngredientsList;
-    private static List<String> firebaseTracesList;
+    private static List<String> mFirebaseIngredientsList;
+    private static List<String> mFirebaseTracesList;
 
     private static DataPasser mInstance = null;
 
     private DataPasser(Context context) {
-        firebaseIngredientsList = new ArrayList<>();
+        mFirebaseIngredientsList = new ArrayList<>();
         Firebase ingredientsRef = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
         ingredientsRef.keepSynced(true);
         ingredientsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
-                    firebaseIngredientsList.add(ingredientSnapshot.getKey().toLowerCase());
+                    mFirebaseIngredientsList.add(ingredientSnapshot.getKey().toLowerCase());
                 }
             }
 
@@ -35,7 +35,7 @@ public class DataPasser {
             }
         });
 
-        firebaseTracesList = new ArrayList<>();
+        mFirebaseTracesList = new ArrayList<>();
         Firebase tracesRef = new Firebase(context.getString(R.string.firebase_url) + "/traces");
         tracesRef.keepSynced(true);
         tracesRef.addValueEventListener(new ValueEventListener() {
@@ -44,7 +44,7 @@ public class DataPasser {
                 for (DataSnapshot tracesSnapshot : snapshot.getChildren()) {
                     // traces are in array so it's safe to cast to List
                     String traces = (String) tracesSnapshot.getValue();
-                    firebaseTracesList.add(traces);
+                    mFirebaseTracesList.add(traces);
                 }
             }
 
@@ -62,12 +62,12 @@ public class DataPasser {
     }
 
     public static List<String> getFirebaseTracesList() {
-        Log.d("fbTracesList", firebaseTracesList.toString());
-        return firebaseTracesList;
+        Log.d("fbTracesList", mFirebaseTracesList.toString());
+        return mFirebaseTracesList;
     }
 
     public List<String> getFirebaseIngredientsList() {
-        Log.d("fbIngredientsList", firebaseIngredientsList.toString());
-        return firebaseIngredientsList;
+        Log.d("fbIngredientsList", mFirebaseIngredientsList.toString());
+        return mFirebaseIngredientsList;
     }
 }

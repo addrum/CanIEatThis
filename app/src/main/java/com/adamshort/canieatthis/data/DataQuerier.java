@@ -24,6 +24,19 @@ public class DataQuerier {
         return mInstance;
     }
 
+    /**
+     * Processes data using data contained in firebase, checking if it's suitable for each dietary requirement.
+     * Removes unwanted characters from both lists. Uses a firebase snapshot which holds the data.
+     * 0 = lactose_free
+     * 1 = vegetarian
+     * 2 = vegan
+     * 3 = gluten_free
+     *
+     * @param ingredients List of ingredients to check.
+     * @param traces      List of traces to check.
+     * @param snapshot    A firebase snapshot.
+     * @return Array of size 4, containing true or false for each dietary requirement.
+     */
     public static boolean[] processDataFirebase(List<String> ingredients, List<String> traces, DataSnapshot snapshot) {
         Log.d("processDataFirebase", "Processing data with firebase");
         ingredients = ListHelper.removeUnwantedCharacters(ingredients, "[_]|\\s+$\"", "");
@@ -44,6 +57,19 @@ public class DataQuerier {
                 bools[2] != null && bools[2], bools[3] != null && bools[3]};
     }
 
+    /**
+     * Checks if the values in the list are suitable for each dietary requirement.
+     * 0 = lactose_free
+     * 1 = vegetarian
+     * 2 = vegan
+     * 3 = gluten_free
+     *
+     * @param values   The list which is looped over.
+     * @param snapshot A firebase snapshot which is also looped over for comparison to @values.
+     * @param bools    First method call should pass array of nulls. Second method call should use the return value
+     *                 of the first method call.
+     * @return Array of size 4, containing true or false for each dietary requirement.
+     */
     private static Boolean[] checkIfValuesAreSuitable(List<String> values, DataSnapshot snapshot, Boolean[] bools) {
         if (values.size() > 0 && !values.get(0).equals("")) {
             for (String value : values) {
@@ -65,7 +91,7 @@ public class DataQuerier {
                         if (bools[3] == null || bools[3]) {
                             bools[3] = (Boolean) ing.get("gluten_free");
                         }
-                        Log.d("processDataFirebase", name + " lactose_free: " + bools[0] + " vegetarian: " + bools[1] +
+                        Log.d("checkIfValsAreSuitable", name + " lactose_free: " + bools[0] + " vegetarian: " + bools[1] +
                                 " vegan: " + bools[2] + " gluten_free: " + bools[3]);
                     }
                 }
@@ -74,6 +100,17 @@ public class DataQuerier {
         return bools;
     }
 
+    /**
+     * Checks if the singular ingredient is suitable for each dietary requirement.
+     * 0 = lactose_free
+     * 1 = vegetarian
+     * 2 = vegan
+     * 3 = gluten_free
+     *
+     * @param ingredient A singular ingredient to test.
+     * @param snapshot   A firebase snapshot which is also looped over for comparison to @ingredient.
+     * @return Array of size 4, containing true or false for each dietary requirement.
+     */
     public static boolean[] processIngredientFirebase(String ingredient, DataSnapshot snapshot) {
         Log.d("processDataFirebase", "Processing ingredient with firebase");
         Boolean lactose = null;
@@ -110,6 +147,12 @@ public class DataQuerier {
                 vegan != null && vegan, gluten != null && gluten};
     }
 
+    /**
+     * Converts the response returned by Open Food Facts to JSON.
+     *
+     * @param response The response returned by GET request to Open Food Facts.
+     * @return Only the "product" value of the response.
+     */
     public static JSONObject parseIntoJSON(String response) {
         try {
             return new JSONObject(response).getJSONObject("product");
@@ -119,6 +162,12 @@ public class DataQuerier {
         return null;
     }
 
+    /**
+     * Removes any characters matching the regex. Used for testing a "cleaner" version of an ingredient.
+     *
+     * @param s The string to remove characters from.
+     * @return The string with removed characters.
+     */
     public static String replaceSpecialChars(String s) {
         s = s.replaceAll("\\([^)]*\\)", "")
                 .replace("_", "")

@@ -15,10 +15,9 @@ import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 public class Utilities {
-
+    private static DownloadManager mDownloadManager;
+    private static FileDownloader mFileDownloader;
     private static Utilities mInstance = null;
-    private static DownloadManager downloadManager;
-    private static FileDownloader fileDownloader;
 
     private Utilities() {
     }
@@ -98,8 +97,8 @@ public class Utilities {
 
     public static void downloadDatabase(Activity activity, Context context) {
         if (activity != null && context != null) {
-            downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            fileDownloader = FileDownloader.getInstance(activity, downloadManager,
+            mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            mFileDownloader = FileDownloader.getInstance(activity, mDownloadManager,
                     context.getString(R.string.csvURL), "products.csv.tmp");
 
             // Update timestamp since we've downloaded a new one
@@ -110,7 +109,7 @@ public class Utilities {
         }
     }
 
-    public static boolean timeForUpdatePrompt(Context context, Timestamp current) {
+    public static boolean isTimeForUpdatePrompt(Context context, Timestamp current) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         long lastPref = prefs.getLong("timestamp", current.getTime());
         if (lastPref == 0) {
@@ -121,13 +120,13 @@ public class Utilities {
         }
         Timestamp last = new Timestamp(lastPref);
 
-        Log.d("timeForUpdatePrompt", "Current: " + current.getTime() + " - Last: " + last.getTime());
+        Log.d("isTimeForUpdatePrompt", "Current: " + current.getTime() + " - Last: " + last.getTime());
 
         String frequency = prefs.getString("frequency_list_pref", "0");
-        Log.d("timeForUpdatePrompt", "Frequency is " + frequency);
+        Log.d("isTimeForUpdatePrompt", "Frequency is " + frequency);
 
         long days = TimeUnit.MILLISECONDS.toDays(current.getTime() - last.getTime());
-        Log.d("timeForUpdatePrompt", "Days is " + days);
+        Log.d("isTimeForUpdatePrompt", "Days is " + days);
 
         switch (frequency) {
             case "0":
@@ -150,11 +149,11 @@ public class Utilities {
     }
 
     public static DownloadManager getDownloadManager() {
-        return downloadManager;
+        return mDownloadManager;
     }
 
     public static FileDownloader getFileDownloader() {
-        return fileDownloader;
+        return mFileDownloader;
     }
 
     public static boolean isPortraitMode(Context context) {

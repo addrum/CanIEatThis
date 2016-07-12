@@ -30,8 +30,8 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
 
     public static int RESULT_OK = 1;
 
-    private LatLng latLng;
-    private CoordinatorLayout coordinatorLayout;
+    private LatLng mLatLng;
+    private CoordinatorLayout mCoordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +46,13 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
 
         final Context context = getBaseContext();
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.places_coordinator_layout);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.places_coordinator_layout);
 
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
         String[] latLngStr = intent.getStringExtra("latlng").replace("lat/lng: ", "").replace("(", "")
                 .replace(")", "").split(",");
-        latLng = new LatLng(Double.parseDouble(latLngStr[0]), Double.parseDouble(latLngStr[1]));
+        mLatLng = new LatLng(Double.parseDouble(latLngStr[0]), Double.parseDouble(latLngStr[1]));
 
         TextView nameView = (TextView) findViewById(R.id.name_view);
         if (nameView != null) {
@@ -83,7 +83,7 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
                             // write latlng to install file so we know which places an installation
                             // has submitted info for
                             File file = new File(context.getFilesDir(), Installation.getInstallation());
-                            Installation.writeInstallationFile(file, "\n" + latLng.toString(), true);
+                            Installation.writeInstallationFile(file, "\n" + mLatLng.toString(), true);
                         }
                     } catch (Exception e) {
                         Log.e("onClick", e.toString());
@@ -93,6 +93,11 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Increments a value in firebase.
+     *
+     * @param fRef The location (URL) to increment at.
+     */
     private void doFirebaseTransaction(Firebase fRef) {
         if (fRef != null) {
             fRef.runTransaction(new Transaction.Handler() {
@@ -118,6 +123,12 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Removes the characters not supported by Firebase.
+     *
+     * @param s The string to remove characters from.
+     * @return The modified string.
+     */
     private String removeUnsupportedFirebaseChars(String s) {
         return s.replace(".", "").replace("#", "").replace("$", "").replace("[", "").replace("]", "");
     }
@@ -130,7 +141,7 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(boolean[]... params) {
             final boolean[] data = params[0];
-            String key = (latLng.latitude + " " + latLng.longitude).replace(".", ",");
+            String key = (mLatLng.latitude + " " + mLatLng.longitude).replace(".", ",");
             String partial = getString(R.string.firebase_url) + "/places/" + key;
             Firebase fRef = new Firebase(partial);
 
@@ -157,7 +168,7 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
         protected void onPostExecute(String response) {
             if (response == null || response.equals("")) {
                 Log.d("onPostExecute", "Response was null or empty");
-                Snackbar.make(coordinatorLayout, "There was an issue submitting information. Please try again", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mCoordinatorLayout, "There was an issue submitting information. Please try again", Snackbar.LENGTH_LONG).show();
                 return;
             }
 

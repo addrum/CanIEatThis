@@ -18,27 +18,26 @@ import java.io.FileReader;
 import java.util.Arrays;
 
 public class CSVAsync extends AsyncTask<File, Void, JSONObject> {
+    public AsyncResponse mDelegate = null;
 
-    private String barcode;
+    private String mBarcode;
 
-    private ProgressBar progressBar;
+    private ProgressBar mProgressBar;
 
     public interface AsyncResponse {
         void processFinish(JSONObject output);
     }
 
-    public AsyncResponse delegate = null;
-
     public CSVAsync(String barcode, ProgressBar progressBar, AsyncResponse delegate) {
-        this.barcode = barcode;
-        this.progressBar = progressBar;
-        this.delegate = delegate;
+        mBarcode = barcode;
+        mProgressBar = progressBar;
+        mDelegate = delegate;
     }
 
     @Override
     protected void onPreExecute() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.VISIBLE);
         }
     }
 
@@ -49,7 +48,7 @@ public class CSVAsync extends AsyncTask<File, Void, JSONObject> {
             CsvParserSettings settings = new CsvParserSettings();
             settings.getFormat().setDelimiter('\t');
             settings.setMaxCharsPerColumn(10000);
-            // limits to barcode, name, ingredients and traces
+            // limits to mBarcode, name, ingredients and traces
             settings.selectIndexes(0, 7, 34, 39);
 
             CsvParser parser = new CsvParser(settings);
@@ -61,7 +60,7 @@ public class CSVAsync extends AsyncTask<File, Void, JSONObject> {
             String[] row;
             Log.d("doInBackground", "Searching for product in csv...");
             while ((row = parser.parseNext()) != null) {
-                if (StringUtils.leftPad(row[0], 13, "0").equals(barcode)) {
+                if (StringUtils.leftPad(row[0], 13, "0").equals(mBarcode)) {
                     info = row;
                     parser.stopParsing();
                     Log.d("doInBackground", "Product found in CSV!");
@@ -107,16 +106,16 @@ public class CSVAsync extends AsyncTask<File, Void, JSONObject> {
     protected void onPostExecute(JSONObject response) {
         if (response == null) {
             Log.d("onPostExecute", "Response was null");
-            if (progressBar != null) {
-                progressBar.setVisibility(View.INVISIBLE);
+            if (mProgressBar != null) {
+                mProgressBar.setVisibility(View.INVISIBLE);
             }
             Log.d("onPostExecute", "Issue with response");
         } else {
             Log.i("onPostExecute", response.toString());
         }
-        if (progressBar != null) {
-            progressBar.setVisibility(View.INVISIBLE);
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(View.INVISIBLE);
         }
-        delegate.processFinish(response);
+        mDelegate.processFinish(response);
     }
 }

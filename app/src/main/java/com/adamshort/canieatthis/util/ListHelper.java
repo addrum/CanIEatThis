@@ -13,13 +13,19 @@ public class ListHelper {
     /**
      * Converts a string to a list using , as the delimiter. Also trims the list.
      *
-     * @param s
+     * @param s The string to split into a list.
      */
     public static List<String> stringToList(String s) {
         return new ArrayList<>(Arrays.asList(trimArray(s.split(","))));
     }
 
-    public static List<String> stringToListAndTrim(String s) {
+    /**
+     * Modifies a string with regexps, removing unwanted characters and separating by words And, Or (case insensitive)
+     * Also trims the list.
+     *
+     * @param s The string to modify and split into a list.
+     */
+    public static List<String> stringToListAndModify(String s) {
         // strip percentages in brackets
         s = s.replaceAll("\\(\\d*%\\d*\\)", "");
         // strip ))
@@ -45,6 +51,11 @@ public class ListHelper {
         return array;
     }
 
+    /**
+     * Separates elements in a list by ,  and converts to string.
+     *
+     * @param s List to convert.
+     */
     public static String listToString(List<String> s) {
         StringBuilder sb = new StringBuilder();
         for (String st : s) {
@@ -57,11 +68,11 @@ public class ListHelper {
     }
 
     /**
-     * Replaces an element in a list with a string based on regex param
+     * Replaces an element in a list with a string based on regex param.
      *
-     * @param ingredients the list to loop through
-     * @param regex       the regex used to match an element
-     * @param replaceWith the string to replace the matched regex
+     * @param ingredients The list to loop through.
+     * @param regex       The regex used to match an element.
+     * @param replaceWith The string to replace the matched regex.
      */
     public static List<String> removeUnwantedCharacters(List<String> ingredients, String regex, String replaceWith) {
         for (int i = 0; i < ingredients.size(); i++) {
@@ -72,10 +83,10 @@ public class ListHelper {
     }
 
     /**
-     * Compares two lists, prepending and append a _ to an element if it's contained in both lists
+     * Compares two lists, prepending and append a _ to an element if it's contained in both lists.
      *
-     * @param list1 this list is returned with modifications (if any)
-     * @param list2 this is the list to compare to
+     * @param list1 This list is returned with modifications (if any).
+     * @param list2 The list to compare to.
      */
     public static List<String> compareTwoLists(List<String> list1, List<String> list2) {
         for (int i = 0; i < list1.size(); i++) {
