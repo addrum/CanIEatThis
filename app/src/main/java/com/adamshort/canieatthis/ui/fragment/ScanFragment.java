@@ -125,7 +125,8 @@ public class ScanFragment extends Fragment {
                         "mailto", getString(R.string.aboutEmail), null));
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.issueEmailSubject));
                 emailIntent.putExtra(Intent.EXTRA_TEXT,
-                        "Product Name: " + itemTextView.getText() + "\n" +
+                        "Barcode: " + barcode + "\n" +
+                                "\nProduct Name: " + itemTextView.getText() + "\n" +
                                 "\nLactose Free: " + lactoseFreeSwitch.isChecked() + "\n" +
                                 "Vegetarian: " + vegetarianSwitch.isChecked() + "\n" +
                                 "Vegan: " + veganSwitch.isChecked() + "\n" +
