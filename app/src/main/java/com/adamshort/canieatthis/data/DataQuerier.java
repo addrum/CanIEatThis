@@ -19,25 +19,10 @@ import java.util.Map;
 
 public class DataQuerier {
 
-    //http://www.godairyfree.org/dairy-free-grocery-shopping-guide/dairy-ingredient-list-2
-    public static List<String> dairy;
-    public static List<String> vegetarian;
-    //http://www.peta.org/living/beauty/animal-ingredients-list/
-    public static List<String> vegan;
-    public static List<String> gluten;
-    public List<String> traces;
-
-    private static DataQuerier mInstance = null;
+    public static List<String> traces;
 
     private DataQuerier(Activity activity) {
-        setDatabasesFromFiles(activity);
-    }
-
-    public static DataQuerier getInstance(Activity activity) {
-        if (mInstance == null) {
-            mInstance = new DataQuerier(activity);
-        }
-        return mInstance;
+        setTracesFromFile(activity);
     }
 
     public static boolean[] processDataFirebase(List<String> ingredients, List<String> traces, DataSnapshot snapshot) {
@@ -126,7 +111,7 @@ public class DataQuerier {
                 vegan != null && vegan, gluten != null && gluten};
     }
 
-    public JSONObject parseIntoJSON(String response) {
+    public static JSONObject parseIntoJSON(String response) {
         try {
             return new JSONObject(response).getJSONObject("product");
         } catch (JSONException e) {
@@ -135,70 +120,10 @@ public class DataQuerier {
         return null;
     }
 
-    public void setDatabasesFromFiles(Activity activity) {
-        dairy = new ArrayList<>();
-        vegetarian = new ArrayList<>();
-        vegan = new ArrayList<>();
-        gluten = new ArrayList<>();
+    public static void setTracesFromFile(Activity activity) {
         traces = new ArrayList<>();
 
         BufferedReader reader;
-
-        try {
-            final InputStream file = activity.getAssets().open("dairy.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                if (line != null) {
-                    dairy.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        try {
-            final InputStream file = activity.getAssets().open("vegetarian.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                if (line != null) {
-                    vegetarian.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        try {
-            final InputStream file = activity.getAssets().open("vegan.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                if (line != null) {
-                    vegan.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-
-        try {
-            final InputStream file = activity.getAssets().open("gluten.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                if (line != null) {
-                    gluten.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
 
         try {
             final InputStream file = activity.getAssets().open("traces.txt");
@@ -222,7 +147,10 @@ public class DataQuerier {
         return s;
     }
 
-    public List<String> getTraces() {
+    public static List<String> getTraces(Activity activity) {
+        if (traces == null || traces.size() == 0) {
+            setTracesFromFile(activity);
+        }
         return traces;
     }
 

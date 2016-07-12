@@ -78,7 +78,6 @@ public class ScanFragment extends Fragment {
     private TextView tracesResponseView;
     private TextView suitableTitleText;
     private ProgressBar progressBar;
-    private DataQuerier dataQuerier;
     private FloatingActionButton fab;
 
     @SuppressWarnings("ResourceType")
@@ -138,10 +137,6 @@ public class ScanFragment extends Fragment {
         }
         Firebase.setAndroidContext(getContext());
 
-        dataQuerier = DataQuerier.getInstance(getActivity());
-
-//        setItemsFromDataPasser();
-
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,7 +190,7 @@ public class ScanFragment extends Fragment {
 //            Jammie Dodgers
 //            getBarcodeInformation("072417143700");
 //            Candy Crush Candy
-            getBarcodeInformation("790310020");
+//            getBarcodeInformation("790310020");
 //            Honey Monster Puffs
 //            getBarcodeInformation("5060145250093");
 //            Salt and Vinegar Pringles -no info but is added to db
@@ -204,8 +199,8 @@ public class ScanFragment extends Fragment {
 //            getBarcodeInformation("0000000056434");
 //            fab.show();
 //            go straight to add product
-//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
         } else {
             IntentIntegrator.forSupportFragment(this).initiateScan();
         }
@@ -303,7 +298,7 @@ public class ScanFragment extends Fragment {
             QueryURLAsync rh = new QueryURLAsync(getContext(), progressBar, 0, new QueryURLAsync.AsyncResponse() {
                 @Override
                 public void processFinish(String output) {
-                    JSONObject product = dataQuerier.parseIntoJSON(output);
+                    JSONObject product = DataQuerier.parseIntoJSON(output);
                     processResponseFirebase(product);
                     isSearching = false;
                 }

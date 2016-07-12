@@ -44,9 +44,8 @@ public class AddProductActivity extends AppCompatActivity {
     private String energyPerText;
     private String ingredientsText;
     private String tracesText;
-    private String itemTitle;
     private String portionText;
-    private List<String> writtenIngredients, writtenTraces;
+    private List<String> writtenTraces;
 
     private MultiAutoCompleteTextView ingredientsTextView;
     private MultiAutoCompleteTextView tracesTextView;
@@ -82,7 +81,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                DataQuerier.getInstance(getParent()).getTraces());
+                DataQuerier.getTraces(this));
         tracesTextView.setAdapter(tracesAdapter);
         tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
@@ -181,11 +180,9 @@ public class AddProductActivity extends AppCompatActivity {
                     if (Utilities.isInDebugMode()) {
                         barcodeText = "072417136160";
                         productNameText = "Maryland Choc Chip";
-                        itemTitle = productNameText;
                         quantityText = "230g";
                         energyPerText = "450";
                         ingredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        writtenIngredients = ListHelper.stringToList(ingredientsText);
                         tracesText = "Milk, Soya, Nuts, Wheat";
                         writtenTraces = ListHelper.stringToList(tracesText);
                     }
@@ -193,11 +190,9 @@ public class AddProductActivity extends AppCompatActivity {
                     List<String> ingredientsToDisplay = ListHelper.stringToList(ingredientsText);
 
                     // Set values for passing back to scan fragment
-                    itemTitle = productNameText;
-                    writtenIngredients = ingredientsToDisplay;
                     writtenTraces = ListHelper.stringToList(tracesText);
 
-                    List<String> traces = DataQuerier.getInstance(AddProductActivity.this).getTraces();
+                    List<String> traces = DataQuerier.getTraces(AddProductActivity.this);
 
                     String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
 
@@ -303,26 +298,6 @@ public class AddProductActivity extends AppCompatActivity {
             }
         }
         return list1;
-    }
-
-    private void setDataPasser(boolean dairy, boolean vegetarian, boolean vegan, boolean gluten) {
-        DataPasser dataPasser = DataPasser.getInstance(getBaseContext());
-        dataPasser.setQuery(itemTitle);
-
-        dataPasser.setLactose(dairy);
-        dataPasser.setVegetarian(vegetarian);
-        dataPasser.setVegan(vegan);
-        dataPasser.setGluten(gluten);
-
-        dataPasser.setSwitchesVisible(true);
-        dataPasser.setItemVisible(true);
-        dataPasser.setIntroVisible(false);
-        dataPasser.setResponseVisible(true);
-
-        dataPasser.setFromSearch(false);
-
-        dataPasser.setIngredients(ListHelper.listToString(writtenIngredients));
-        dataPasser.setTraces(ListHelper.listToString(writtenTraces));
     }
 
     private void setErrorHints(TextView tv, String error) {
