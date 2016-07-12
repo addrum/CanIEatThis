@@ -183,14 +183,13 @@ public class ScanFragment extends Fragment {
 
     //product barcode mode
     public void scanBar() {
-        if (Utilities.isInDebugMode()) {
 //            getBarcodeInformation("7622210307668");
 //            McVities Digestives
 //            getBarcodeInformation("5000168001142");
 //            Tesco Orange Juice from Concentrate
 //            getBarcodeInformation("5051140367282");
 //            Muller Corner Choco Digestives
-//            getBarcodeInformation("4025500165574");
+            getBarcodeInformation("4025500165574");
 //            Jammie Dodgers
 //            getBarcodeInformation("072417143700");
 //            Candy Crush Candy
@@ -201,13 +200,14 @@ public class ScanFragment extends Fragment {
 //            getBarcodeInformation("5053990101863");
 //            lemonade
 //            getBarcodeInformation("0000000056434");
+//            maryland cookies
+//                getBarcodeInformation("072417136160");
 //            fab.show();
 //            go straight to add product
-            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-        } else {
-            IntentIntegrator.forSupportFragment(this).initiateScan();
-        }
+//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+
+//            IntentIntegrator.forSupportFragment(this).initiateScan();
     }
 
     //alert dialog for downloadDialog

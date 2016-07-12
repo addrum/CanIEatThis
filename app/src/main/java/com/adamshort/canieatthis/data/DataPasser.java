@@ -25,7 +25,7 @@ public class DataPasser {
 
     private DataPasser(Context context) {
         DataPasser.setTracesFromFile(context);
-        
+
         firebaseIngredientsList = new ArrayList<>();
         Firebase ref = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
         ref.keepSynced(true);
