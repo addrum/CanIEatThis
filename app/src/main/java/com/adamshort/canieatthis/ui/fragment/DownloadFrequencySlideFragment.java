@@ -16,21 +16,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DownloadFrequencyFragment extends SlideFragment {
+public class DownloadFrequencySlideFragment extends SlideFragment {
 
-    public DownloadFrequencyFragment() {
+    public DownloadFrequencySlideFragment() {
         // Required empty public constructor
     }
 
-    public static DownloadFrequencyFragment newInstance() {
-        return new DownloadFrequencyFragment();
+    public static DownloadFrequencySlideFragment newInstance() {
+        return new DownloadFrequencySlideFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View root = inflater.inflate(R.layout.fragment_download_frequency, container, false);
+        View root = inflater.inflate(R.layout.fragment_download_frequency_slide, container, false);
 
         final Spinner updateFrequencySpinner = (Spinner) root.findViewById(R.id.updateFrequencySpinner);
         String[] updateCheckFrequencyArray = getResources().getStringArray(R.array.updateCheckFrequencyArray);

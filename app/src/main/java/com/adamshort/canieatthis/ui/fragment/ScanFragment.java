@@ -264,11 +264,6 @@ public class ScanFragment extends Fragment {
                     } else {
                         Snackbar.make(mCoordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
                         getBarcodeInformation(result.getContents());
-                        if (Utilities.hasInternetConnection(getContext())) {
-                            mFab.show();
-                        } else {
-                            Log.d("onActivityResult", "No internet connection, not showing fab");
-                        }
                     }
                 } else {
                     super.onActivityResult(requestCode, resultCode, intent);
@@ -425,6 +420,11 @@ public class ScanFragment extends Fragment {
                 }
                 if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
                     setTracesResponseTextBox(getString(R.string.noTracesFound));
+                }
+                if (Utilities.hasInternetConnection(getContext())) {
+                    mFab.show();
+                } else {
+                    Log.d("onActivityResult", "No internet connection, not showing fab");
                 }
             } else {
                 showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
