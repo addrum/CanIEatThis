@@ -83,7 +83,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                DataQuerier.getTraces());
+                DataPasser.getTraces());
         tracesTextView.setAdapter(tracesAdapter);
         tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
@@ -194,7 +194,7 @@ public class AddProductActivity extends AppCompatActivity {
                     // Set values for passing back to scan fragment
                     writtenTraces = ListHelper.stringToList(tracesText);
 
-                    List<String> traces = DataQuerier.getTraces();
+                    List<String> traces = DataPasser.getTraces();
 
                     String ingredients = ListHelper.listToString(compareTwoLists(ingredientsToDisplay, traces));
 

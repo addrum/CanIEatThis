@@ -9,20 +9,13 @@ import com.firebase.client.DataSnapshot;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class DataQuerier {
     private static DataQuerier mInstance = null;
-    public static List<String> traces;
 
     private DataQuerier(Activity activity) {
-        setTracesFromFile(activity);
     }
 
     public static DataQuerier getInstance(Activity activity) {
@@ -127,35 +120,11 @@ public class DataQuerier {
         return null;
     }
 
-    public static void setTracesFromFile(Activity activity) {
-        traces = new ArrayList<>();
-
-        BufferedReader reader;
-
-        try {
-            final InputStream file = activity.getAssets().open("traces.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                if (line != null) {
-                    traces.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
     public static String replaceSpecialChars(String s) {
         s = s.replaceAll("\\([^)]*\\)", "")
                 .replace("_", "")
                 .trim();
         return s;
-    }
-
-    public static List<String> getTraces() {
-        return traces;
     }
 
 }
