@@ -12,6 +12,7 @@ public class ListHelper {
 
     /**
      * Converts a string to a list using , as the delimiter. Also trims the list.
+     *
      * @param s
      */
     public static List<String> stringToList(String s) {
@@ -57,8 +58,9 @@ public class ListHelper {
 
     /**
      * Replaces an element in a list with a string based on regex param
+     *
      * @param ingredients the list to loop through
-     * @param regex the regex used to match an element
+     * @param regex       the regex used to match an element
      * @param replaceWith the string to replace the matched regex
      */
     public static List<String> removeUnwantedCharacters(List<String> ingredients, String regex, String replaceWith) {
@@ -80,7 +82,9 @@ public class ListHelper {
             String ing = list1.get(i).toLowerCase();
             for (int j = 0; j < list2.size(); j++) {
                 if (ing.contains(list2.get(j))) {
-                    list1.set(i, WordUtils.capitalize(ing.replace(list2.get(j), "_" + list2.get(j) + "_")));
+                    if (!ing.startsWith("_") && !ing.endsWith("_")) {
+                        list1.set(i, WordUtils.capitalize(ing.replace(list2.get(j), "_" + list2.get(j) + "_")));
+                    }
                 }
             }
         }

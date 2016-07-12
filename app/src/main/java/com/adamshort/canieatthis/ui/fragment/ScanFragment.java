@@ -184,31 +184,32 @@ public class ScanFragment extends Fragment {
 
     //product barcode mode
     public void scanBar() {
-//            getBarcodeInformation("7622210307668");
-//            McVities Digestives
-//            getBarcodeInformation("5000168001142");
-//            Tesco Orange Juice from Concentrate
-//            getBarcodeInformation("5051140367282");
-//            Muller Corner Choco Digestives
-//            getBarcodeInformation("4025500165574");
-//            Jammie Dodgers
-//            getBarcodeInformation("072417143700");
-//            Candy Crush Candy
-//            getBarcodeInformation("790310020");
-//            Honey Monster Puffs
-//            getBarcodeInformation("5060145250093");
-//            Salt and Vinegar Pringles -no info but is added to db
-//            getBarcodeInformation("5053990101863");
-//            lemonade
-//            getBarcodeInformation("0000000056434");
-//            maryland cookies
-//                getBarcodeInformation("072417136160");
-//            fab.show();
-//            go straight to add product
-//            Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
-//            startActivityForResult(intentDebug, FORM_REQUEST_CODE);
-
-            IntentIntegrator.forSupportFragment(this).initiateScan();
+//        empty product
+//        getBarcodeInformation("7622210307668");
+//        McVities Digestives
+//        getBarcodeInformation("5000168001142");
+//        Tesco Orange Juice from Concentrate
+//        getBarcodeInformation("5051140367282");
+//        Muller Corner Choco Digestives
+//        getBarcodeInformation("4025500165574");
+//        Jammie Dodgers
+//        getBarcodeInformation("072417143700");
+//        Candy Crush Candy
+//        getBarcodeInformation("790310020");
+//        Honey Monster Puffs
+//        getBarcodeInformation("5060145250093");
+//        Salt and Vinegar Pringles -no info but is added to db
+//        getBarcodeInformation("5053990101863");
+//        lemonade
+//        getBarcodeInformation("0000000056434");
+//        maryland cookies
+//        getBarcodeInformation("072417136160");
+//        fab.show();
+//        go straight to add product
+//        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
+//        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
+//
+        IntentIntegrator.forSupportFragment(this).initiateScan();
     }
 
     //alert dialog for downloadDialog
@@ -372,7 +373,7 @@ public class ScanFragment extends Fragment {
                 List<String> tracesToTest = ListHelper.stringToListAndTrim(traces);
 
                 List<String> ingredientsToDisplay = ListHelper.stringToList(ingredients);
-                ingredientsToDisplay = ListHelper.compareTwoLists(ingredientsToDisplay, DataPasser.getTraces());
+                ingredientsToDisplay = ListHelper.compareTwoLists(ingredientsToDisplay, DataPasser.getFirebaseTracesList());
                 List<String> tracesToDisplay = ListHelper.stringToList(traces);
 
                 boolean[] bools = processDataFirebase(ingredientsToTest, tracesToTest, snapshot);
@@ -511,7 +512,6 @@ public class ScanFragment extends Fragment {
 
     @Override
     public void onPause() {
-        Log.e("onPause", "OnPause of HomeFragment");
         isSearching = false;
         super.onPause();
     }

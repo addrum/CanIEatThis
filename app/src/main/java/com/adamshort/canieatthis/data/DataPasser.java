@@ -1,6 +1,5 @@
 package com.adamshort.canieatthis.data;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -10,26 +9,20 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataPasser {
-    public static List<String> traces;
+    private static List<String> firebaseIngredientsList;
+    private static List<String> firebaseTracesList;
+
     private static DataPasser mInstance = null;
 
-    private List<String> firebaseIngredientsList;
-
     private DataPasser(Context context) {
-        DataPasser.setTracesFromFile(context);
-
         firebaseIngredientsList = new ArrayList<>();
-        Firebase ref = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
-        ref.keepSynced(true);
-        ref.addValueEventListener(new ValueEventListener() {
+        Firebase ingredientsRef = new Firebase(context.getString(R.string.firebase_url) + "/ingredients");
+        ingredientsRef.keepSynced(true);
+        ingredientsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
@@ -41,6 +34,24 @@ public class DataPasser {
             public void onCancelled(FirebaseError error) {
             }
         });
+
+        firebaseTracesList = new ArrayList<>();
+        Firebase tracesRef = new Firebase(context.getString(R.string.firebase_url) + "/traces");
+        tracesRef.keepSynced(true);
+        tracesRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot tracesSnapshot : snapshot.getChildren()) {
+                    // traces are in array so it's safe to cast to List
+                    String traces = (String) tracesSnapshot.getValue();
+                    firebaseTracesList.add(traces);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
     }
 
     public static DataPasser getInstance(Context context) {
@@ -50,28 +61,9 @@ public class DataPasser {
         return mInstance;
     }
 
-    public static void setTracesFromFile(Context context) {
-        traces = new ArrayList<>();
-
-        BufferedReader reader;
-
-        try {
-            final InputStream file = context.getAssets().open("traces.txt");
-            reader = new BufferedReader(new InputStreamReader(file));
-            String line = reader.readLine();
-            while (line != null) {
-                line = reader.readLine();
-                if (line != null) {
-                    traces.add(line);
-                }
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
-
-    public static List<String> getTraces() {
-        return traces;
+    public static List<String> getFirebaseTracesList() {
+        Log.d("fbTracesList", firebaseTracesList.toString());
+        return firebaseTracesList;
     }
 
     public List<String> getFirebaseIngredientsList() {

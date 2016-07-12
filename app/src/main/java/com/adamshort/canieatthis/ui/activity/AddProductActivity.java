@@ -82,7 +82,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         tracesTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_traces);
         ArrayAdapter<String> tracesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                DataPasser.getTraces());
+                DataPasser.getFirebaseTracesList());
         tracesTextView.setAdapter(tracesAdapter);
         tracesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 
@@ -193,9 +193,7 @@ public class AddProductActivity extends AppCompatActivity {
                     // Set values for passing back to scan fragment
                     writtenTraces = ListHelper.stringToList(tracesText);
 
-                    List<String> traces = DataPasser.getTraces();
-
-                    String ingredients = ListHelper.listToString(ListHelper.compareTwoLists(ingredientsToDisplay, traces));
+                    String ingredients = ListHelper.listToString(ingredientsToDisplay);
 
                     String user_id = getString(R.string.open_food_facts_username);
                     String password = getString(R.string.open_food_facts_password);
