@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="160dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="12dp"
         android:alpha="0.75"
         android:background="#FFFFFF"
         android:padding="5dp"
@@ -33,12 +33,28 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="105dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="12dp"
         android:alpha="0.75"
         android:background="#FFFFFF"
         android:padding="5dp"
         android:text="@string/search"
         android:textSize="12sp"
+        app:layout_behavior="com.adamshort.canieatthis.util.FloatingActionButtonBehaviour"/>
+
+    <ImageView
+        android:id="@+id/myLocationButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="60dp"
+        android:layout_marginEnd="12dp"
+        android:alpha="0.75"
+        android:background="#FFFFFF"
+        android:contentDescription="@string/locationButtonContentDescription"
+        android:padding="5dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_my_location_black_24dp"
+        android:visibility="invisible"
         app:layout_behavior="com.adamshort.canieatthis.util.FloatingActionButtonBehaviour"/>
 
 </android.support.design.widget.CoordinatorLayout>
