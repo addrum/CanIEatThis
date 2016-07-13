@@ -54,7 +54,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.adamshort.canieatthis.data.DataQuerier.*;
+import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
+import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
 
 public class ScanFragment extends Fragment {
 
@@ -360,6 +361,7 @@ public class ScanFragment extends Fragment {
                             @Override
                             public void onClick(View view) {
                                 Utilities.downloadDatabase(getActivity(), getContext());
+                                Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
                             }
                         })
                         .show();
