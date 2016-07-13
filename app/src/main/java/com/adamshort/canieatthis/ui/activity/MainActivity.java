@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -185,12 +186,17 @@ public class MainActivity extends AppCompatActivity {
                     dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            Log.d("showDownloadPrompt", "Downloading CSV");
                             Utilities.downloadDatabase(MainActivity.this, getBaseContext());
                         }
                     });
                     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            Log.d("showDownloadPrompt", "Not downloading CSV, user clicked no. " +
+                                    "Setting timestamp to current time");
+                            Utilities.getInstance();
+                            Utilities.setTimestampPref(getBaseContext(), System.currentTimeMillis());
                         }
                     });
                     dialog.show();

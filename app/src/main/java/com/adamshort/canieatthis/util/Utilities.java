@@ -61,8 +61,8 @@ public class Utilities {
 
     public static String getFrequencyListPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean intro_shown = preferences.getBoolean("frequency_list_pref", false);
-        Log.d("getFrequencyListPref", "frequency_list_pref: " + intro_shown);
+        String frequency_list_pref = preferences.getString("frequency_list_pref", "0");
+        Log.d("getFrequencyListPref", "frequency_list_pref: " + frequency_list_pref);
         return preferences.getString("frequency_list_pref", "0");
     }
 
@@ -89,6 +89,21 @@ public class Utilities {
         Log.d("setTimesAskedForPerm", "times_asked: " + value);
     }
 
+    public static long getTimestampPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        long timestamp = preferences.getLong("timestamp", 0);
+        Log.d("getTimestampPref", "timestamp: " + timestamp);
+        return preferences.getLong("timestamp", 0);
+    }
+
+    public static void setTimestampPref(Context context, long value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("timestamp", value);
+        editor.apply();
+        Log.d("setTimestampPref", "timestamp: " + value);
+    }
+
     public static boolean hasInternetConnection(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -110,19 +125,16 @@ public class Utilities {
     }
 
     public static boolean isTimeForUpdatePrompt(Context context, Timestamp current) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        long lastPref = prefs.getLong("timestamp", current.getTime());
+        long lastPref = getTimestampPref(context);
         if (lastPref == 0) {
             // Pref is probably empty when app is first installed so set it to current time as default
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putLong("timestamp", System.currentTimeMillis());
-            editor.apply();
+            setTimestampPref(context, System.currentTimeMillis());
         }
         Timestamp last = new Timestamp(lastPref);
 
         Log.d("isTimeForUpdatePrompt", "Current: " + current.getTime() + " - Last: " + last.getTime());
 
-        String frequency = prefs.getString("frequency_list_pref", "0");
+        String frequency = getFrequencyListPref(context);
         Log.d("isTimeForUpdatePrompt", "Frequency is " + frequency);
 
         long days = TimeUnit.MILLISECONDS.toDays(current.getTime() - last.getTime());
@@ -130,21 +142,25 @@ public class Utilities {
 
         switch (frequency) {
             case "0":
-                if (days > 1) {
+                if (days > 0) {
+                    Log.d("isTimeForUpdatePrompt", "More than a day has passed, showing prompt");
                     return true;
                 }
                 break;
             case "1":
-                if (days > 7) {
+                if (days > 6) {
+                    Log.d("isTimeForUpdatePrompt", "More than a week has passed, showing prompt");
                     return true;
                 }
                 break;
             case "2":
-                if (days > 28) {
+                if (days > 27) {
+                    Log.d("isTimeForUpdatePrompt", "More than a month has passed, showing prompt");
                     return true;
                 }
                 break;
         }
+        Log.d("isTimeForUpdatePrompt", "Not enough time has past, not showing prompt");
         return false;
     }
 
