@@ -1,29 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".ui.activity.AddPlacesInfoActivity">
-
-    <TextView
-        android:id="@+id/name_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:id="@+id/lactose_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/name_view"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -31,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.12"
             android:gravity="center_vertical"
             android:text="@string/lactoseFreeQuestion"/>
 
@@ -50,7 +38,7 @@
         android:layout_below="@+id/lactose_layout"
         android:layout_gravity="center_horizontal"
         android:layout_marginEnd="10dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -58,7 +46,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.12"
             android:gravity="center_vertical"
             android:text="@string/vegetarianQuestion"/>
 
@@ -77,7 +65,7 @@
         android:layout_below="@+id/vegetarian_layout"
         android:layout_gravity="center_horizontal"
         android:layout_marginEnd="10dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -85,7 +73,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.12"
             android:gravity="center_vertical"
             android:text="@string/veganQuestion"/>
 
@@ -104,7 +92,7 @@
         android:layout_below="@+id/vegan_layout"
         android:layout_gravity="center_horizontal"
         android:layout_marginEnd="10dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="20dp"
         android:baselineAligned="false"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -112,7 +100,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.15"
+            android:layout_weight="0.12"
             android:gravity="center_vertical"
             android:text="@string/glutenFreeQuestion"/>
 
@@ -122,24 +110,6 @@
             android:layout_height="match_parent"
             android:checked="false"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/submit_button_linear_layout"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/gluten_layout"
-        android:layout_marginTop="25dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/place_submit_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/colorButton"
-            android:text="@string/productSubmitButtonText"
-            android:textColor="#ffffff"/>
     </LinearLayout>
 
 </RelativeLayout>

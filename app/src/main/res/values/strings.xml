@@ -75,4 +75,6 @@
     <string name="yes">yes</string>
     <string name="databaseDownloadOffline">Database will be downloaded next time you go online</string>
     <string name="locationButtonContentDescription">My Location Button</string>
+    <string name="placesDataSubmitted">Places data submitted successfully</string>
+    <string name="placesSubmittingError">There was an issue submitting info</string>
 </resources>

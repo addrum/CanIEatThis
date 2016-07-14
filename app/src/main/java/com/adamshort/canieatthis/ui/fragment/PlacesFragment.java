@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.Installation;
 import com.adamshort.canieatthis.ui.PopupAdapter;
-import com.adamshort.canieatthis.ui.activity.AddPlacesInfoActivity;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.DataSnapshot;
@@ -60,10 +59,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
-
+    private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 4;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-    private static final int FORM_REQUEST_CODE = 11;
     private static final float MY_LOCATION_ZOOM = 15;
 
     private static boolean mFromSearch;
@@ -234,10 +232,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     if (!Installation.isInInstallationFile(getContext(),
                             marker.getPosition().toString())) {
                         mShowMoreButton.setVisibility(View.INVISIBLE);
-                        Intent intent = new Intent(getContext(), AddPlacesInfoActivity.class);
-                        intent.putExtra("name", marker.getTitle());
-                        intent.putExtra("latlng", marker.getPosition().toString());
-                        startActivityForResult(intent, FORM_REQUEST_CODE);
+                        AddPlacesInfoDialogFragment dialog = new AddPlacesInfoDialogFragment();
+                        Bundle args = new Bundle();
+                        args.putString("name", marker.getTitle());
+                        args.putString("latlng", marker.getPosition().toString());
+                        dialog.setArguments(args);
+                        // http://stackoverflow.com/a/13733914/1860436
+                        dialog.setTargetFragment(PlacesFragment.this, ADD_PLACES_INFO_DIALOG_FRAGMENT);
+                        dialog.show(getFragmentManager().beginTransaction(), "AddPlacesInfoDialog");
                     } else {
                         Snackbar.make(mCoordinatorLayout, "You have already submitted information about this place"
                                 , Snackbar.LENGTH_LONG)
@@ -504,9 +506,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 // The user canceled the operation.
                 Log.i("onActivityResult", "result cancelled");
             }
-        } else if (requestCode == FORM_REQUEST_CODE) {
+        } else if (requestCode == ADD_PLACES_INFO_DIALOG_FRAGMENT) {
             if (resultCode == Activity.RESULT_OK) {
-                Snackbar.make(mCoordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mCoordinatorLayout, R.string.placesDataSubmitted, Snackbar.LENGTH_LONG).show();
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Snackbar.make(mCoordinatorLayout, R.string.placesSubmittingError, Snackbar.LENGTH_LONG).show();
             }
         }
     }
