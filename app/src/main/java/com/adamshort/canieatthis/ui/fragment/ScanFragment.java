@@ -54,7 +54,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.adamshort.canieatthis.data.DataQuerier.*;
+import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
+import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
 
 public class ScanFragment extends Fragment {
 
@@ -174,6 +175,9 @@ public class ScanFragment extends Fragment {
             }
             if (mIntroTextView != null) {
                 mIntroTextView.setVisibility(View.VISIBLE);
+            }
+            if (mFab != null) {
+                mFab.hide();
             }
         }
     }
@@ -360,6 +364,7 @@ public class ScanFragment extends Fragment {
                             @Override
                             public void onClick(View view) {
                                 Utilities.downloadDatabase(getActivity(), getContext());
+                                Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
                             }
                         })
                         .show();
@@ -542,6 +547,7 @@ public class ScanFragment extends Fragment {
         mIntroTextView.setVisibility(View.INVISIBLE);
 
         mActionMenu.findItem(R.id.action_search).collapseActionView();
+        mFab.show();
     }
 
     @Override
@@ -642,10 +648,10 @@ public class ScanFragment extends Fragment {
             matcher.appendTail(sb);
             Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mIngredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
             } else {
                 //noinspection deprecation
-                mIngredientResponseView.setText(Html.fromHtml(sb.toString()));
+                mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase()));
             }
         } else {
             mIngredientResponseView.setText(response);
@@ -658,7 +664,7 @@ public class ScanFragment extends Fragment {
      * @param response The traces of a product.
      */
     public void setTracesResponseTextBox(String response) {
-        mTracesResponseView.setText(response);
+        mTracesResponseView.setText(response.toLowerCase());
         mTracesResponseView.setVisibility(View.VISIBLE);
     }
 }

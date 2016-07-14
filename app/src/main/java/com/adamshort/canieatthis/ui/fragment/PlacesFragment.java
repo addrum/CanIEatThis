@@ -20,12 +20,11 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
 
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.data.Installation;
 import com.adamshort.canieatthis.ui.PopupAdapter;
-import com.adamshort.canieatthis.ui.activity.AddPlacesInfoActivity;
 import com.adamshort.canieatthis.util.QueryURLAsync;
 import com.adamshort.canieatthis.util.Utilities;
 import com.firebase.client.DataSnapshot;
@@ -60,10 +59,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
-
+    private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 4;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-    private static final int FORM_REQUEST_CODE = 11;
+    private static final float MY_LOCATION_ZOOM = 15;
 
     private static boolean mFromSearch;
 
@@ -79,6 +78,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private float mMapZoom = 15;
     private String mApiKey;
 
+    private ImageView mMyLocationButton;
     private Button mShowMoreButton;
     private CoordinatorLayout mCoordinatorLayout;
     private GoogleApiClient mGoogleApiClient;
@@ -100,6 +100,17 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMapView.onCreate(mapViewSavedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
+
+        mMyLocationButton = (ImageView) v.findViewById(R.id.myLocationButton);
+        mMyLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setUserLocation();
+                moveCamera(mMap, getLatLng(), MY_LOCATION_ZOOM);
+                createNearbyMarkers(mMap);
+                mFromSearch = false;
+            }
+        });
 
         mShowMoreButton = (Button) v.findViewById(R.id.showMoreButton);
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
@@ -124,14 +135,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 }
             }
         });
-
-        //HACK: Get the button view and place it on the bottom right (as Google Maps app)
-        //noinspection ResourceType
-        View locationButton = ((View) v.findViewById(1).getParent()).findViewById(2);
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 205); // left, top, right, bottom
 
         try {
             MapsInitializer.initialize(getContext());
@@ -173,10 +176,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * @param googleMap The map to move the camera of.
      * @param latLng    The position to move the camera too.
      */
-    private void moveCamera(GoogleMap googleMap, LatLng latLng) {
+    private void moveCamera(GoogleMap googleMap, LatLng latLng, float zoom) {
         if ((mIsVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng).zoom(mMapZoom).build();
+                    .target(latLng).zoom(zoom).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             Log.d("moveCamera", "Moving camera to: " + cameraPosition);
         }
@@ -195,7 +198,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 checkLocationPermission();
                 LatLng latLng = getLatLng();
                 if (latLng.latitude != 0 && latLng.longitude != 0) {
-                    moveCamera(mMap, getLatLng());
+                    moveCamera(mMap, getLatLng(), mMapZoom);
 
                     createNearbyMarkers(mMap);
                     if (mFromSearch) {
@@ -211,15 +214,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         Log.d("onMapReady", "Map is ready");
-        mMap = googleMap;
 
-        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+        googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
-            public boolean onMyLocationButtonClick() {
-                setUserLocation();
-                createNearbyMarkers(googleMap);
-                mFromSearch = false;
-                return false;
+            public void onCameraChange(CameraPosition cameraPosition) {
+                mMapZoom = cameraPosition.zoom;
             }
         });
 
@@ -233,10 +232,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     if (!Installation.isInInstallationFile(getContext(),
                             marker.getPosition().toString())) {
                         mShowMoreButton.setVisibility(View.INVISIBLE);
-                        Intent intent = new Intent(getContext(), AddPlacesInfoActivity.class);
-                        intent.putExtra("name", marker.getTitle());
-                        intent.putExtra("latlng", marker.getPosition().toString());
-                        startActivityForResult(intent, FORM_REQUEST_CODE);
+                        AddPlacesInfoDialogFragment dialog = new AddPlacesInfoDialogFragment();
+                        Bundle args = new Bundle();
+                        args.putString("name", marker.getTitle());
+                        args.putString("latlng", marker.getPosition().toString());
+                        dialog.setArguments(args);
+                        // http://stackoverflow.com/a/13733914/1860436
+                        dialog.setTargetFragment(PlacesFragment.this, ADD_PLACES_INFO_DIALOG_FRAGMENT);
+                        dialog.show(getFragmentManager().beginTransaction(), "AddPlacesInfoDialog");
                     } else {
                         Snackbar.make(mCoordinatorLayout, "You have already submitted information about this place"
                                 , Snackbar.LENGTH_LONG)
@@ -254,6 +257,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 return marker.getTitle().equals("custom");
             }
         });
+
+        mMap = googleMap;
     }
 
     /**
@@ -381,6 +386,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Log.d("checkLocationPref", "permission already granted");
+            mMyLocationButton.setVisibility(View.VISIBLE);
             setUserLocationSettings();
         } else {
             // Should we show an explanation?
@@ -411,6 +417,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     Log.d("checkLocationPer", "don't show permission again");
                 }
             }
+            mMyLocationButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -420,14 +427,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @SuppressWarnings("MissingPermission")
     private void setUserLocationSettings() {
         mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
         if (!mFromSearch) {
             setUserLocation();
         }
     }
 
     /**
-     * Gets the users last location.
+     * Sets the users last location.
      */
     @SuppressWarnings("MissingPermission")
     private void setUserLocation() {
@@ -487,7 +494,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 Place place = PlaceAutocomplete.getPlace(getContext(), data);
                 LatLng placeLatLng = place.getLatLng();
                 setLatLng(placeLatLng);
-                moveCamera(mMap, placeLatLng);
+                moveCamera(mMap, placeLatLng, mMapZoom);
                 createNearbyMarkers(mMap);
                 createCustomMarker(placeLatLng);
                 mFromSearch = true;
@@ -499,9 +506,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 // The user canceled the operation.
                 Log.i("onActivityResult", "result cancelled");
             }
-        } else if (requestCode == FORM_REQUEST_CODE) {
+        } else if (requestCode == ADD_PLACES_INFO_DIALOG_FRAGMENT) {
             if (resultCode == Activity.RESULT_OK) {
-                Snackbar.make(mCoordinatorLayout, "Places data submitted successfully", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(mCoordinatorLayout, R.string.placesDataSubmitted, Snackbar.LENGTH_LONG).show();
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Snackbar.make(mCoordinatorLayout, R.string.placesSubmittingError, Snackbar.LENGTH_LONG).show();
             }
         }
     }
@@ -537,6 +546,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mMap.clear();
             mMapZoom = mMap.getCameraPosition().zoom;
         }
+        mMyLocationButton.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -550,6 +560,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mMapZoom = mMap.getCameraPosition().zoom;
         }
         mIsGoogleConnected = false;
+        mMyLocationButton.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -570,6 +581,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
             Log.d("setUserVisibleHint", "PlacesFragment is visible.");
+            Log.d("setUserVisibleHint", "mMapZoom: " + mMapZoom);
             mIsVisible = true;
             if (!mPlacesRequestSubmitted) {
                 mPlacesRequestSubmitted = true;

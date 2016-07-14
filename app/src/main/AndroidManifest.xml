@@ -50,10 +50,6 @@
         <activity android:name=".ui.activity.AboutActivity">
         </activity>
         <activity
-            android:name=".ui.activity.AddPlacesInfoActivity"
-            android:noHistory="true">
-        </activity>
-        <activity
             android:name=".ui.activity.AppIntroActivity"
             android:theme="@style/Theme.Intro">
         </activity>

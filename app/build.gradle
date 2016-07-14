@@ -6,10 +6,10 @@ android {
 
     defaultConfig {
         applicationId "com.adamshort.canieatthis"
-        minSdkVersion 20
+        minSdkVersion 19
         targetSdkVersion 24
-        versionCode 165
-        versionName "1.6.5"
+        versionCode 171
+        versionName "1.7.1"
     }
     buildTypes {
         release {

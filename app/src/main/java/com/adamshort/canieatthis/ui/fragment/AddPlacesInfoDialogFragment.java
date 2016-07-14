@@ -1,17 +1,16 @@
-package com.adamshort.canieatthis.ui.activity;
+package com.adamshort.canieatthis.ui.fragment;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -26,71 +25,58 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 
-public class AddPlacesInfoActivity extends AppCompatActivity {
-
-    public static int RESULT_OK = 1;
-
+public class AddPlacesInfoDialogFragment extends DialogFragment {
     private LatLng mLatLng;
-    private CoordinatorLayout mCoordinatorLayout;
 
+    @NonNull
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_places_info);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        if (getResources().getBoolean(R.bool.portrait_only)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
-
-        final Context context = getBaseContext();
-
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.places_coordinator_layout);
-
-        Intent intent = getIntent();
-        String name = intent.getStringExtra("name");
-        String[] latLngStr = intent.getStringExtra("latlng").replace("lat/lng: ", "").replace("(", "")
+//        Intent intent = activity.getIntent()Z;
+        Bundle args = getArguments();
+        String name = args.getString("name");
+        //noinspection ConstantConditions
+        String[] latLngStr = args.getString("latlng").replace("lat/lng: ", "").replace("(", "")
                 .replace(")", "").split(",");
         mLatLng = new LatLng(Double.parseDouble(latLngStr[0]), Double.parseDouble(latLngStr[1]));
 
-        TextView nameView = (TextView) findViewById(R.id.name_view);
-        if (nameView != null) {
-            nameView.setText(name);
-        }
+        View view = inflater.inflate(R.layout.dialog_fragment_add_places_info, null);
 
-        final CheckBox dairy_free_checkbox = (CheckBox) findViewById(R.id.lactoseFreeCheckBox);
-        final CheckBox vegetarian_checkbox = (CheckBox) findViewById(R.id.vegetarianCheckBox);
-        final CheckBox vegan_checkbox = (CheckBox) findViewById(R.id.veganCheckBox);
-        final CheckBox gluten_free_checkbox = (CheckBox) findViewById(R.id.glutenFreeCheckBox);
+        final CheckBox dairy_free_checkbox = (CheckBox) view.findViewById(R.id.lactoseFreeCheckBox);
+        final CheckBox vegetarian_checkbox = (CheckBox) view.findViewById(R.id.vegetarianCheckBox);
+        final CheckBox vegan_checkbox = (CheckBox) view.findViewById(R.id.veganCheckBox);
+        final CheckBox gluten_free_checkbox = (CheckBox) view.findViewById(R.id.glutenFreeCheckBox);
 
-        Button submit = (Button) findViewById(R.id.place_submit_button);
-        if (submit != null) {
-            submit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        if (dairy_free_checkbox != null && vegetarian_checkbox != null &&
-                                vegan_checkbox != null && gluten_free_checkbox != null) {
-                            final boolean[] values;
+        builder.setView(inflater.inflate(R.layout.dialog_fragment_add_places_info, null))
+                .setTitle(name)
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            if (dairy_free_checkbox != null && vegetarian_checkbox != null &&
+                                    vegan_checkbox != null && gluten_free_checkbox != null) {
+                                final boolean[] values;
 
-                            values = new boolean[]{dairy_free_checkbox.isChecked(), vegetarian_checkbox.isChecked(),
-                                    vegan_checkbox.isChecked(), gluten_free_checkbox.isChecked()};
+                                values = new boolean[]{dairy_free_checkbox.isChecked(), vegetarian_checkbox.isChecked(),
+                                        vegan_checkbox.isChecked(), gluten_free_checkbox.isChecked()};
 
-                            FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
-                            fb.execute(values);
+                                FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
+                                fb.execute(values);
 
-                            // write latlng to install file so we know which places an installation
-                            // has submitted info for
-                            File file = new File(context.getFilesDir(), Installation.getInstallation());
-                            Installation.writeInstallationFile(file, "\n" + mLatLng.toString(), true);
+                                // write latlng to install file so we know which places an installation
+                                // has submitted info for
+                                File file = new File(getContext().getFilesDir(), Installation.getInstallation());
+                                Installation.writeInstallationFile(file, "\n" + mLatLng.toString(), true);
+                                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, getActivity().getIntent());
+                            }
+                        } catch (Exception e) {
+                            Log.e("onClick", e.toString());
                         }
-                    } catch (Exception e) {
-                        Log.e("onClick", e.toString());
                     }
-                }
-            });
-        }
+                });
+        return builder.create();
     }
 
     /**
@@ -166,17 +152,6 @@ public class AddPlacesInfoActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String response) {
-            if (response == null || response.equals("")) {
-                Log.d("onPostExecute", "Response was null or empty");
-                Snackbar.make(mCoordinatorLayout, "There was an issue submitting information. Please try again", Snackbar.LENGTH_LONG).show();
-                return;
-            }
-
-            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-            intent.putExtra("position", 1);
-            intent.putExtra("result", RESULT_OK);
-            setResult(Activity.RESULT_OK, intent);
-            finish();
         }
     }
 }

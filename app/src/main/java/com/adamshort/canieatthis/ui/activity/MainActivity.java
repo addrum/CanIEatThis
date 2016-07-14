@@ -112,61 +112,65 @@ public class MainActivity extends AppCompatActivity {
     private void createBroadcastCompleteReceiver() {
         Log.d("createBroadcast", "Registering download complete receiver");
         IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-        mDownloadCompleteReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-                Utilities.getInstance();
-                if (Utilities.getFileDownloader().getDownloadReference() == reference) {
-                    DownloadManager.Query query = new DownloadManager.Query();
-                    query.setFilterById(reference);
-                    Cursor cursor = Utilities.getDownloadManager().query(query);
-                    cursor.moveToFirst();
+        if (mDownloadCompleteReceiver != null) {
+            mDownloadCompleteReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    long reference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                    Utilities.getInstance();
+                    if (Utilities.getFileDownloader().getDownloadReference() == reference) {
+                        DownloadManager.Query query = new DownloadManager.Query();
+                        query.setFilterById(reference);
+                        Cursor cursor = Utilities.getDownloadManager().query(query);
+                        cursor.moveToFirst();
 
-                    int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                    int status = cursor.getInt(columnIndex);
-                    int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-                    int reason = cursor.getInt(columnReason);
+                        int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                        int status = cursor.getInt(columnIndex);
+                        int columnReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+                        int reason = cursor.getInt(columnReason);
 
-                    SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
+                        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
 
-                    switch (status) {
-                        case DownloadManager.STATUS_SUCCESSFUL:
-                            Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
-                            editor.putString("download_status", "downloaded");
-                            editor.apply();
-                            try {
-                                //noinspection ConstantConditions
-                                String internalDir = getExternalFilesDir(null).getPath();
-                                File from = new File(internalDir, "products.csv.tmp");
-                                File to = new File(internalDir, "products.csv");
-                                boolean success = from.renameTo(to);
-                                Log.d("DEBUG", "Renamed: " + success);
-                            } catch (NullPointerException e) {
-                                Log.e("createBroadcastComplete", "Couldn't get externalFilesDir: " + e.toString());
-                            }
-                            break;
-                        case DownloadManager.STATUS_FAILED:
-                            Log.d("onReceive", "Download failed: " + reason);
-                            Snackbar.make(mTabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
-                            editor.putString("download_status", "failed");
-                            break;
-                        case DownloadManager.STATUS_PAUSED:
-                            editor.putString("download_status", "paused");
-                            break;
-                        case DownloadManager.STATUS_PENDING:
-                            editor.putString("download_status", "pending");
-                            break;
-                        case DownloadManager.STATUS_RUNNING:
-                            editor.putString("download_status", "running");
-                            break;
+                        switch (status) {
+                            case DownloadManager.STATUS_SUCCESSFUL:
+                                Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
+                                editor.putString("download_status", "downloaded");
+                                editor.apply();
+                                try {
+                                    //noinspection ConstantConditions
+                                    String internalDir = getExternalFilesDir(null).getPath();
+                                    File from = new File(internalDir, "products.csv.tmp");
+                                    File to = new File(internalDir, "products.csv");
+                                    boolean success = from.renameTo(to);
+                                    Log.d("DEBUG", "Renamed: " + success);
+                                } catch (NullPointerException e) {
+                                    Log.e("createBroadcastComplete", "Couldn't get externalFilesDir: " + e.toString());
+                                }
+                                break;
+                            case DownloadManager.STATUS_FAILED:
+                                Log.d("onReceive", "Download failed: " + reason);
+                                Snackbar.make(mTabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
+                                editor.putString("download_status", "failed");
+                                break;
+                            case DownloadManager.STATUS_PAUSED:
+                                editor.putString("download_status", "paused");
+                                break;
+                            case DownloadManager.STATUS_PENDING:
+                                editor.putString("download_status", "pending");
+                                break;
+                            case DownloadManager.STATUS_RUNNING:
+                                editor.putString("download_status", "running");
+                                break;
+                        }
+                        cursor.close();
                     }
-                    cursor.close();
                 }
-            }
-        };
-        registerReceiver(mDownloadCompleteReceiver, intentFilter);
+            };
+            registerReceiver(mDownloadCompleteReceiver, intentFilter);
+        } else {
+            Log.e("createBroadcast", "mDownloadCompleteReceiver was null");
+        }
     }
 
     private void showDownloadPrompt() {
@@ -185,12 +189,17 @@ public class MainActivity extends AppCompatActivity {
                     dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            Log.d("showDownloadPrompt", "Downloading CSV");
                             Utilities.downloadDatabase(MainActivity.this, getBaseContext());
                         }
                     });
                     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            Log.d("showDownloadPrompt", "Not downloading CSV, user clicked no. " +
+                                    "Setting timestamp to current time");
+                            Utilities.getInstance();
+                            Utilities.setTimestampPref(getBaseContext(), System.currentTimeMillis());
                         }
                     });
                     dialog.show();
@@ -254,7 +263,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mDownloadCompleteReceiver);
+        if (mDownloadCompleteReceiver != null) {
+            unregisterReceiver(mDownloadCompleteReceiver);
+        } else {
+            Log.e("onPause", "mDownloadCompleteReceiver was null");
+        }
     }
 
     public void setPosition(int mPosition) {

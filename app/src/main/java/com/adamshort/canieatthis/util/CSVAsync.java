@@ -49,7 +49,7 @@ public class CSVAsync extends AsyncTask<File, Void, JSONObject> {
             settings.getFormat().setDelimiter('\t');
             settings.setMaxCharsPerColumn(10000);
             // limits to mBarcode, name, ingredients and traces
-            settings.selectIndexes(0, 7, 34, 39);
+            settings.selectFields("code", "product_name", "ingredients_text", "traces");
 
             CsvParser parser = new CsvParser(settings);
 
