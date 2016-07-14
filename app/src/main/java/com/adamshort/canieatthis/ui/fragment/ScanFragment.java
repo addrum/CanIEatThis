@@ -176,6 +176,9 @@ public class ScanFragment extends Fragment {
             if (mIntroTextView != null) {
                 mIntroTextView.setVisibility(View.VISIBLE);
             }
+            if (mFab != null) {
+                mFab.hide();
+            }
         }
     }
 
@@ -544,6 +547,7 @@ public class ScanFragment extends Fragment {
         mIntroTextView.setVisibility(View.INVISIBLE);
 
         mActionMenu.findItem(R.id.action_search).collapseActionView();
+        mFab.show();
     }
 
     @Override
