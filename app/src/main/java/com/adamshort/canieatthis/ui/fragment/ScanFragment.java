@@ -648,10 +648,10 @@ public class ScanFragment extends Fragment {
             matcher.appendTail(sb);
             Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mIngredientResponseView.setText(Html.fromHtml(sb.toString(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
             } else {
                 //noinspection deprecation
-                mIngredientResponseView.setText(Html.fromHtml(sb.toString()));
+                mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase()));
             }
         } else {
             mIngredientResponseView.setText(response);
@@ -664,7 +664,7 @@ public class ScanFragment extends Fragment {
      * @param response The traces of a product.
      */
     public void setTracesResponseTextBox(String response) {
-        mTracesResponseView.setText(response);
+        mTracesResponseView.setText(response.toLowerCase());
         mTracesResponseView.setVisibility(View.VISIBLE);
     }
 }
