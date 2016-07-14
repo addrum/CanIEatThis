@@ -234,7 +234,7 @@ public class AddProductActivity extends AppCompatActivity {
                         params += "100g";
                     }
 
-                    params += "&ingredients_text=" + ingredients + "&traces=" + mTracesText;
+                    params += "&ingredients_text=" + ingredients + "&traces=" + mTracesText.toLowerCase();
 
                     try {
                         String url = BASE_URL + params;
