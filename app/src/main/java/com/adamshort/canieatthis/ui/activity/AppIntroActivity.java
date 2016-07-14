@@ -77,7 +77,7 @@ public class AppIntroActivity extends IntroActivity {
                 .buttonCtaClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ActivityCompat.requestPermissions(getParent(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+                        ActivityCompat.requestPermissions(AppIntroActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
                     }
                 })
                 .build());
