@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.data;
+package com.adamshort.canieatthis.app.data;
 
 import android.content.Context;
 

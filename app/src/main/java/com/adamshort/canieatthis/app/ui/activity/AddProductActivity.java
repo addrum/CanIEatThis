@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.activity;
+package com.adamshort.canieatthis.app.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,11 +17,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.data.DataPasser;
-import com.adamshort.canieatthis.data.DataQuerier;
-import com.adamshort.canieatthis.util.ListHelper;
-import com.adamshort.canieatthis.util.QueryURLAsync;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.app.data.DataPasser;
+import com.adamshort.canieatthis.app.data.DataQuerier;
+import com.adamshort.canieatthis.app.util.ListHelper;
+import com.adamshort.canieatthis.app.util.QueryURLAsync;
+import com.adamshort.canieatthis.app.util.Utilities;
 
 import org.json.JSONException;
 import org.json.JSONObject;

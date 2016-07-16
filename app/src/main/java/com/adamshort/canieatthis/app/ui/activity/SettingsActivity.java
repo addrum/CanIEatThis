@@ -1,11 +1,11 @@
-package com.adamshort.canieatthis.ui.activity;
+package com.adamshort.canieatthis.app.ui.activity;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.ui.fragment.SettingsFragment;
+import com.adamshort.canieatthis.app.ui.fragment.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
 

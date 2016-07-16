@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.fragment;
+package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -31,13 +31,13 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.data.DataPasser;
-import com.adamshort.canieatthis.data.DataQuerier;
-import com.adamshort.canieatthis.ui.activity.AddProductActivity;
-import com.adamshort.canieatthis.util.CSVAsync;
-import com.adamshort.canieatthis.util.ListHelper;
-import com.adamshort.canieatthis.util.QueryURLAsync;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.app.data.DataPasser;
+import com.adamshort.canieatthis.app.data.DataQuerier;
+import com.adamshort.canieatthis.app.ui.activity.AddProductActivity;
+import com.adamshort.canieatthis.app.util.CSVAsync;
+import com.adamshort.canieatthis.app.util.ListHelper;
+import com.adamshort.canieatthis.app.util.QueryURLAsync;
+import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -54,8 +54,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.adamshort.canieatthis.data.DataQuerier.processDataFirebase;
-import static com.adamshort.canieatthis.data.DataQuerier.processIngredientFirebase;
+import static com.adamshort.canieatthis.app.data.DataQuerier.processDataFirebase;
+import static com.adamshort.canieatthis.app.data.DataQuerier.processIngredientFirebase;
 
 public class ScanFragment extends Fragment {
 
@@ -216,7 +216,7 @@ public class ScanFragment extends Fragment {
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
 //
-        IntentIntegrator.forSupportFragment(this).initiateScan();
+//        IntentIntegrator.forSupportFragment(this).initiateScan();
     }
 
     /**
@@ -544,6 +544,7 @@ public class ScanFragment extends Fragment {
 
         setDietaryCheckBoxes(bools[0], bools[1], bools[2], bools[3]);
         setCheckBoxesVisibility(View.VISIBLE);
+        setResponseItemsVisibility(View.INVISIBLE);
         mIntroTextView.setVisibility(View.INVISIBLE);
 
         mActionMenu.findItem(R.id.action_search).collapseActionView();

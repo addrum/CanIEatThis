@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.util;
+package com.adamshort.canieatthis.app.util;
 
 import android.os.AsyncTask;
 import android.util.Log;

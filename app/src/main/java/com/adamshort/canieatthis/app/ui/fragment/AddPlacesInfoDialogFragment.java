@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.fragment;
+package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -12,10 +12,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.TextView;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.data.Installation;
+import com.adamshort.canieatthis.app.data.Installation;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;

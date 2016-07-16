@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui;
+package com.adamshort.canieatthis.app.ui;
 
 /***
  * Copyright (c) 2012-2014 CommonsWare, LLC

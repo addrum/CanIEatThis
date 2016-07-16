@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.fragment;
+package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.app.util.Utilities;
 import com.heinrichreimersoftware.materialintro.app.SlideFragment;
 
 import java.util.ArrayList;

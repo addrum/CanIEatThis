@@ -10,7 +10,7 @@
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.adamshort.canieatthis.util.FloatingActionButtonBehaviour"/>
+        app:layout_behavior="com.adamshort.canieatthis.app.util.FloatingActionButtonBehaviour"/>
 
     <Button
         android:id="@+id/showMoreButton"
@@ -25,7 +25,7 @@
         android:text="@string/showMorePlaces"
         android:textSize="12sp"
         android:visibility="invisible"
-        app:layout_behavior="com.adamshort.canieatthis.util.FloatingActionButtonBehaviour"/>
+        app:layout_behavior="com.adamshort.canieatthis.app.util.FloatingActionButtonBehaviour"/>
 
     <Button
         android:id="@+id/searchButton"
@@ -39,7 +39,7 @@
         android:padding="5dp"
         android:text="@string/search"
         android:textSize="12sp"
-        app:layout_behavior="com.adamshort.canieatthis.util.FloatingActionButtonBehaviour"/>
+        app:layout_behavior="com.adamshort.canieatthis.app.util.FloatingActionButtonBehaviour"/>
 
     <ImageView
         android:id="@+id/myLocationButton"
@@ -55,6 +55,6 @@
         android:scaleType="center"
         android:src="@drawable/ic_my_location_black_24dp"
         android:visibility="invisible"
-        app:layout_behavior="com.adamshort.canieatthis.util.FloatingActionButtonBehaviour"/>
+        app:layout_behavior="com.adamshort.canieatthis.app.util.FloatingActionButtonBehaviour"/>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.activity;
+package com.adamshort.canieatthis.app.ui.activity;
 
 import android.app.AlertDialog;
 import android.app.DownloadManager;
@@ -22,11 +22,11 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.data.DataPasser;
-import com.adamshort.canieatthis.ui.fragment.PlacesFragment;
-import com.adamshort.canieatthis.ui.fragment.ScanFragment;
-import com.adamshort.canieatthis.util.FragmentHandler;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.app.data.DataPasser;
+import com.adamshort.canieatthis.app.ui.fragment.PlacesFragment;
+import com.adamshort.canieatthis.app.ui.fragment.ScanFragment;
+import com.adamshort.canieatthis.app.util.FragmentHandler;
+import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.Firebase;
 
 import java.io.File;

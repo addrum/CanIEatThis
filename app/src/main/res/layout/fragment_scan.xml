@@ -225,7 +225,7 @@
             android:text="@string/bottomButtonText"
             android:textColor="#ffffff"
             android:textSize="18sp"
-            app:layout_behavior="com.adamshort.canieatthis.ui.FloatingActionButtonBehaviour"/>
+            app:layout_behavior="com.adamshort.canieatthis.app.ui.FloatingActionButtonBehaviour"/>
 
     </RelativeLayout>
 

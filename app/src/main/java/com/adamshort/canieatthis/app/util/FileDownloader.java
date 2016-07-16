@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.util;
+package com.adamshort.canieatthis.app.util;
 
 import android.app.Activity;
 import android.app.DownloadManager;

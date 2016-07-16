@@ -1,8 +1,8 @@
-package com.adamshort.canieatthis.data;
+package com.adamshort.canieatthis.app.data;
 
 import android.util.Log;
 
-import com.adamshort.canieatthis.util.ListHelper;
+import com.adamshort.canieatthis.app.util.ListHelper;
 import com.firebase.client.DataSnapshot;
 
 import org.json.JSONException;
