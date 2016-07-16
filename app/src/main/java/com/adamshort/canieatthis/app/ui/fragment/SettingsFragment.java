@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.fragment;
+package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

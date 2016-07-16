@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.activity;
+package com.adamshort.canieatthis.app.ui.activity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;

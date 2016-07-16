@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.util;
+package com.adamshort.canieatthis.app.util;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

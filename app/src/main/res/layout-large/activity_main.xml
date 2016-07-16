@@ -9,7 +9,7 @@
     <!-- "Fragment A" -->
     <fragment
         android:id="@+id/scan_frag"
-        class="com.adamshort.canieatthis.ui.fragment.ScanFragment"
+        class="com.adamshort.canieatthis.app.ui.fragment.ScanFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -18,7 +18,7 @@
     <!-- "Fragment B" -->
     <fragment
         android:id="@+id/places_frag"
-        class="com.adamshort.canieatthis.ui.fragment.PlacesFragment"
+        class="com.adamshort.canieatthis.app.ui.fragment.PlacesFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"

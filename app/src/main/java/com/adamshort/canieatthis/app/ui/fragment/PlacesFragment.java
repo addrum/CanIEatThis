@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.fragment;
+package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,10 +23,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.data.Installation;
-import com.adamshort.canieatthis.ui.PopupAdapter;
-import com.adamshort.canieatthis.util.QueryURLAsync;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.app.data.Installation;
+import com.adamshort.canieatthis.app.ui.PopupAdapter;
+import com.adamshort.canieatthis.app.util.QueryURLAsync;
+import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;

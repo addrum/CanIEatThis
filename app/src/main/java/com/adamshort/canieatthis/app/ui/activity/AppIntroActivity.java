@@ -1,4 +1,4 @@
-package com.adamshort.canieatthis.ui.activity;
+package com.adamshort.canieatthis.app.ui.activity;
 
 import android.Manifest;
 import android.content.pm.ActivityInfo;
@@ -7,9 +7,9 @@ import android.support.v4.app.ActivityCompat;
 import android.view.View;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.ui.fragment.DownloadFrequencySlideFragment;
-import com.adamshort.canieatthis.ui.fragment.LocationPermissionSlideFragment;
-import com.adamshort.canieatthis.util.Utilities;
+import com.adamshort.canieatthis.app.ui.fragment.DownloadFrequencySlideFragment;
+import com.adamshort.canieatthis.app.ui.fragment.LocationPermissionSlideFragment;
+import com.adamshort.canieatthis.app.util.Utilities;
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 import com.heinrichreimersoftware.materialintro.app.NavigationPolicy;
 import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
