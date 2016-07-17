@@ -74,6 +74,66 @@ public class Utilities {
         Log.d("setFrequencyListPref", "frequency_list_pref: " + value);
     }
 
+    public static boolean getLactoseFreePref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("lactose_free_pref", true);
+        Log.d("getLactoseFreePref", "lactose_free_pref: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setLactoseFreePref(Context context, boolean lactose) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("lactose_free_pref", lactose);
+        editor.apply();
+        Log.d("setLactoseFreePref", "lactose_free_pref: " + lactose);
+    }
+
+    public static boolean getVegetarianPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("vegetarian_pref", true);
+        Log.d("getVegetarianPref", "vegetarian_pref: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setVegetarianPref(Context context, boolean vegetarian) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("vegetarian_pref", vegetarian);
+        editor.apply();
+        Log.d("setVegetarianPref", "vegetarian_pref: " + vegetarian);
+    }
+
+    public static boolean getVeganPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("vegan_pref", true);
+        Log.d("getVeganPref", "vegan_pref: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setVegeanPref(Context context, boolean vegan) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("vegan_pref", vegan);
+        editor.apply();
+        Log.d("setVegeanPref", "vegan_pref " + vegan);
+    }
+
+    public static boolean getGlutenFreePref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("gluten_free_pref", true);
+        Log.d("getGlutenFreePref", "vegan_pref: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setGlutenFreePref(Context context, boolean glutenFree) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("gluten_free_pref", glutenFree);
+        editor.apply();
+        Log.d("setGlutenFreePref", "gluten_free_pref " + glutenFree);
+    }
+
     public static int getTimesAskedForPermPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         int times_asked = preferences.getInt("times_asked", 0);

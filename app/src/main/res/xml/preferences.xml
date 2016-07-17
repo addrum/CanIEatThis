@@ -5,16 +5,41 @@
     android:layout_height="match_parent">
 
     <SwitchPreference
+        android:defaultValue="true"
         android:key="download_switch_pref"
-        android:title="@string/checkForUpdates"
-        android:defaultValue="true"/>
+        android:title="@string/checkForUpdates"/>
 
     <ListPreference
-        android:key="frequency_list_pref"
-        android:title="@string/updateCheckFrequency"
-        android:summary="%s"
+        android:defaultValue="0"
         android:entries="@array/updateCheckFrequencyArray"
         android:entryValues="@array/updateCheckFrequencyValues"
-        android:defaultValue="0"/>
+        android:key="frequency_list_pref"
+        android:summary="%s"
+        android:title="@string/updateCheckFrequency"/>
+
+    <PreferenceCategory
+        android:title="@string/dietaryPreferencesTitle">
+
+        <CheckBoxPreference
+            android:key="lactose_free_pref"
+            android:summary="@string/lactosePrefSummary"
+            android:title="@string/lactoseFreePrefTitle"/>
+
+        <CheckBoxPreference
+            android:key="vegetarian_pref"
+            android:summary="@string/vegetarianPrefSummary"
+            android:title="@string/vegetarianPrefTitle"/>
+
+        <CheckBoxPreference
+            android:key="vegan_pref"
+            android:summary="@string/veganPrefSummary"
+            android:title="@string/veganPrefTitle"/>
+
+        <CheckBoxPreference
+            android:key="gluten_free_pref"
+            android:summary="@string/glutenFreePrefSummary"
+            android:title="Gluten Free"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

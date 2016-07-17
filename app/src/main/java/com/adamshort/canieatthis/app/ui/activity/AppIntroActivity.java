@@ -9,9 +9,9 @@ import android.view.View;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.ui.fragment.DownloadFrequencySlideFragment;
 import com.adamshort.canieatthis.app.ui.fragment.LocationPermissionSlideFragment;
+import com.adamshort.canieatthis.app.ui.fragment.UserPreferencesSlideFragment;
 import com.adamshort.canieatthis.app.util.Utilities;
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
-import com.heinrichreimersoftware.materialintro.app.NavigationPolicy;
 import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
 
@@ -27,18 +27,6 @@ public class AppIntroActivity extends IntroActivity {
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-
-        setNavigationPolicy(new NavigationPolicy() {
-            @Override
-            public boolean canGoForward(int position) {
-                return true;
-            }
-
-            @Override
-            public boolean canGoBackward(int position) {
-                return true;
-            }
-        });
 
         addSlide(new SimpleSlide.Builder()
                 .title(R.string.slide1Title)
@@ -80,6 +68,12 @@ public class AppIntroActivity extends IntroActivity {
                         ActivityCompat.requestPermissions(AppIntroActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
                     }
                 })
+                .build());
+
+        addSlide(new FragmentSlide.Builder()
+                .background(R.color.colorPrimary)
+                .backgroundDark(R.color.colorPrimaryDark)
+                .fragment(UserPreferencesSlideFragment.newInstance())
                 .build());
     }
 }

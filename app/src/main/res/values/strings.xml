@@ -77,4 +77,15 @@
     <string name="locationButtonContentDescription">My Location Button</string>
     <string name="placesDataSubmitted">Places data submitted successfully</string>
     <string name="placesSubmittingError">There was an issue submitting info</string>
+    <string name="dietaryPreferencesTitle">Dietary Preferences</string>
+    <string name="lactoseFreePrefTitle">Lactose Free</string>
+    <string name="vegetarianPrefTitle">Vegetarian</string>
+    <string name="lactosePrefSummary">Do you need to avoid lactose?</string>
+    <string name="vegetarianPrefSummary">Are you vegetarian?</string>
+    <string name="veganPrefTitle">Vegan</string>
+    <string name="veganPrefSummary">Are you vegan?</string>
+    <string name="glutenFreePrefSummary">Do you need to avoid gluten?</string>
+    <string name="slide5Title">About You!</string>
+    <string name="slide5Desc">Check the boxes below to set your preferences. These are used throughout the app to personalise the experience.</string>
+    <string name="slide5TableTitle">Are you:</string>
 </resources>
