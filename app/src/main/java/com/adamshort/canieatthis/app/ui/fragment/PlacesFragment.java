@@ -800,7 +800,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                             snippet = sb.toString();
                                         } else {
-                                            snippet += ",Gluten Free: ";
+                                            snippet += ",Celiac: ";
                                             if (gluten_true > gluten_false) {
                                                 snippet += "Yes";
                                             } else {
@@ -816,9 +816,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         }
                     }
                     if (!snippet.contains("Lactose Free")
-                            || !snippet.contains("Vegetarian")
-                            || !snippet.contains("Vegan")
-                            || !snippet.contains("Gluten Free")) {
+                            && !snippet.contains("Vegetarian")
+                            && !snippet.contains("Vegan")
+                            && !snippet.contains("Celiac")) {
                         snippet += getString(R.string.noInfoOnPlace);
                     }
                     Context context = getContext();
