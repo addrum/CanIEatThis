@@ -34,7 +34,7 @@ import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.DataQuerier;
 import com.adamshort.canieatthis.app.ui.activity.AddProductActivity;
-import com.adamshort.canieatthis.app.util.CSVAsync;
+import com.adamshort.canieatthis.app.util.CSVReaderAsync;
 import com.adamshort.canieatthis.app.util.ListHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
 import com.adamshort.canieatthis.app.util.Utilities;
@@ -216,7 +216,16 @@ public class ScanFragment extends Fragment {
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
 //
-        IntentIntegrator.forSupportFragment(this).initiateScan();
+        if (Utilities.hasInternetConnection(getContext())) {
+            IntentIntegrator.forSupportFragment(this).initiateScan();
+        } else {
+            File products = getCSVIFExists();
+            if (products != null) {
+                IntentIntegrator.forSupportFragment(this).initiateScan();
+            } else {
+                showNoDatabaseFileScackBar();
+            }
+        }
     }
 
     /**
@@ -329,45 +338,34 @@ public class ScanFragment extends Fragment {
             rh.execute(getString(R.string.offBaseUrl) + barcode + EXTENSION);
         } else {
             Log.d("getBarcodeInformation", "going to try and query csv file");
-            File products = null;
-            try {
-//                noinspection ConstantConditions
-                products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
-            } catch (NullPointerException e) {
-                Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
-            }
-            if (products != null && products.exists()) {
-                CSVAsync csvAsync = new CSVAsync(barcode, mProgressBar, new CSVAsync.AsyncResponse() {
+            File products = getCSVIFExists();
+            if (products != null) {
+                CSVReaderAsync csvReaderAsync = new CSVReaderAsync(barcode, mProgressBar, getContext(), getActivity(), new CSVReaderAsync.AsyncResponse() {
                     @Override
                     public void processFinish(final JSONObject output) {
-                        Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
-                        ref.keepSynced(true);
-                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot snapshot) {
-                                queryData(snapshot, output);
-                            }
+                        if (output == null) {
+                            showNoDatabaseFileScackBar();
+                        } else {
+                            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
+                            ref.keepSynced(true);
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    queryData(snapshot, output);
+                                }
 
-                            @Override
-                            public void onCancelled(FirebaseError error) {
-                            }
-                        });
+                                @Override
+                                public void onCancelled(FirebaseError error) {
+                                }
+                            });
+                        }
                         mIsSearching = false;
                     }
                 });
-                csvAsync.execute(products);
+                csvReaderAsync.execute(products);
             } else {
                 mIsSearching = false;
-                Log.e("getBarcodeInformation", "Couldn't find file");
-                Snackbar.make(mCoordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Download", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Utilities.downloadDatabase(getActivity(), getContext());
-                                Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
-                            }
-                        })
-                        .show();
+                showNoDatabaseFileScackBar();
             }
         }
     }
@@ -549,6 +547,33 @@ public class ScanFragment extends Fragment {
 
         mActionMenu.findItem(R.id.action_search).collapseActionView();
         mFab.show();
+    }
+
+    private File getCSVIFExists() {
+        File products = null;
+        try {
+            // noinspection ConstantConditions
+            products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
+        } catch (
+                NullPointerException e
+                ) {
+            Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
+        }
+
+        return products;
+    }
+
+    private void showNoDatabaseFileScackBar() {
+        Log.e("getBarcodeInformation", "Couldn't find file");
+        Snackbar.make(mCoordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
+                .setAction("Download", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Utilities.downloadDatabase(getActivity(), getContext());
+                        Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
+                    }
+                })
+                .show();
     }
 
     @Override

@@ -18,8 +18,8 @@
     <string name="energyPerHint">Energy (kJ)</string>
     <string name="energyPerServingHint">Energy Per Serving</string>
     <string name="fineLocationRationale">Access to your location is required to find places near you!</string>
-    <string name="glutenFreeQuestion">Does this place have a gluten free option?</string>
-    <string name="glutenFreeSwitchText">Gluten Free</string>
+    <string name="glutenFreeQuestion">Does this place have an option suitable for celiac\'s?</string>
+    <string name="glutenFreeSwitchText">Celiac</string>
     <string name="goToAppSettings">Go to app settings to enable access to your location</string>
     <string name="grantPermissionText">Grant Permission</string>
     <string name="helpErrorText">Please describe any issues you are having, or tap outside the box to dismiss this window.</string>
@@ -77,4 +77,16 @@
     <string name="locationButtonContentDescription">My Location Button</string>
     <string name="placesDataSubmitted">Places data submitted successfully</string>
     <string name="placesSubmittingError">There was an issue submitting info</string>
+    <string name="dietaryPreferencesTitle">Dietary Preferences</string>
+    <string name="lactoseFreePrefTitle">Lactose Free</string>
+    <string name="vegetarianPrefTitle">Vegetarian</string>
+    <string name="lactosePrefSummary">Do you need to avoid lactose?</string>
+    <string name="vegetarianPrefSummary">Are you vegetarian?</string>
+    <string name="veganPrefTitle">Vegan</string>
+    <string name="veganPrefSummary">Are you vegan?</string>
+    <string name="glutenFreePrefSummary">Are you a celiac?</string>
+    <string name="slide5Title">About You!</string>
+    <string name="slide5Desc">Check the boxes below to set your preferences. These are used throughout the app to personalise the experience (including showing places to eat near you).</string>
+    <string name="slide5TableTitle">Are you:</string>
+    <string name="noInfoOnPlace">We currently don\'t have enough information about this place.</string>
 </resources>

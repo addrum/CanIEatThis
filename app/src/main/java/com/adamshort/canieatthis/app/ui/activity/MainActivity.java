@@ -26,10 +26,10 @@ import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.ui.fragment.PlacesFragment;
 import com.adamshort.canieatthis.app.ui.fragment.ScanFragment;
 import com.adamshort.canieatthis.app.util.FragmentHandler;
+import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.Firebase;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         Firebase.setAndroidContext(getBaseContext());
 
         // show intro if not shown before
-        if (!Utilities.getIntroShownPref(getBaseContext())) {
+        if (!PreferencesHelper.getIntroShownPref(getBaseContext())) {
             Log.d("onCreate", "Showing intro activity");
             Intent intent = new Intent(this, AppIntroActivity.class);
             startActivityForResult(intent, APP_INTRO_REQUEST_CODE);
@@ -137,16 +137,6 @@ public class MainActivity extends AppCompatActivity {
                                 Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
                                 editor.putString("download_status", "downloaded");
                                 editor.apply();
-                                try {
-                                    //noinspection ConstantConditions
-                                    String internalDir = getExternalFilesDir(null).getPath();
-                                    File from = new File(internalDir, "products.csv.tmp");
-                                    File to = new File(internalDir, "products.csv");
-                                    boolean success = from.renameTo(to);
-                                    Log.d("DEBUG", "Renamed: " + success);
-                                } catch (NullPointerException e) {
-                                    Log.e("createBroadcastComplete", "Couldn't get externalFilesDir: " + e.toString());
-                                }
                                 break;
                             case DownloadManager.STATUS_FAILED:
                                 Log.d("onReceive", "Download failed: " + reason);
@@ -175,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showDownloadPrompt() {
         if (Utilities.hasInternetConnection(getBaseContext())) {
-            boolean downloadDatabasePref = Utilities.getDownloadSwitchPref(getBaseContext());
+            boolean downloadDatabasePref = PreferencesHelper.getDownloadSwitchPref(getBaseContext());
             Log.d("showDownloadPrompt", "Should download database: " + downloadDatabasePref);
 
             if (downloadDatabasePref) {
@@ -199,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("showDownloadPrompt", "Not downloading CSV, user clicked no. " +
                                     "Setting timestamp to current time");
                             Utilities.getInstance();
-                            Utilities.setTimestampPref(getBaseContext(), System.currentTimeMillis());
+                            PreferencesHelper.setTimestampPref(getBaseContext(), System.currentTimeMillis());
                         }
                     });
                     dialog.show();
@@ -217,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             // Make sure the request was successful
             case APP_INTRO_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    Utilities.setIntroShownPref(this, true);
+                    PreferencesHelper.setIntroShownPref(this, true);
                 }
                 break;
             default:

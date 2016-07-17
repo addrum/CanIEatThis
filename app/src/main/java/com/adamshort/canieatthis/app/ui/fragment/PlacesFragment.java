@@ -2,6 +2,7 @@ package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -25,6 +26,7 @@ import android.widget.ImageView;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.Installation;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
+import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
 import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.DataSnapshot;
@@ -105,9 +107,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMyLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                double lat = mLat;
+                double lng = mLng;
                 setUserLocation();
                 moveCamera(mMap, getLatLng(), MY_LOCATION_ZOOM);
-                createNearbyMarkers(mMap);
+                if (locationIsMoreThan2MetersAway(lat, lng)) {
+                    createNearbyMarkers(mMap);
+                }
                 mFromSearch = false;
             }
         });
@@ -411,12 +417,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             }
                         }).show();
             } else {
-                int timesAsked = Utilities.getTimesAskedForPermPref(getContext());
+                int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
                 if (timesAsked < 2) {
                     requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                             MY_PERMISSION_ACCESS_FINE_LOCATION);
                     timesAsked += 1;
-                    Utilities.setTimesAskedForPermPref(getContext(), timesAsked);
+                    PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
                 } else {
                     Log.d("checkLocationPer", "don't show permission again");
                 }
@@ -490,6 +496,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    private boolean locationIsMoreThan2MetersAway(double lat, double lng) {
+        Location loc = new Location("");
+        loc.setLatitude(lat);
+        loc.setLongitude(lng);
+
+        Location user = new Location("");
+        user.setLatitude(mLat);
+        user.setLongitude(mLng);
+        float distanceInMeters = loc.distanceTo(user);
+        return distanceInMeters > 2;
+    }
+
     // http://stackoverflow.com/a/10407371/1860436
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -497,10 +515,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             if (resultCode == Activity.RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(getContext(), data);
                 LatLng placeLatLng = place.getLatLng();
+                double lat = mLat;
+                double lng = mLng;
                 setLatLng(placeLatLng);
-                moveCamera(mMap, placeLatLng, mMapZoom);
-                createNearbyMarkers(mMap);
-                createCustomMarker(placeLatLng);
+                if (locationIsMoreThan2MetersAway(lat, lng)) {
+                    moveCamera(mMap, placeLatLng, mMapZoom);
+                    createNearbyMarkers(mMap);
+                    createCustomMarker(placeLatLng);
+                }
                 mFromSearch = true;
                 Log.i("onActivityResult", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -669,6 +691,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 @SuppressWarnings("unchecked")
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
+                    Boolean[] bools = new Boolean[]{null, null, null, null};
                     LatLng markerLatLng = marker.getPosition();
                     String snippet = marker.getSnippet();
                     Pattern lactosePattern = Pattern.compile("Lactose Free:\\s(\\w*)");
@@ -713,6 +736,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[0] = lactose_true > lactose_false;
 
                                     Map<String, Object> vegetarian = loc.get("vegetarian");
                                     long vegetarian_true = getKeyValue(vegetarian, "true");
@@ -736,6 +760,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[1] = vegetarian_true > vegetarian_false;
 
                                     Map<String, Object> vegan = loc.get("vegan");
                                     long vegan_true = getKeyValue(vegan, "true");
@@ -759,6 +784,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[2] = vegan_true > vegan_false;
 
                                     Map<String, Object> gluten = loc.get("gluten_free");
                                     long gluten_true = getKeyValue(gluten, "true");
@@ -774,7 +800,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                             snippet = sb.toString();
                                         } else {
-                                            snippet += ",Gluten Free: ";
+                                            snippet += ",Celiac: ";
                                             if (gluten_true > gluten_false) {
                                                 snippet += "Yes";
                                             } else {
@@ -782,14 +808,46 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[3] = gluten_true > gluten_false;
                                 } catch (Exception e) {
                                     Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
                                 }
                             }
                         }
                     }
-                    marker.snippet(snippet);
-                    mMap.addMarker(marker);
+                    if (!snippet.contains("Lactose Free")
+                            && !snippet.contains("Vegetarian")
+                            && !snippet.contains("Vegan")
+                            && !snippet.contains("Celiac")) {
+                        snippet += getString(R.string.noInfoOnPlace);
+                    }
+                    Context context = getContext();
+                    boolean lactosePref = PreferencesHelper.getLactoseFreePref(context);
+                    boolean vegetarianPref = PreferencesHelper.getVegetarianPref(context);
+                    boolean veganPref = PreferencesHelper.getVeganPref(context);
+                    boolean glutenPref = PreferencesHelper.getGlutenFreePref(context);
+                    Boolean lac = bools[0];
+                    Boolean veg = bools[1];
+                    Boolean vegan = bools[2];
+                    Boolean glu = bools[3];
+                    if ((!lactosePref && !vegetarianPref && !veganPref && !glutenPref)
+                            || (lactosePref && (lac == null || lac))
+                            || (vegetarianPref && (veg == null || veg))
+                            || (veganPref && (vegan == null || vegan))
+                            || (glutenPref && (glu == null || glu))) {
+                        marker.snippet(snippet);
+                        mMap.addMarker(marker);
+                    } else {
+                        Log.d("onDataChange", "Not adding marker. Name: " + marker.getTitle()
+                                + " lactosePref: " + lactosePref
+                                + " vegetarianPref: " + vegetarianPref
+                                + " veganPref: " + veganPref
+                                + " glutenPref: " + glutenPref
+                                + " lac: " + lac
+                                + " veg: " + veg
+                                + " vegan: " + vegan
+                                + " glu: " + glu);
+                    }
                 }
 
                 @Override

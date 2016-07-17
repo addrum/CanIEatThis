@@ -22,7 +22,7 @@ public class LocationPermissionSlideFragment extends SlideFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_download_frequency_slide, container, false);
+        return inflater.inflate(R.layout.fragment_location_permission_slide, container, false);
     }
 
     @Override
