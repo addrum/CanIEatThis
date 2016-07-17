@@ -8,7 +8,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.app.util.Utilities;
+import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.heinrichreimersoftware.materialintro.app.SlideFragment;
 
 public class UserPreferencesSlideFragment extends SlideFragment {
@@ -35,28 +35,28 @@ public class UserPreferencesSlideFragment extends SlideFragment {
         lactoseCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Utilities.setLactoseFreePref(getContext(), b);
+                PreferencesHelper.setLactoseFreePref(getContext(), b);
             }
         });
 
         vegetarianCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Utilities.setVegetarianPref(getContext(), b);
+                PreferencesHelper.setVegetarianPref(getContext(), b);
             }
         });
 
         veganCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Utilities.setVegeanPref(getContext(), b);
+                PreferencesHelper.setVegeanPref(getContext(), b);
             }
         });
 
         glutenCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Utilities.setGlutenFreePref(getContext(), b);
+                PreferencesHelper.setGlutenFreePref(getContext(), b);
             }
         });
 

@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.adamshort.canieatthis.R;
-import com.adamshort.canieatthis.app.util.Utilities;
+import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.heinrichreimersoftware.materialintro.app.SlideFragment;
 
 import java.util.ArrayList;
@@ -45,17 +45,17 @@ public class DownloadFrequencySlideFragment extends SlideFragment {
         }
 
         // set default to checking daily for updates
-        Utilities.setDownloadSwitchPref(getContext(), true);
-        Utilities.setFrequencyListPref(getContext(), "0");
+        PreferencesHelper.setDownloadSwitchPref(getContext(), true);
+        PreferencesHelper.setFrequencyListPref(getContext(), "0");
 
         if (updateFrequencySpinner != null) {
             updateFrequencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                     if (id == 3) {
-                        Utilities.setDownloadSwitchPref(getContext(), false);
+                        PreferencesHelper.setDownloadSwitchPref(getContext(), false);
                     } else {
-                        Utilities.setFrequencyListPref(getContext(), Long.toString(id));
+                        PreferencesHelper.setFrequencyListPref(getContext(), Long.toString(id));
                     }
                 }
 

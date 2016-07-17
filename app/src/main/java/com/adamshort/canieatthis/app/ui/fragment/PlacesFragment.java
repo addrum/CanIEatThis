@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.Installation;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
+import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
 import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.DataSnapshot;
@@ -407,12 +408,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             }
                         }).show();
             } else {
-                int timesAsked = Utilities.getTimesAskedForPermPref(getContext());
+                int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
                 if (timesAsked < 2) {
                     requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                             MY_PERMISSION_ACCESS_FINE_LOCATION);
                     timesAsked += 1;
-                    Utilities.setTimesAskedForPermPref(getContext(), timesAsked);
+                    PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
                 } else {
                     Log.d("checkLocationPer", "don't show permission again");
                 }
