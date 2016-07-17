@@ -46,7 +46,7 @@ public class Utilities {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
                 mFileDownloader = FileDownloader.getInstance(activity, mDownloadManager,
-                        context.getString(R.string.csvURL), "products.csv.tmp");
+                        context.getString(R.string.csvURL), "products.csv");
 
                 // Update timestamp since we've downloaded a new one
                 SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);

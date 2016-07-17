@@ -30,7 +30,6 @@ import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.Firebase;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,16 +137,6 @@ public class MainActivity extends AppCompatActivity {
                                 Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
                                 editor.putString("download_status", "downloaded");
                                 editor.apply();
-                                try {
-                                    //noinspection ConstantConditions
-                                    String internalDir = getExternalFilesDir(null).getPath();
-                                    File from = new File(internalDir, "products.csv.tmp");
-                                    File to = new File(internalDir, "products.csv");
-                                    boolean success = from.renameTo(to);
-                                    Log.d("DEBUG", "Renamed: " + success);
-                                } catch (NullPointerException e) {
-                                    Log.e("createBroadcastComplete", "Couldn't get externalFilesDir: " + e.toString());
-                                }
                                 break;
                             case DownloadManager.STATUS_FAILED:
                                 Log.d("onReceive", "Download failed: " + reason);
