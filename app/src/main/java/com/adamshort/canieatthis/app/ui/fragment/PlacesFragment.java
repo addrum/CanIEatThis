@@ -356,7 +356,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 marker.snippet(snippetText);
                 marker.icon(BitmapDescriptorFactory.defaultMarker());
 
-                FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
+                FirebaseAsyncRequest fb = new FirebaseAsyncRequest(false);
                 fb.execute(marker);
 
                 Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
@@ -364,7 +364,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 Log.e("createMarker", e.toString());
             }
         } else {
-            FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
+            FirebaseAsyncRequest fb = new FirebaseAsyncRequest(true);
             fb.execute(m);
         }
     }
@@ -712,6 +712,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * Queries firebase asynchronously and adds information about the place to the custom info marker.
      */
     private class FirebaseAsyncRequest extends AsyncTask<MarkerOptions, Void, String> {
+
+        private boolean mIsFromCache;
+
+        public FirebaseAsyncRequest(boolean isFromCache) {
+            mIsFromCache = isFromCache;
+        }
+
         @Override
         protected void onPreExecute() {
         }
@@ -725,80 +732,85 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 @SuppressWarnings("unchecked")
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    Boolean[] bools = new Boolean[]{null, null, null, null};
-                    LatLng markerLatLng = marker.getPosition();
-                    String snippet = marker.getSnippet();
-                    Pattern lactosePattern = Pattern.compile("Lactose Free:\\s(\\w*)");
-                    Pattern vegetarianPattern = Pattern.compile("Vegetarian:\\s(\\w*)");
-                    Pattern veganPattern = Pattern.compile("Vegan:\\s(\\w*)");
-                    Pattern glutenPattern = Pattern.compile("Gluten Free:\\s(\\w*)");
-                    for (DataSnapshot location : snapshot.getChildren()) {
-                        // Firebase doesn't allow . in key's so had to submit as ,
-                        // so now we need to replace it so we can get it back to latlng
-                        String[] key = location.getKey().replace(",", ".").split(" ");
-                        LatLng locLatLng = null;
-                        try {
-                            locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
-                        } catch (NumberFormatException e) {
-                            Log.e("onDataChange", e.toString());
-                        }
+                    if (!mIsFromCache) {
+                        Boolean[] bools = new Boolean[]{null, null, null, null};
+                        LatLng markerLatLng = marker.getPosition();
+                        String snippet = marker.getSnippet();
+                        Pattern lactosePattern = Pattern.compile("Lactose Free:\\s(\\w*)");
+                        Pattern vegetarianPattern = Pattern.compile("Vegetarian:\\s(\\w*)");
+                        Pattern veganPattern = Pattern.compile("Vegan:\\s(\\w*)");
+                        Pattern glutenPattern = Pattern.compile("Gluten Free:\\s(\\w*)");
+                        for (DataSnapshot location : snapshot.getChildren()) {
+                            // Firebase doesn't allow . in key's so had to submit as ,
+                            // so now we need to replace it so we can get it back to latlng
+                            String[] key = location.getKey().replace(",", ".").split(" ");
+                            LatLng locLatLng = null;
+                            try {
+                                locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
+                            } catch (NumberFormatException e) {
+                                Log.e("onDataChange", e.toString());
+                            }
 
-                        if (locLatLng != null) {
-                            if (markerLatLng.equals(locLatLng)) {
-                                Map<String, Map<String, Object>> loc = (Map<String, Map<String, Object>>) location.getValue();
-                                Log.d("onDataChange", loc.toString());
-                                try {
-                                    Map<String, Object> lactose = loc.get("lactose_free");
-                                    long lactose_true = getKeyValue(lactose, "true");
-                                    long lactose_false = getKeyValue(lactose, "false");
-                                    if (shouldShowInfo(lactose_true, lactose_false)) {
-                                        snippet = addToSnippet(lactosePattern, snippet,
-                                                lactose_true, lactose_false, "Lactose Free");
-                                    }
-                                    bools[0] = lactose_true > lactose_false;
+                            if (locLatLng != null) {
+                                if (markerLatLng.equals(locLatLng)) {
+                                    Map<String, Map<String, Object>> loc = (Map<String, Map<String, Object>>) location.getValue();
+                                    Log.d("onDataChange", loc.toString());
+                                    try {
+                                        Map<String, Object> lactose = loc.get("lactose_free");
+                                        long lactose_true = getKeyValue(lactose, "true");
+                                        long lactose_false = getKeyValue(lactose, "false");
+                                        if (shouldShowInfo(lactose_true, lactose_false)) {
+                                            snippet = addToSnippet(lactosePattern, snippet,
+                                                    lactose_true, lactose_false, "Lactose Free");
+                                        }
+                                        bools[0] = lactose_true > lactose_false;
 
-                                    Map<String, Object> vegetarian = loc.get("vegetarian");
-                                    long vegetarian_true = getKeyValue(vegetarian, "true");
-                                    long vegetarian_false = getKeyValue(vegetarian, "false");
-                                    if (shouldShowInfo(vegetarian_true, vegetarian_false)) {
-                                        snippet = addToSnippet(vegetarianPattern, snippet,
-                                                vegetarian_true, vegetarian_false, "Vegetarian");
-                                    }
-                                    bools[1] = vegetarian_true > vegetarian_false;
+                                        Map<String, Object> vegetarian = loc.get("vegetarian");
+                                        long vegetarian_true = getKeyValue(vegetarian, "true");
+                                        long vegetarian_false = getKeyValue(vegetarian, "false");
+                                        if (shouldShowInfo(vegetarian_true, vegetarian_false)) {
+                                            snippet = addToSnippet(vegetarianPattern, snippet,
+                                                    vegetarian_true, vegetarian_false, "Vegetarian");
+                                        }
+                                        bools[1] = vegetarian_true > vegetarian_false;
 
-                                    Map<String, Object> vegan = loc.get("vegan");
-                                    long vegan_true = getKeyValue(vegan, "true");
-                                    long vegan_false = getKeyValue(vegan, "false");
-                                    if (shouldShowInfo(vegan_true, vegan_false)) {
-                                        snippet = addToSnippet(veganPattern, snippet,
-                                                vegan_true, vegan_false, "Vegan");
-                                    }
-                                    bools[2] = vegan_true > vegan_false;
+                                        Map<String, Object> vegan = loc.get("vegan");
+                                        long vegan_true = getKeyValue(vegan, "true");
+                                        long vegan_false = getKeyValue(vegan, "false");
+                                        if (shouldShowInfo(vegan_true, vegan_false)) {
+                                            snippet = addToSnippet(veganPattern, snippet,
+                                                    vegan_true, vegan_false, "Vegan");
+                                        }
+                                        bools[2] = vegan_true > vegan_false;
 
-                                    Map<String, Object> gluten = loc.get("gluten_free");
-                                    long gluten_true = getKeyValue(gluten, "true");
-                                    long gluten_false = getKeyValue(gluten, "false");
-                                    if (shouldShowInfo(gluten_true, gluten_false)) {
-                                        snippet = addToSnippet(glutenPattern, snippet,
-                                                gluten_true, gluten_false, "Celiac");
+                                        Map<String, Object> gluten = loc.get("gluten_free");
+                                        long gluten_true = getKeyValue(gluten, "true");
+                                        long gluten_false = getKeyValue(gluten, "false");
+                                        if (shouldShowInfo(gluten_true, gluten_false)) {
+                                            snippet = addToSnippet(glutenPattern, snippet,
+                                                    gluten_true, gluten_false, "Celiac");
+                                        }
+                                        bools[3] = gluten_true > gluten_false;
+                                    } catch (Exception e) {
+                                        Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
                                     }
-                                    bools[3] = gluten_true > gluten_false;
-                                } catch (Exception e) {
-                                    Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
                                 }
                             }
                         }
-                    }
-                    if (!snippet.contains("Lactose Free")
-                            && !snippet.contains("Vegetarian")
-                            && !snippet.contains("Vegan")
-                            && !snippet.contains("Celiac")) {
-                        if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
-                            snippet += ",";
+                        if (!snippet.contains("Lactose Free")
+                                && !snippet.contains("Vegetarian")
+                                && !snippet.contains("Vegan")
+                                && !snippet.contains("Celiac")) {
+                            if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
+                                snippet += ",";
+                            }
+                            snippet += getString(R.string.noInfoOnPlace);
                         }
-                        snippet += getString(R.string.noInfoOnPlace);
+                        marker.snippet(snippet);
+                        addMarker(marker, bools);
+                    } else {
+                        addMarkerFromCache(marker);
                     }
-                    addMarker(marker, snippet, bools);
                 }
 
                 @Override
@@ -836,7 +848,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         return snippet;
     }
 
-    private void addMarker(MarkerOptions marker, String snippet, Boolean[] bools) {
+    private void addMarker(MarkerOptions marker, Boolean[] bools) {
+        Log.d("addMarker", "Adding marker: " + marker.getTitle());
         Boolean lac = bools[0];
         Boolean veg = bools[1];
         Boolean vegan = bools[2];
@@ -846,7 +859,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 || (mVegetarianPref && (veg == null || veg))
                 || (mVeganPref && (vegan == null || vegan))
                 || (mGlutenPref && (glu == null || glu))) {
-            marker.snippet(snippet);
             mMap.addMarker(marker);
         } else {
             Log.d("onDataChange", "Not adding marker. Name: " + marker.getTitle()
@@ -861,6 +873,57 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         DataPasser.getInstance(getContext());
         DataPasser.addToMarkersList(marker);
+    }
+
+    private void addMarkerFromCache(MarkerOptions marker) {
+        Log.d("addMarkerFromCache", "Adding marker from cache: " + marker.getTitle());
+        String snippet = marker.getSnippet();
+
+        Pattern lactosePattern = Pattern.compile("Lactose Free: ([a-zA-z]*)");
+        Matcher m = lactosePattern.matcher(snippet);
+        Boolean lactose = null;
+        if (m.find()) {
+            if (m.group(1).equals("Yes")) {
+                lactose = true;
+            } else if (m.group(1).equals("No")) {
+                lactose = false;
+            }
+        }
+
+        Pattern vegetarianPattern = Pattern.compile("Vegetarian: ([a-zA-z]*)");
+        m = vegetarianPattern.matcher(snippet);
+        Boolean vegetarian = null;
+        if (m.find()) {
+            if (m.group(1).equals("Yes")) {
+                vegetarian = true;
+            } else if (m.group(1).equals("No")) {
+                vegetarian = false;
+            }
+        }
+
+        Pattern veganPattern = Pattern.compile("Vegan: ([a-zA-z]*)");
+        m = veganPattern.matcher(snippet);
+        Boolean vegan = null;
+        if (m.find()) {
+            if (m.group(1).equals("Yes")) {
+                vegan = true;
+            } else if (m.group(1).equals("No")) {
+                vegan = false;
+            }
+        }
+
+        Pattern glutenPattern = Pattern.compile("Celiac: ([a-zA-z]*)");
+        m = glutenPattern.matcher(snippet);
+        Boolean celiac = null;
+        if (m.find()) {
+            if (m.group(1).equals("Yes")) {
+                celiac = true;
+            } else if (m.group(1).equals("No")) {
+                celiac = false;
+            }
+        }
+
+        addMarker(marker, new Boolean[]{lactose, vegetarian, vegan, celiac});
     }
 
     @Override
