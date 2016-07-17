@@ -360,25 +360,29 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         QueryURLAsync rh = new QueryURLAsync(null, 0, new QueryURLAsync.AsyncResponse() {
             @Override
             public void processFinish(String output) {
-                try {
-                    JSONObject response = new JSONObject(output);
-                    JSONArray results = response.getJSONArray("results");
+                if (output != null) {
                     try {
-                        PlacesFragment.mNextPageToken = response.getString("next_page_token");
-                        if (!mNextPageToken.equals("")) {
-                            mShowMoreButton.setVisibility(View.VISIBLE);
+                        JSONObject response = new JSONObject(output);
+                        JSONArray results = response.getJSONArray("results");
+                        try {
+                            PlacesFragment.mNextPageToken = response.getString("next_page_token");
+                            if (!mNextPageToken.equals("")) {
+                                mShowMoreButton.setVisibility(View.VISIBLE);
+                            }
+                        } catch (JSONException e) {
+                            mNextPageToken = "";
+                            mShowMoreButton.setVisibility(View.INVISIBLE);
+                        }
+
+                        for (int i = 0; i < results.length(); i++) {
+                            JSONObject location = results.getJSONObject(i);
+                            createMarker(location);
                         }
                     } catch (JSONException e) {
-                        mNextPageToken = "";
-                        mShowMoreButton.setVisibility(View.INVISIBLE);
+                        e.printStackTrace();
                     }
-
-                    for (int i = 0; i < results.length(); i++) {
-                        JSONObject location = results.getJSONObject(i);
-                        createMarker(location);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    Log.d("processFinish", "Output was null!");
                 }
             }
         });
