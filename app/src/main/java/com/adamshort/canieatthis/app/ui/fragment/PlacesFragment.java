@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.Installation;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
@@ -56,6 +57,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,25 +69,27 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final float MY_LOCATION_ZOOM = 15;
 
-    private static boolean mFromSearch;
-
     private static String mRadius = "1000";
     private static String mNextPageToken;
 
+    private boolean mGlutenPref;
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
     private boolean mIsVisible;
+    private boolean mLactosePref;
     private boolean mPlacesRequestSubmitted;
+    private boolean mVeganPref;
+    private boolean mVegetarianPref;
     private double mLat;
     private double mLng;
     private float mMapZoom = 15;
     private String mApiKey;
 
-    private ImageView mMyLocationButton;
     private Button mShowMoreButton;
     private CoordinatorLayout mCoordinatorLayout;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
+    private ImageView mMyLocationButton;
     private MapView mMapView;
 
     @Override
@@ -107,6 +112,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMyLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                DataPasser.getInstance(getContext());
                 double lat = mLat;
                 double lng = mLng;
                 setUserLocation();
@@ -114,7 +120,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 if (locationIsMoreThan2MetersAway(lat, lng)) {
                     createNearbyMarkers(mMap);
                 }
-                mFromSearch = false;
+                PreferencesHelper.setFromSearchPref(getContext(), false);
             }
         });
 
@@ -147,6 +153,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        Context context = getContext();
+        mLactosePref = PreferencesHelper.getLactoseFreePref(context);
+        mVegetarianPref = PreferencesHelper.getVegetarianPref(context);
+        mVeganPref = PreferencesHelper.getVeganPref(context);
+        mGlutenPref = PreferencesHelper.getGlutenFreePref(context);
 
         // Perform any camera updates here
         return v;
@@ -204,17 +216,29 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 checkLocationPermission();
                 LatLng latLng = getLatLng();
                 if (latLng.latitude != 0 && latLng.longitude != 0) {
-                    moveCamera(mMap, getLatLng(), mMapZoom);
-
-                    createNearbyMarkers(mMap);
-                    if (mFromSearch) {
+                    DataPasser.getInstance(getContext());
+                    List<MarkerOptions> markersList = DataPasser.getMarkersList();
+                    if (markersList != null && markersList.size() != 0) {
+                        Log.d("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
+                        for (MarkerOptions marker : markersList) {
+                            createMarker(null, marker);
+                        }
+                    } else {
+                        if (!PreferencesHelper.getFromSearchPref(getContext())) {
+                            createNearbyMarkers(mMap);
+                        }
+                    }
+                    if (!PreferencesHelper.getFromSearchPref(getContext())) {
+                        moveCamera(mMap, getLatLng(), mMapZoom);
+                    } else {
+                        Log.d("setUpMap", "fromSearch pref was true so only creating custom marker");
                         createCustomMarker(getLatLng());
                     }
+                    mIsMapSetup = true;
                 }
-                mIsMapSetup = true;
             }
+            mPlacesRequestSubmitted = false;
         }
-        mPlacesRequestSubmitted = false;
     }
 
     @Override
@@ -237,7 +261,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     Installation.id(getContext());
                     if (!Installation.isInInstallationFile(getContext(),
                             marker.getPosition().toString())) {
-                        mShowMoreButton.setVisibility(View.INVISIBLE);
                         AddPlacesInfoDialogFragment dialog = new AddPlacesInfoDialogFragment();
                         Bundle args = new Bundle();
                         args.putString("name", marker.getTitle());
@@ -273,10 +296,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      *
      * @param googleMap The map to create the markers on.
      */
+
     private void createNearbyMarkers(GoogleMap googleMap) {
         if (mIsGoogleConnected) {
             if (googleMap != null) {
                 googleMap.clear();
+                Log.d("onClick", "Setting markers list to empty");
+                DataPasser.getInstance(getContext());
+                DataPasser.setMarkersList(new ArrayList<MarkerOptions>());
             }
             if (mLat != 0 && mLng != 0) {
                 String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&radius=" + mRadius + "&type=restaurant&key=" + mApiKey;
@@ -294,46 +321,51 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      *
      * @param location JSONObject of information of a location.
      */
-    private void createMarker(JSONObject location) {
-        try {
-            String name = location.getString("name");
-
-            JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
-            double lat = geometry.getDouble("lat");
-            double lng = geometry.getDouble("lng");
-
-            LatLng latlng = new LatLng(lat, lng);
-            MarkerOptions marker = new MarkerOptions().position(latlng)
-                    .title(name);
-
-            String snippetText = "";
+    private void createMarker(JSONObject location, MarkerOptions m) {
+        if (location != null) {
             try {
-                String rating = location.getString("rating");
-                snippetText += "Rating: " + rating;
-            } catch (JSONException e) {
-                Log.e("processFinish", "No value for rating");
-            }
+                String name = location.getString("name");
 
-            try {
-                boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
-                if (openNow) {
-                    snippetText += ",Open Now: Yes";
-                } else {
-                    snippetText += ",Open Now: No";
+                JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
+                double lat = geometry.getDouble("lat");
+                double lng = geometry.getDouble("lng");
+
+                LatLng latlng = new LatLng(lat, lng);
+                MarkerOptions marker = new MarkerOptions().position(latlng)
+                        .title(name);
+
+                String snippetText = "";
+                try {
+                    String rating = location.getString("rating");
+                    snippetText += "Rating: " + rating;
+                } catch (JSONException e) {
+                    Log.e("processFinish", "No value for rating");
                 }
+
+                try {
+                    boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
+                    if (openNow) {
+                        snippetText += ",Open Now: Yes";
+                    } else {
+                        snippetText += ",Open Now: No";
+                    }
+                } catch (JSONException e) {
+                    Log.e("processFinish", "No value for opening_hours or open_now");
+                }
+
+                marker.snippet(snippetText);
+                marker.icon(BitmapDescriptorFactory.defaultMarker());
+
+                FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
+                fb.execute(marker);
+
+                Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
             } catch (JSONException e) {
-                Log.e("processFinish", "No value for opening_hours or open_now");
+                Log.e("createMarker", e.toString());
             }
-
-            marker.snippet(snippetText);
-            marker.icon(BitmapDescriptorFactory.defaultMarker());
-
+        } else {
             FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
-            fb.execute(marker);
-
-            Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
-        } catch (JSONException e) {
-            Log.e("createMarker", e.toString());
+            fb.execute(m);
         }
     }
 
@@ -377,7 +409,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
                         for (int i = 0; i < results.length(); i++) {
                             JSONObject location = results.getJSONObject(i);
-                            createMarker(location);
+                            createMarker(location, null);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -439,7 +471,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setUserLocationSettings() {
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
-        if (!mFromSearch) {
+        if (!PreferencesHelper.getFromSearchPref(getContext())) {
             setUserLocation();
         }
     }
@@ -524,7 +556,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     createNearbyMarkers(mMap);
                     createCustomMarker(placeLatLng);
                 }
-                mFromSearch = true;
+                PreferencesHelper.setFromSearchPref(getContext(), true);
                 Log.i("onActivityResult", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getContext(), data);
@@ -588,6 +620,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         mIsGoogleConnected = false;
         mMyLocationButton.setVisibility(View.INVISIBLE);
+        PreferencesHelper.setFromSearchPref(getContext(), false);
     }
 
     @Override
@@ -719,23 +752,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long lactose_true = getKeyValue(lactose, "true");
                                     long lactose_false = getKeyValue(lactose, "false");
                                     if (shouldShowInfo(lactose_true, lactose_false)) {
-                                        Matcher m = lactosePattern.matcher(snippet);
-                                        StringBuffer sb = new StringBuffer();
-                                        if (m.find()) {
-                                            if (lactose_true > lactose_false) {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
-                                            } else {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
-                                            }
-                                            snippet = sb.toString();
-                                        } else {
-                                            snippet += ",Lactose Free: ";
-                                            if (lactose_true > lactose_false) {
-                                                snippet += "Yes";
-                                            } else {
-                                                snippet += "No";
-                                            }
-                                        }
+                                        snippet = addToSnippet(lactosePattern, snippet,
+                                                lactose_true, lactose_false, "Lactose Free");
                                     }
                                     bools[0] = lactose_true > lactose_false;
 
@@ -743,23 +761,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long vegetarian_true = getKeyValue(vegetarian, "true");
                                     long vegetarian_false = getKeyValue(vegetarian, "false");
                                     if (shouldShowInfo(vegetarian_true, vegetarian_false)) {
-                                        Matcher m = vegetarianPattern.matcher(snippet);
-                                        StringBuffer sb = new StringBuffer();
-                                        if (m.find()) {
-                                            if (vegetarian_true > vegetarian_false) {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
-                                            } else {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
-                                            }
-                                            snippet = sb.toString();
-                                        } else {
-                                            snippet += ",Vegetarian: ";
-                                            if (vegetarian_true > vegetarian_false) {
-                                                snippet += "Yes";
-                                            } else {
-                                                snippet += "No";
-                                            }
-                                        }
+                                        snippet = addToSnippet(vegetarianPattern, snippet,
+                                                vegetarian_true, vegetarian_false, "Vegetarian");
                                     }
                                     bools[1] = vegetarian_true > vegetarian_false;
 
@@ -767,23 +770,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long vegan_true = getKeyValue(vegan, "true");
                                     long vegan_false = getKeyValue(vegan, "false");
                                     if (shouldShowInfo(vegan_true, vegan_false)) {
-                                        Matcher m = veganPattern.matcher(snippet);
-                                        StringBuffer sb = new StringBuffer();
-                                        if (m.find()) {
-                                            if (vegan_true > vegan_false) {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
-                                            } else {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
-                                            }
-                                            snippet = sb.toString();
-                                        } else {
-                                            snippet += ",Vegan: ";
-                                            if (vegan_true > vegan_false) {
-                                                snippet += "Yes";
-                                            } else {
-                                                snippet += "No";
-                                            }
-                                        }
+                                        snippet = addToSnippet(veganPattern, snippet,
+                                                vegan_true, vegan_false, "Vegan");
                                     }
                                     bools[2] = vegan_true > vegan_false;
 
@@ -791,23 +779,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long gluten_true = getKeyValue(gluten, "true");
                                     long gluten_false = getKeyValue(gluten, "false");
                                     if (shouldShowInfo(gluten_true, gluten_false)) {
-                                        Matcher m = glutenPattern.matcher(snippet);
-                                        StringBuffer sb = new StringBuffer();
-                                        if (m.find()) {
-                                            if (gluten_true > gluten_false) {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
-                                            } else {
-                                                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
-                                            }
-                                            snippet = sb.toString();
-                                        } else {
-                                            snippet += ",Celiac: ";
-                                            if (gluten_true > gluten_false) {
-                                                snippet += "Yes";
-                                            } else {
-                                                snippet += "No";
-                                            }
-                                        }
+                                        snippet = addToSnippet(glutenPattern, snippet,
+                                                gluten_true, gluten_false, "Gluten Free");
                                     }
                                     bools[3] = gluten_true > gluten_false;
                                 } catch (Exception e) {
@@ -816,42 +789,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             }
                         }
                     }
-                    if (!snippet.contains("Lactose Free")
-                            && !snippet.contains("Vegetarian")
-                            && !snippet.contains("Vegan")
-                            && !snippet.contains("Celiac")) {
-                        if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
-                            snippet += ",";
-                        }
-                        snippet += getString(R.string.noInfoOnPlace);
-                    }
-                    Context context = getContext();
-                    boolean lactosePref = PreferencesHelper.getLactoseFreePref(context);
-                    boolean vegetarianPref = PreferencesHelper.getVegetarianPref(context);
-                    boolean veganPref = PreferencesHelper.getVeganPref(context);
-                    boolean glutenPref = PreferencesHelper.getGlutenFreePref(context);
-                    Boolean lac = bools[0];
-                    Boolean veg = bools[1];
-                    Boolean vegan = bools[2];
-                    Boolean glu = bools[3];
-                    if ((!lactosePref && !vegetarianPref && !veganPref && !glutenPref)
-                            || (lactosePref && (lac == null || lac))
-                            || (vegetarianPref && (veg == null || veg))
-                            || (veganPref && (vegan == null || vegan))
-                            || (glutenPref && (glu == null || glu))) {
-                        marker.snippet(snippet);
-                        mMap.addMarker(marker);
-                    } else {
-                        Log.d("onDataChange", "Not adding marker. Name: " + marker.getTitle()
-                                + " lactosePref: " + lactosePref
-                                + " vegetarianPref: " + vegetarianPref
-                                + " veganPref: " + veganPref
-                                + " glutenPref: " + glutenPref
-                                + " lac: " + lac
-                                + " veg: " + veg
-                                + " vegan: " + vegan
-                                + " glu: " + glu);
-                    }
+                    addMarker(marker, snippet, bools);
                 }
 
                 @Override
@@ -864,6 +802,56 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         @Override
         protected void onPostExecute(String response) {
         }
+
+    }
+
+    private String addToSnippet(Pattern pattern, String snippet, long trueValue, long falseValue, String dietary) {
+        Matcher m = pattern.matcher(snippet);
+        StringBuffer sb = new StringBuffer();
+        if (m.find()) {
+            if (trueValue > falseValue) {
+                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
+            } else {
+                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
+            }
+            snippet = sb.toString();
+        } else {
+            snippet += "," + dietary + ": ";
+            if (trueValue > falseValue) {
+                snippet += "Yes";
+            } else {
+                snippet += "No";
+            }
+        }
+        Log.d("addToSnippet", "Snippet: " + snippet);
+        return snippet;
+    }
+
+    private void addMarker(MarkerOptions marker, String snippet, Boolean[] bools) {
+        Boolean lac = bools[0];
+        Boolean veg = bools[1];
+        Boolean vegan = bools[2];
+        Boolean glu = bools[3];
+        if ((!mLactosePref && !mVegetarianPref && !mVeganPref && !mGlutenPref)
+                || (mLactosePref && (lac == null || lac))
+                || (mVegetarianPref && (veg == null || veg))
+                || (mVeganPref && (vegan == null || vegan))
+                || (mGlutenPref && (glu == null || glu))) {
+            marker.snippet(snippet);
+            mMap.addMarker(marker);
+        } else {
+            Log.d("onDataChange", "Not adding marker. Name: " + marker.getTitle()
+                    + " mLactosePref: " + mLactosePref
+                    + " mVegetarianPref: " + mVegetarianPref
+                    + " mVeganPref: " + mVeganPref
+                    + " mGlutenPref: " + mGlutenPref
+                    + " lac: " + lac
+                    + " veg: " + veg
+                    + " vegan: " + vegan
+                    + " glu: " + glu);
+        }
+        DataPasser.getInstance(getContext());
+        DataPasser.addToMarkersList(marker);
     }
 
     @Override

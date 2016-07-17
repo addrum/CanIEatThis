@@ -76,8 +76,9 @@ public class AddProductActivity extends AppCompatActivity {
         DataQuerier.getInstance();
 
         mIngredientsTextView = (MultiAutoCompleteTextView) findViewById(R.id.input_ingredients);
+        DataPasser.getInstance(getBaseContext());
         ArrayAdapter<String> ingredientsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line,
-                DataPasser.getInstance(getBaseContext()).getFirebaseIngredientsList());
+                DataPasser.getFirebaseIngredientsList());
         mIngredientsTextView.setAdapter(ingredientsAdapter);
         mIngredientsTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
 

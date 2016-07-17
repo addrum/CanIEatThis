@@ -112,6 +112,21 @@ public class PreferencesHelper {
         Log.d("setGlutenFreePref", "gluten_free_pref " + glutenFree);
     }
 
+    public static boolean getFromSearchPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("from_search", false);
+        Log.d("getFromSearchPref", "from_search: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setFromSearchPref(Context context, boolean fromSearch) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("from_search", fromSearch);
+        editor.apply();
+        Log.d("setFromSearchPref", "from_search " + fromSearch);
+    }
+
     public static int getTimesAskedForPermPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         int times_asked = preferences.getInt("times_asked", 0);
