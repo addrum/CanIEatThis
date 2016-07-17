@@ -815,6 +815,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             }
                         }
                     }
+                    if (!snippet.contains("Lactose Free")
+                            || !snippet.contains("Vegetarian")
+                            || !snippet.contains("Vegan")
+                            || !snippet.contains("Gluten Free")) {
+                        snippet += getString(R.string.noInfoOnPlace);
+                    }
                     Context context = getContext();
                     boolean lactosePref = PreferencesHelper.getLactoseFreePref(context);
                     boolean vegetarianPref = PreferencesHelper.getVegetarianPref(context);

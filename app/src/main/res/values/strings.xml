@@ -86,6 +86,7 @@
     <string name="veganPrefSummary">Are you vegan?</string>
     <string name="glutenFreePrefSummary">Do you need to avoid gluten?</string>
     <string name="slide5Title">About You!</string>
-    <string name="slide5Desc">Check the boxes below to set your preferences. These are used throughout the app to personalise the experience.</string>
+    <string name="slide5Desc">Check the boxes below to set your preferences. These are used throughout the app to personalise the experience (including showing places to eat near you).</string>
     <string name="slide5TableTitle">Are you:</string>
+    <string name="noInfoOnPlace">We currently don\'t have enough information about this place.</string>
 </resources>
