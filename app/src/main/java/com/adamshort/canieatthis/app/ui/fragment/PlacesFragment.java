@@ -802,7 +802,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     Boolean glu = bools[3];
                     if ((!lactosePref && !vegetarianPref && !veganPref && !glutenPref)
                             || (lactosePref && (lac == null || lac))
-                            || (vegetarianPref && (veg == null && veg))
+                            || (vegetarianPref && (veg == null || veg))
                             || (veganPref && (vegan == null || vegan))
                             || (glutenPref && (glu == null || glu))) {
                         marker.snippet(snippet);
