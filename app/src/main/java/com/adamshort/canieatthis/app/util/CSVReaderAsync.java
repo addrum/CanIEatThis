@@ -110,8 +110,9 @@ public class CSVReaderAsync extends AsyncTask<File, Void, JSONObject> {
                 }
             } catch (FileNotFoundException e) {
                 Log.e("getBarcodeInformation", "Couldn't find file: " + e.toString());
+                return null;
             }
-            return null;
+            return new JSONObject();
         } else {
             ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     5);
