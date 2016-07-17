@@ -780,7 +780,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                     long gluten_false = getKeyValue(gluten, "false");
                                     if (shouldShowInfo(gluten_true, gluten_false)) {
                                         snippet = addToSnippet(glutenPattern, snippet,
-                                                gluten_true, gluten_false, "Gluten Free");
+                                                gluten_true, gluten_false, "Celiac");
                                     }
                                     bools[3] = gluten_true > gluten_false;
                                 } catch (Exception e) {
@@ -788,6 +788,15 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                 }
                             }
                         }
+                    }
+                    if (!snippet.contains("Lactose Free")
+                            && !snippet.contains("Vegetarian")
+                            && !snippet.contains("Vegan")
+                            && !snippet.contains("Celiac")) {
+                        if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
+                            snippet += ",";
+                        }
+                        snippet += getString(R.string.noInfoOnPlace);
                     }
                     addMarker(marker, snippet, bools);
                 }
