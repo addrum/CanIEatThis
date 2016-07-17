@@ -10,7 +10,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.CheckBox;
 
 import com.adamshort.canieatthis.R;
@@ -41,25 +40,25 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
                 .replace(")", "").split(",");
         mLatLng = new LatLng(Double.parseDouble(latLngStr[0]), Double.parseDouble(latLngStr[1]));
 
-        View view = inflater.inflate(R.layout.dialog_fragment_add_places_info, null);
-
-        final CheckBox dairy_free_checkbox = (CheckBox) view.findViewById(R.id.lactoseFreeCheckBox);
-        final CheckBox vegetarian_checkbox = (CheckBox) view.findViewById(R.id.vegetarianCheckBox);
-        final CheckBox vegan_checkbox = (CheckBox) view.findViewById(R.id.veganCheckBox);
-        final CheckBox gluten_free_checkbox = (CheckBox) view.findViewById(R.id.glutenFreeCheckBox);
-
         builder.setView(inflater.inflate(R.layout.dialog_fragment_add_places_info, null))
                 .setTitle(name)
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try {
-                            if (dairy_free_checkbox != null && vegetarian_checkbox != null &&
+                            Dialog dialog = getDialog();
+                            final CheckBox lactose_free_checkbox = (CheckBox) dialog.findViewById(R.id.lactoseFreeCheckBox);
+                            final CheckBox vegetarian_checkbox = (CheckBox) dialog.findViewById(R.id.vegetarianCheckBox);
+                            final CheckBox vegan_checkbox = (CheckBox) dialog.findViewById(R.id.veganCheckBox);
+                            final CheckBox gluten_free_checkbox = (CheckBox) dialog.findViewById(R.id.glutenFreeCheckBox);
+                            //noinspection ConstantConditions
+                            if (lactose_free_checkbox != null && vegetarian_checkbox != null &&
                                     vegan_checkbox != null && gluten_free_checkbox != null) {
-                                final boolean[] values;
-
-                                values = new boolean[]{dairy_free_checkbox.isChecked(), vegetarian_checkbox.isChecked(),
-                                        vegan_checkbox.isChecked(), gluten_free_checkbox.isChecked()};
+                                boolean[] values = new boolean[]{
+                                        lactose_free_checkbox.isChecked(),
+                                        vegetarian_checkbox.isChecked() || vegan_checkbox.isChecked(),
+                                        vegan_checkbox.isChecked(),
+                                        gluten_free_checkbox.isChecked()};
 
                                 FirebaseAsyncRequest fb = new FirebaseAsyncRequest();
                                 fb.execute(values);

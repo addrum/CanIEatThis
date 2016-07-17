@@ -69,7 +69,7 @@ public class PreferencesHelper {
 
     public static boolean getVegetarianPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean frequency_list_pref = preferences.getBoolean("vegetarian_pref", true);
+        boolean frequency_list_pref = preferences.getBoolean("vegetarian_pref", false);
         Log.d("getVegetarianPref", "vegetarian_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
@@ -84,22 +84,22 @@ public class PreferencesHelper {
 
     public static boolean getVeganPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean frequency_list_pref = preferences.getBoolean("vegan_pref", true);
+        boolean frequency_list_pref = preferences.getBoolean("vegan_pref", false);
         Log.d("getVeganPref", "vegan_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
 
-    public static void setVegeanPref(Context context, boolean vegan) {
+    public static void setVeganPref(Context context, boolean vegan) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("vegan_pref", vegan);
         editor.apply();
-        Log.d("setVegeanPref", "vegan_pref " + vegan);
+        Log.d("setVeganPref", "vegan_pref " + vegan);
     }
 
     public static boolean getGlutenFreePref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean frequency_list_pref = preferences.getBoolean("gluten_free_pref", true);
+        boolean frequency_list_pref = preferences.getBoolean("gluten_free_pref", false);
         Log.d("getGlutenFreePref", "vegan_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
