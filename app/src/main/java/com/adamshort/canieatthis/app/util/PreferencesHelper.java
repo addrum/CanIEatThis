@@ -55,7 +55,6 @@ public class PreferencesHelper {
     public static boolean getLactoseFreePref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean frequency_list_pref = preferences.getBoolean("lactose_free_pref", true);
-        Log.d("getLactoseFreePref", "lactose_free_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
 
@@ -70,7 +69,6 @@ public class PreferencesHelper {
     public static boolean getVegetarianPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean frequency_list_pref = preferences.getBoolean("vegetarian_pref", false);
-        Log.d("getVegetarianPref", "vegetarian_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
 
@@ -85,7 +83,6 @@ public class PreferencesHelper {
     public static boolean getVeganPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean frequency_list_pref = preferences.getBoolean("vegan_pref", false);
-        Log.d("getVeganPref", "vegan_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
 
@@ -100,7 +97,6 @@ public class PreferencesHelper {
     public static boolean getGlutenFreePref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean frequency_list_pref = preferences.getBoolean("gluten_free_pref", false);
-        Log.d("getGlutenFreePref", "vegan_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
 

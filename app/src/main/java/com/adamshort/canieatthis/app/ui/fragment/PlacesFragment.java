@@ -72,14 +72,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static String mRadius = "1000";
     private static String mNextPageToken;
 
-    private boolean mGlutenPref;
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
     private boolean mIsVisible;
-    private boolean mLactosePref;
     private boolean mPlacesRequestSubmitted;
-    private boolean mVeganPref;
-    private boolean mVegetarianPref;
     private double mLat;
     private double mLng;
     private float mMapZoom = 15;
@@ -153,12 +149,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        Context context = getContext();
-        mLactosePref = PreferencesHelper.getLactoseFreePref(context);
-        mVegetarianPref = PreferencesHelper.getVegetarianPref(context);
-        mVeganPref = PreferencesHelper.getVeganPref(context);
-        mGlutenPref = PreferencesHelper.getGlutenFreePref(context);
 
         // Perform any camera updates here
         return v;
@@ -850,10 +840,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private void addMarker(MarkerOptions marker, Boolean[] bools) {
         Log.d("addMarker", "Adding marker: " + marker.getTitle());
+
+        Context context = getContext();
+        boolean mLactosePref = PreferencesHelper.getLactoseFreePref(context);
+        boolean mVegetarianPref = PreferencesHelper.getVegetarianPref(context);
+        boolean mVeganPref = PreferencesHelper.getVeganPref(context);
+        boolean mGlutenPref = PreferencesHelper.getGlutenFreePref(context);
+
         Boolean lac = bools[0];
         Boolean veg = bools[1];
         Boolean vegan = bools[2];
         Boolean glu = bools[3];
+
         if ((!mLactosePref && !mVegetarianPref && !mVeganPref && !mGlutenPref)
                 || (mLactosePref && (lac == null || lac))
                 || (mVegetarianPref && (veg == null || veg))
