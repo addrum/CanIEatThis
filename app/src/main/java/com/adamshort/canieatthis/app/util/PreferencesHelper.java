@@ -112,6 +112,21 @@ public class PreferencesHelper {
         Log.d("setGlutenFreePref", "gluten_free_pref " + glutenFree);
     }
 
+    public static boolean getInstallationFileDeletedPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("installation_file_deleted_pref", false);
+        Log.d("getInstallationFileDel", "installation_file_deleted_pref: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setInstallationFileDeletedPref(Context context, boolean value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("installation_file_deleted_pref", value);
+        editor.apply();
+        Log.d("setInstallationFileDel", "installation_file_deleted_pref " + value);
+    }
+
     public static boolean getFromSearchPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean frequency_list_pref = preferences.getBoolean("from_search", false);
