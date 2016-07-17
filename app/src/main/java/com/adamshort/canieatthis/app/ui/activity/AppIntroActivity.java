@@ -2,6 +2,7 @@ package com.adamshort.canieatthis.app.ui.activity;
 
 import android.Manifest;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
@@ -16,7 +17,9 @@ import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
 import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
 
 public class AppIntroActivity extends IntroActivity {
+
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,5 +78,16 @@ public class AppIntroActivity extends IntroActivity {
                 .backgroundDark(R.color.colorPrimaryDark)
                 .fragment(UserPreferencesSlideFragment.newInstance())
                 .build());
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_EXTERNAL_STORAGE_PERMISSION_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Utilities.downloadDatabase(this, getBaseContext());
+                }
+        }
     }
 }

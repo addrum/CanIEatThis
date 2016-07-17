@@ -34,7 +34,7 @@ import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.DataQuerier;
 import com.adamshort.canieatthis.app.ui.activity.AddProductActivity;
-import com.adamshort.canieatthis.app.util.CSVAsync;
+import com.adamshort.canieatthis.app.util.CSVReaderAsync;
 import com.adamshort.canieatthis.app.util.ListHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
 import com.adamshort.canieatthis.app.util.Utilities;
@@ -337,7 +337,7 @@ public class ScanFragment extends Fragment {
                 Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
             }
             if (products != null && products.exists()) {
-                CSVAsync csvAsync = new CSVAsync(barcode, mProgressBar, new CSVAsync.AsyncResponse() {
+                CSVReaderAsync csvReaderAsync = new CSVReaderAsync(barcode, mProgressBar, getContext(), getActivity(), new CSVReaderAsync.AsyncResponse() {
                     @Override
                     public void processFinish(final JSONObject output) {
                         Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
@@ -355,7 +355,7 @@ public class ScanFragment extends Fragment {
                         mIsSearching = false;
                     }
                 });
-                csvAsync.execute(products);
+                csvReaderAsync.execute(products);
             } else {
                 mIsSearching = false;
                 Log.e("getBarcodeInformation", "Couldn't find file");

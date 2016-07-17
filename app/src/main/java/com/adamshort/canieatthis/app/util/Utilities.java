@@ -1,11 +1,15 @@
 package com.adamshort.canieatthis.app.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.adamshort.canieatthis.R;
@@ -14,6 +18,9 @@ import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 public class Utilities {
+
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 5;
+
     private static DownloadManager mDownloadManager;
     private static FileDownloader mFileDownloader;
     private static Utilities mInstance = null;
@@ -36,15 +43,20 @@ public class Utilities {
 
     public static void downloadDatabase(Activity activity, Context context) {
         if (activity != null && context != null) {
-            mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            mFileDownloader = FileDownloader.getInstance(activity, mDownloadManager,
-                    context.getString(R.string.csvURL), "products.csv.tmp");
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+                mFileDownloader = FileDownloader.getInstance(activity, mDownloadManager,
+                        context.getString(R.string.csvURL), "products.csv.tmp");
 
-            // Update timestamp since we've downloaded a new one
-            SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putLong("timestamp", System.currentTimeMillis());
-            editor.apply();
+                // Update timestamp since we've downloaded a new one
+                SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putLong("timestamp", System.currentTimeMillis());
+                editor.apply();
+            } else {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
+            }
         }
     }
 
