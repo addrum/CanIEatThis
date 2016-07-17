@@ -51,20 +51,20 @@ public class PopupAdapter implements InfoWindowAdapter {
         String[] snippet = marker.getSnippet().split(",");
         int length = snippet.length;
 
-        TextView open_now_view = (TextView) popup.findViewById(R.id.open_now);
-        if (length > 0 && !snippet[0].equals("")) {
-            open_now_view.setText(snippet[0]);
-            open_now_view.setVisibility(View.VISIBLE);
-        } else {
-            open_now_view.setVisibility(View.GONE);
-        }
-
         TextView rating_view = (TextView) popup.findViewById(R.id.rating);
-        if (length > 1) {
-            rating_view.setText(snippet[1]);
+        if (length > 0) {
+            rating_view.setText(snippet[0]);
             rating_view.setVisibility(View.VISIBLE);
         } else {
             rating_view.setVisibility(View.GONE);
+        }
+
+        TextView open_now_view = (TextView) popup.findViewById(R.id.open_now);
+        if (length > 1 && !snippet[1].equals("")) {
+            open_now_view.setText(snippet[1]);
+            open_now_view.setVisibility(View.VISIBLE);
+        } else {
+            open_now_view.setVisibility(View.GONE);
         }
 
         TextView view1 = (TextView) popup.findViewById(R.id.view1);

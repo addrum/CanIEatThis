@@ -260,6 +260,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                Log.d("onMarkerClick", "Marker: " + marker.getTitle() + "LatLng: " + marker.getPosition());
                 return marker.getTitle().equals("custom");
             }
         });
@@ -307,21 +308,21 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
             String snippetText = "";
             try {
-                boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
-                if (openNow) {
-                    snippetText += "Open Now: Yes";
-                } else {
-                    snippetText += "Open Now: No";
-                }
+                String rating = location.getString("rating");
+                snippetText += "Rating: " + rating;
             } catch (JSONException e) {
-                Log.e("processFinish", "No value for opening_hours or open_now");
+                Log.e("processFinish", "No value for rating");
             }
 
             try {
-                String rating = location.getString("rating");
-                snippetText += ",Rating: " + rating;
+                boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
+                if (openNow) {
+                    snippetText += ",Open Now: Yes";
+                } else {
+                    snippetText += ",Open Now: No";
+                }
             } catch (JSONException e) {
-                Log.e("processFinish", "No value for rating");
+                Log.e("processFinish", "No value for opening_hours or open_now");
             }
 
             marker.snippet(snippetText);
@@ -819,6 +820,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                             && !snippet.contains("Vegetarian")
                             && !snippet.contains("Vegan")
                             && !snippet.contains("Celiac")) {
+                        if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
+                            snippet += ",";
+                        }
                         snippet += getString(R.string.noInfoOnPlace);
                     }
                     Context context = getContext();
