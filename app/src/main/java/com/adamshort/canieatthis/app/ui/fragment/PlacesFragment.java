@@ -107,9 +107,13 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMyLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                double lat = mLat;
+                double lng = mLng;
                 setUserLocation();
                 moveCamera(mMap, getLatLng(), MY_LOCATION_ZOOM);
-                createNearbyMarkers(mMap);
+                if (locationIsMoreThan2MetersAway(lat, lng)) {
+                    createNearbyMarkers(mMap);
+                }
                 mFromSearch = false;
             }
         });
@@ -488,6 +492,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    private boolean locationIsMoreThan2MetersAway(double lat, double lng) {
+        Location loc = new Location("");
+        loc.setLatitude(lat);
+        loc.setLongitude(lng);
+
+        Location user = new Location("");
+        user.setLatitude(mLat);
+        user.setLongitude(mLng);
+        float distanceInMeters = loc.distanceTo(user);
+        return distanceInMeters > 2;
+    }
+
     // http://stackoverflow.com/a/10407371/1860436
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -495,10 +511,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             if (resultCode == Activity.RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(getContext(), data);
                 LatLng placeLatLng = place.getLatLng();
+                double lat = mLat;
+                double lng = mLng;
                 setLatLng(placeLatLng);
-                moveCamera(mMap, placeLatLng, mMapZoom);
-                createNearbyMarkers(mMap);
-                createCustomMarker(placeLatLng);
+                if (locationIsMoreThan2MetersAway(lat, lng)) {
+                    moveCamera(mMap, placeLatLng, mMapZoom);
+                    createNearbyMarkers(mMap);
+                    createCustomMarker(placeLatLng);
+                }
                 mFromSearch = true;
                 Log.i("onActivityResult", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
