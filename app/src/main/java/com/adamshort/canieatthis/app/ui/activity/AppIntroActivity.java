@@ -73,6 +73,14 @@ public class AppIntroActivity extends IntroActivity {
                 })
                 .build());
 
+        addSlide(new SimpleSlide.Builder()
+                .title("Marker Info Example")
+                .description(R.string.markerExampleDescription)
+                .image(R.drawable.marker_view)
+                .background(R.color.colorPrimary)
+                .backgroundDark(R.color.colorPrimaryDark)
+                .build());
+
         addSlide(new FragmentSlide.Builder()
                 .background(R.color.colorPrimary)
                 .backgroundDark(R.color.colorPrimaryDark)

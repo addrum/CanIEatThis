@@ -88,5 +88,6 @@
     <string name="slide5Title">About You!</string>
     <string name="slide5Desc">Check the boxes below to set your preferences. These are used throughout the app to personalise the experience (including showing places to eat near you).</string>
     <string name="slide5TableTitle">Are you:</string>
-    <string name="noInfoOnPlace">We currently don\'t have enough information about this place.</string>
+    <string name="noInfoOnPlace">We currently don\'t have enough information about this place to display dietary suitability.</string>
+    <string name="markerExampleDescription">Marker information only appears when we have sufficient information. In the above picture, Celiac information is not displayed as not enough people have submitted information about it. Please help collect information by pressing the marker and submitting information if you have been here!</string>
 </resources>
