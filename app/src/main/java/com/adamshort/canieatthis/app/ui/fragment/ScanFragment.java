@@ -216,7 +216,7 @@ public class ScanFragment extends Fragment {
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
 //
-//        IntentIntegrator.forSupportFragment(this).initiateScan();
+        IntentIntegrator.forSupportFragment(this).initiateScan();
     }
 
     /**

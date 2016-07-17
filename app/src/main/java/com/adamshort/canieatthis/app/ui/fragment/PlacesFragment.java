@@ -2,6 +2,7 @@ package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -666,6 +667,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 @SuppressWarnings("unchecked")
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
+                    Boolean[] bools = new Boolean[]{null, null, null, null};
                     LatLng markerLatLng = marker.getPosition();
                     String snippet = marker.getSnippet();
                     Pattern lactosePattern = Pattern.compile("Lactose Free:\\s(\\w*)");
@@ -710,6 +712,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[0] = lactose_true > lactose_false;
 
                                     Map<String, Object> vegetarian = loc.get("vegetarian");
                                     long vegetarian_true = getKeyValue(vegetarian, "true");
@@ -733,6 +736,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[1] = vegetarian_true > vegetarian_false;
 
                                     Map<String, Object> vegan = loc.get("vegan");
                                     long vegan_true = getKeyValue(vegan, "true");
@@ -756,6 +760,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[2] = vegan_true > vegan_false;
 
                                     Map<String, Object> gluten = loc.get("gluten_free");
                                     long gluten_true = getKeyValue(gluten, "true");
@@ -779,14 +784,40 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                             }
                                         }
                                     }
+                                    bools[3] = gluten_true > gluten_false;
                                 } catch (Exception e) {
                                     Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
                                 }
                             }
                         }
                     }
-                    marker.snippet(snippet);
-                    mMap.addMarker(marker);
+                    Context context = getContext();
+                    boolean lactosePref = PreferencesHelper.getLactoseFreePref(context);
+                    boolean vegetarianPref = PreferencesHelper.getVegetarianPref(context);
+                    boolean veganPref = PreferencesHelper.getVeganPref(context);
+                    boolean glutenPref = PreferencesHelper.getGlutenFreePref(context);
+                    Boolean lac = bools[0];
+                    Boolean veg = bools[1];
+                    Boolean vegan = bools[2];
+                    Boolean glu = bools[3];
+                    if ((!lactosePref && !vegetarianPref && !veganPref && !glutenPref)
+                            || (lactosePref && (lac == null || lac))
+                            || (vegetarianPref && (veg == null && veg))
+                            || (veganPref && (vegan == null || vegan))
+                            || (glutenPref && (glu == null || glu))) {
+                        marker.snippet(snippet);
+                        mMap.addMarker(marker);
+                    } else {
+                        Log.d("onDataChange", "Not adding marker. Name: " + marker.getTitle()
+                                + " lactosePref: " + lactosePref
+                                + " vegetarianPref: " + vegetarianPref
+                                + " veganPref: " + veganPref
+                                + " glutenPref: " + glutenPref
+                                + " lac: " + lac
+                                + " veg: " + veg
+                                + " vegan: " + vegan
+                                + " glu: " + glu);
+                    }
                 }
 
                 @Override
