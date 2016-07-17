@@ -8,8 +8,8 @@ android {
         applicationId "com.adamshort.canieatthis.app"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 172
-        versionName "1.7.2"
+        versionCode 173
+        versionName "1.7.3"
     }
     buildTypes {
         release {
