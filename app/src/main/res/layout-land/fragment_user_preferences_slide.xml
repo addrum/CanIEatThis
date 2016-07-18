@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:baselineAligned="false"
+              android:clipToPadding="false"
+              android:fitsSystemWindows="false"
+              android:padding="@dimen/mi_baseline">
+
+    <ImageView
+        android:id="@id/mi_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:src="@mipmap/ic_launcher"
+        tools:ignore="ContentDescription"/>
+
+    <android.support.v4.widget.Space
+        android:layout_width="@dimen/mi_baseline"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/userPreferencesSlideTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/mi_baseline"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="@string/slide5Title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            tools:ignore="UnusedAttribute"/>
+
+        <TextView
+            android:id="@+id/slide5DescLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/mi_baseline"
+            android:gravity="center"
+            android:text="@string/slide5Desc"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textColor="#b3ffffff"
+            tools:ignore="UnusedAttribute"/>
+
+        <TableLayout
+            android:id="@+id/switchesTableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:stretchColumns="0,1">
+
+            <TextView
+                android:id="@+id/suitableTitleText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/slide5TableTitle"
+                android:textColor="#b3ffffff"/>
+
+            <TableRow
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/lactoseFreeSwitch"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="20dp"
+                    android:checked="false"
+                    android:text="@string/dairySwitchText"
+                    android:textColor="#b3ffffff"
+                    android:theme="@style/WhiteCheckBox"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/vegetarianSwitch"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="10dp"
+                    android:checked="false"
+                    android:text="@string/vegetarianSwitchText"
+                    android:textColor="#b3ffffff"
+                    android:theme="@style/WhiteCheckBox"/>
+
+            </TableRow>
+
+            <TableRow
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/veganSwitch"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="20dp"
+                    android:checked="false"
+                    android:text="@string/veganSwitchText"
+                    android:textColor="#b3ffffff"
+                    android:theme="@style/WhiteCheckBox"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/glutenFreeSwitch"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="10dp"
+                    android:checked="false"
+                    android:text="@string/glutenFreeSwitchText"
+                    android:textColor="#b3ffffff"
+                    android:theme="@style/WhiteCheckBox"/>
+
+            </TableRow>
+        </TableLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

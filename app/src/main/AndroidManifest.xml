@@ -23,7 +23,6 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".app.ui.activity.MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/app_name"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -41,12 +40,10 @@
 
         <activity
             android:name=".app.ui.activity.AddProductActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
             android:noHistory="true">
         </activity>
         <activity
-            android:name=".app.ui.activity.SettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize">
+            android:name=".app.ui.activity.SettingsActivity">
         </activity>
         <activity android:name=".app.ui.activity.AboutActivity">
         </activity>
