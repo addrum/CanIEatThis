@@ -431,40 +431,42 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * After the first ask, shows a snackbar indefinitely which shows the permissions dialog again.
      */
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("checkLocationPref", "permission already granted");
-            mMyLocationButton.setVisibility(View.VISIBLE);
-            setUserLocationSettings();
-        } else {
-            // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.d("checkLocationPer", "should show request permission rationale");
-                // Need to show permission rationale, display a snackbar and then request
-                // the permission again when the snackbar is dismissed.
-                Snackbar.make(mCoordinatorLayout,
-                        R.string.fineLocationRationale,
-                        Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Log.d("checkLocationPer", "request permission");
-                                // Request the permission again.
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSION_ACCESS_FINE_LOCATION);
-                            }
-                        }).show();
+        if (PreferencesHelper.getIntroShownPref(getContext())) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("checkLocationPref", "permission already granted");
+                mMyLocationButton.setVisibility(View.VISIBLE);
+                setUserLocationSettings();
             } else {
-                int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
-                if (timesAsked < 2) {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            MY_PERMISSION_ACCESS_FINE_LOCATION);
-                    timesAsked += 1;
-                    PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
+                // Should we show an explanation?
+                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Log.d("checkLocationPer", "should show request permission rationale");
+                    // Need to show permission rationale, display a snackbar and then request
+                    // the permission again when the snackbar is dismissed.
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.fineLocationRationale,
+                            Snackbar.LENGTH_INDEFINITE)
+                            .setAction(android.R.string.ok, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Log.d("checkLocationPer", "request permission");
+                                    // Request the permission again.
+                                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                            MY_PERMISSION_ACCESS_FINE_LOCATION);
+                                }
+                            }).show();
                 } else {
-                    Log.d("checkLocationPer", "don't show permission again");
+                    int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
+                    if (timesAsked < 2) {
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSION_ACCESS_FINE_LOCATION);
+                        timesAsked += 1;
+                        PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
+                    } else {
+                        Log.d("checkLocationPer", "don't show permission again");
+                    }
                 }
+                mMyLocationButton.setVisibility(View.INVISIBLE);
             }
-            mMyLocationButton.setVisibility(View.INVISIBLE);
         }
     }
 
