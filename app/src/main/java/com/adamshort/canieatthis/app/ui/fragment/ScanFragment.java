@@ -476,7 +476,7 @@ public class ScanFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        mActionMenu = menu;
+        menu.clear();
         inflater.inflate(R.menu.menu, menu);
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
@@ -526,6 +526,7 @@ public class ScanFragment extends Fragment {
             searchView.setOnQueryTextListener(queryTextListener);
         }
 
+        mActionMenu = menu;
         super.onCreateOptionsMenu(menu, inflater);
     }
 

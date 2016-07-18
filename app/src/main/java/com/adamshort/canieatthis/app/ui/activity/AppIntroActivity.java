@@ -1,7 +1,6 @@
 package com.adamshort.canieatthis.app.ui.activity;
 
 import android.Manifest;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,12 +24,6 @@ public class AppIntroActivity extends IntroActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getResources().getBoolean(R.bool.portrait_only)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
 
         addSlide(new SimpleSlide.Builder()
                 .title(R.string.slide1Title)

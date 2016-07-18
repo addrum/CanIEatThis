@@ -153,6 +153,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
         mOfflineTextView = (TextView) v.findViewById(R.id.offlineTextView);
 
+        if (!Utilities.isPortraitMode(getContext())) {
+            mIsVisible = true;
+        }
+
         try {
             MapsInitializer.initialize(getContext());
         } catch (Exception e) {
@@ -194,7 +198,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * @param latLng    The position to move the camera too.
      */
     private void moveCamera(GoogleMap googleMap, LatLng latLng, float zoom) {
-        if ((mIsVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
+        if (mIsVisible && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng).zoom(zoom).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -211,7 +215,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setUpMap() {
         createGoogleAPIClient();
         if (mMap != null) {
-            if (mIsVisible || !Utilities.isPortraitMode(getContext())) {
+            if (mIsVisible) {
                 checkLocationPermission();
                 LatLng latLng = getLatLng();
                 if (latLng.latitude != 0 && latLng.longitude != 0) {
@@ -434,7 +438,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (PreferencesHelper.getIntroShownPref(getContext())) {
             if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d("checkLocationPref", "permission already granted");
-                mMyLocationButton.setVisibility(View.VISIBLE);
                 setUserLocationSettings();
             } else {
                 // Should we show an explanation?
@@ -475,6 +478,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      */
     @SuppressWarnings("MissingPermission")
     private void setUserLocationSettings() {
+        mMyLocationButton.setVisibility(View.VISIBLE);
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         if (!PreferencesHelper.getFromSearchPref(getContext())) {

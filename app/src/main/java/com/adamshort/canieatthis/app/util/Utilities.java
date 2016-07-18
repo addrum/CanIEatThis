@@ -6,6 +6,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
@@ -109,9 +110,7 @@ public class Utilities {
     }
 
     public static boolean isPortraitMode(Context context) {
-        boolean portrait = context.getResources().getBoolean(R.bool.portrait_only);
-        Log.d("isPortraitMode", "portrait only: " + portrait);
-        return portrait;
+        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
     public static boolean isInDebugMode() {
