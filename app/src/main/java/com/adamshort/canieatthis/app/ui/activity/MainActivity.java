@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
+import com.adamshort.canieatthis.app.data.Installation;
 import com.adamshort.canieatthis.app.ui.fragment.PlacesFragment;
 import com.adamshort.canieatthis.app.ui.fragment.ScanFragment;
 import com.adamshort.canieatthis.app.util.FragmentHandler;
@@ -64,6 +65,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d("onCreate", "Showing intro activity");
             Intent intent = new Intent(this, AppIntroActivity.class);
             startActivityForResult(intent, APP_INTRO_REQUEST_CODE);
+        }
+
+        if (!PreferencesHelper.getInstallationFileDeletedPref(getBaseContext())) {
+            Installation.deleteInstallationFile(getBaseContext());
+            PreferencesHelper.setInstallationFileDeletedPref(getBaseContext(), true);
         }
 
         List<Fragment> fragments = new ArrayList<>();

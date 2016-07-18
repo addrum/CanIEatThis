@@ -8,6 +8,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class DataPasser {
     private static List<String> mFirebaseIngredientsList;
     private static List<String> mFirebaseTracesList;
+    private static List<MarkerOptions> mMarkersList;
 
     private static DataPasser mInstance = null;
 
@@ -66,8 +68,31 @@ public class DataPasser {
         return mFirebaseTracesList;
     }
 
-    public List<String> getFirebaseIngredientsList() {
+    public static List<String> getFirebaseIngredientsList() {
         Log.d("fbIngredientsList", mFirebaseIngredientsList.toString());
         return mFirebaseIngredientsList;
+    }
+
+    public static List<MarkerOptions> getMarkersList() {
+        if (mMarkersList == null) {
+            Log.d("getMarkersList", "getMarkersList: null");
+            return null;
+        }
+        Log.d("getMarkersList", mMarkersList.toString());
+        return mMarkersList;
+    }
+
+    public static void setMarkersList(List<MarkerOptions> markersList) {
+        mMarkersList = markersList;
+        Log.d("setMarkersList", "markersList size: " + mMarkersList.size());
+    }
+
+    public static void addToMarkersList(MarkerOptions marker) {
+        if (mMarkersList == null) {
+            mMarkersList = new ArrayList<>();
+        }
+        if (!mMarkersList.contains(marker)) {
+            mMarkersList.add(marker);
+        }
     }
 }

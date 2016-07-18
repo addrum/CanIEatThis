@@ -49,7 +49,7 @@ public class UserPreferencesSlideFragment extends SlideFragment {
         veganCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                PreferencesHelper.setVegeanPref(getContext(), b);
+                PreferencesHelper.setVeganPref(getContext(), b);
             }
         });
 

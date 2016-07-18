@@ -55,7 +55,6 @@ public class PreferencesHelper {
     public static boolean getLactoseFreePref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean frequency_list_pref = preferences.getBoolean("lactose_free_pref", true);
-        Log.d("getLactoseFreePref", "lactose_free_pref: " + frequency_list_pref);
         return frequency_list_pref;
     }
 
@@ -69,8 +68,7 @@ public class PreferencesHelper {
 
     public static boolean getVegetarianPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean frequency_list_pref = preferences.getBoolean("vegetarian_pref", true);
-        Log.d("getVegetarianPref", "vegetarian_pref: " + frequency_list_pref);
+        boolean frequency_list_pref = preferences.getBoolean("vegetarian_pref", false);
         return frequency_list_pref;
     }
 
@@ -84,23 +82,21 @@ public class PreferencesHelper {
 
     public static boolean getVeganPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean frequency_list_pref = preferences.getBoolean("vegan_pref", true);
-        Log.d("getVeganPref", "vegan_pref: " + frequency_list_pref);
+        boolean frequency_list_pref = preferences.getBoolean("vegan_pref", false);
         return frequency_list_pref;
     }
 
-    public static void setVegeanPref(Context context, boolean vegan) {
+    public static void setVeganPref(Context context, boolean vegan) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("vegan_pref", vegan);
         editor.apply();
-        Log.d("setVegeanPref", "vegan_pref " + vegan);
+        Log.d("setVeganPref", "vegan_pref " + vegan);
     }
 
     public static boolean getGlutenFreePref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean frequency_list_pref = preferences.getBoolean("gluten_free_pref", true);
-        Log.d("getGlutenFreePref", "vegan_pref: " + frequency_list_pref);
+        boolean frequency_list_pref = preferences.getBoolean("gluten_free_pref", false);
         return frequency_list_pref;
     }
 
@@ -110,6 +106,36 @@ public class PreferencesHelper {
         editor.putBoolean("gluten_free_pref", glutenFree);
         editor.apply();
         Log.d("setGlutenFreePref", "gluten_free_pref " + glutenFree);
+    }
+
+    public static boolean getInstallationFileDeletedPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("installation_file_deleted_pref", false);
+        Log.d("getInstallationFileDel", "installation_file_deleted_pref: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setInstallationFileDeletedPref(Context context, boolean value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("installation_file_deleted_pref", value);
+        editor.apply();
+        Log.d("setInstallationFileDel", "installation_file_deleted_pref " + value);
+    }
+
+    public static boolean getFromSearchPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean frequency_list_pref = preferences.getBoolean("from_search", false);
+        Log.d("getFromSearchPref", "from_search: " + frequency_list_pref);
+        return frequency_list_pref;
+    }
+
+    public static void setFromSearchPref(Context context, boolean fromSearch) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("from_search", fromSearch);
+        editor.apply();
+        Log.d("setFromSearchPref", "from_search " + fromSearch);
     }
 
     public static int getTimesAskedForPermPref(Context context) {
