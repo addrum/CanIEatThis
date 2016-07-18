@@ -2,10 +2,13 @@ package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -22,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
@@ -81,12 +85,15 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private float mMapZoom = 15;
     private String mApiKey;
 
+    private BroadcastReceiver mBroadcastReceiver;
+    private Button mSearchButton;
     private Button mShowMoreButton;
     private CoordinatorLayout mCoordinatorLayout;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
     private ImageView mMyLocationButton;
     private MapView mMapView;
+    private TextView mOfflineTextView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -129,8 +136,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
         });
 
-        Button searchButton = (Button) v.findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(new View.OnClickListener() {
+        mSearchButton = (Button) v.findViewById(R.id.searchButton);
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
@@ -143,6 +150,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 }
             }
         });
+
+        mOfflineTextView = (TextView) v.findViewById(R.id.offlineTextView);
 
         try {
             MapsInitializer.initialize(getContext());
@@ -206,28 +215,32 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 checkLocationPermission();
                 LatLng latLng = getLatLng();
                 if (latLng.latitude != 0 && latLng.longitude != 0) {
-                    DataPasser.getInstance(getContext());
-                    List<MarkerOptions> markersList = DataPasser.getMarkersList();
-                    if (markersList != null && markersList.size() != 0) {
-                        Log.d("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
-                        for (MarkerOptions marker : markersList) {
-                            createMarker(null, marker);
-                        }
-                    } else {
-                        if (!PreferencesHelper.getFromSearchPref(getContext())) {
-                            createNearbyMarkers(mMap);
-                        }
-                    }
-                    if (!PreferencesHelper.getFromSearchPref(getContext())) {
-                        moveCamera(mMap, getLatLng(), mMapZoom);
-                    } else {
-                        Log.d("setUpMap", "fromSearch pref was true so only creating custom marker");
-                        createCustomMarker(getLatLng());
-                    }
+                    createMarkers();
                     mIsMapSetup = true;
                 }
             }
             mPlacesRequestSubmitted = false;
+        }
+    }
+
+    public void createMarkers() {
+        DataPasser.getInstance(getContext());
+        List<MarkerOptions> markersList = DataPasser.getMarkersList();
+        if (markersList != null && markersList.size() != 0) {
+            Log.d("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
+            for (MarkerOptions marker : markersList) {
+                createMarker(null, marker);
+            }
+        } else {
+            if (!PreferencesHelper.getFromSearchPref(getContext())) {
+                createNearbyMarkers(mMap);
+            }
+        }
+        if (!PreferencesHelper.getFromSearchPref(getContext())) {
+            moveCamera(mMap, getLatLng(), mMapZoom);
+        } else {
+            Log.d("setUpMap", "fromSearch pref was true so only creating custom marker");
+            createCustomMarker(getLatLng());
         }
     }
 
@@ -405,7 +418,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         e.printStackTrace();
                     }
                 } else {
-                    Log.d("processFinish", "Output was null!");
+                    Log.d("processFinish", "Output was null! Might be offline");
+                    shouldShowMapItems(Utilities.hasInternetConnection(getContext()));
                 }
             }
         });
@@ -583,6 +597,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 setUpMap();
             }
         }
+        registerBroadcastReceiver();
     }
 
     @Override
@@ -611,6 +626,10 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mIsGoogleConnected = false;
         mMyLocationButton.setVisibility(View.INVISIBLE);
         PreferencesHelper.setFromSearchPref(getContext(), false);
+
+        if (mBroadcastReceiver != null) {
+            getContext().unregisterReceiver(mBroadcastReceiver);
+        }
     }
 
     @Override
@@ -940,6 +959,25 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
+    private void shouldShowMapItems(boolean visibility) {
+        int shouldShow;
+        if (visibility) {
+            shouldShow = View.VISIBLE;
+            shouldShowOfflineTextView(View.INVISIBLE);
+            createMarkers();
+        } else {
+            shouldShow = View.INVISIBLE;
+            shouldShowOfflineTextView(View.VISIBLE);
+        }
+        mSearchButton.setVisibility(shouldShow);
+        mShowMoreButton.setVisibility(shouldShow);
+        mMyLocationButton.setVisibility(shouldShow);
+    }
+
+    private void shouldShowOfflineTextView(int visibility) {
+        mOfflineTextView.setVisibility(visibility);
+    }
+
     private LatLng getLatLng() {
         return new LatLng(mLat, mLng);
     }
@@ -947,5 +985,21 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setLatLng(LatLng latLng) {
         mLat = latLng.latitude;
         mLng = latLng.longitude;
+    }
+
+    private void registerBroadcastReceiver() {
+        Log.d("regrBroadcastReceiver", "Registring broadcast receiver on PlacesFragment");
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        if (mBroadcastReceiver == null) {
+            mBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    Log.d("onReceive", "Received a change in the broadcast receiver");
+                    shouldShowMapItems(Utilities.hasInternetConnection(context));
+                }
+            };
+        }
+        getContext().registerReceiver(mBroadcastReceiver, intentFilter);
     }
 }
