@@ -158,6 +158,11 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mIsVisible = true;
         }
 
+        LatLng dPLatLng = DataPasser.getLatLng();
+        if (dPLatLng != null) {
+            setLatLng(dPLatLng);
+        }
+
         try {
             MapsInitializer.initialize(getContext());
         } catch (Exception e) {
@@ -632,7 +637,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         mIsGoogleConnected = false;
         mMyLocationButton.setVisibility(View.INVISIBLE);
-        PreferencesHelper.setFromSearchPref(getContext(), false);
 
         if (mBroadcastReceiver != null) {
             getContext().unregisterReceiver(mBroadcastReceiver);
@@ -992,6 +996,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setLatLng(LatLng latLng) {
         mLat = latLng.latitude;
         mLng = latLng.longitude;
+        DataPasser.setLatLng(latLng);
     }
 
     private void registerBroadcastReceiver() {
