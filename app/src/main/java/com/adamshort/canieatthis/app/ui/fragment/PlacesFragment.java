@@ -100,6 +100,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         // inflate and return the layout
         View v = inflater.inflate(R.layout.fragment_places, container, false);
         setHasOptionsMenu(true);
+
         mApiKey = getResources().getString(R.string.server_key);
 
         mCoordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
@@ -960,6 +961,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         if (Utilities.isPortraitMode(getContext())) {
+            Log.d("onPrepareOptionsMenu", "In portrait mode, so hiding search on places fragment");
             menu.findItem(R.id.action_search).setVisible(false);
             super.onPrepareOptionsMenu(menu);
         }
@@ -970,7 +972,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (visibility) {
             shouldShow = View.VISIBLE;
             shouldShowOfflineTextView(View.INVISIBLE);
-            createMarkers();
         } else {
             shouldShow = View.INVISIBLE;
             shouldShowOfflineTextView(View.VISIBLE);
