@@ -110,7 +110,21 @@ public class Utilities {
     }
 
     public static boolean isPortraitMode(Context context) {
-        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.i("isPortraitMode", "portrait");
+            return true;
+        }
+        Log.i("isPortraitMode", "landscape");
+        return false;
+    }
+
+    public static boolean isLargeDevice(Context context) {
+        if(context.getResources().getBoolean(R.bool.large_device)){
+            Log.i("isLargeDevice", "large device");
+            return true;
+        }
+        Log.i("isLargeDevice", "non large device");
+        return false;
     }
 
     public static boolean isInDebugMode() {

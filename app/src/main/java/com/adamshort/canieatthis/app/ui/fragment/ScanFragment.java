@@ -497,7 +497,7 @@ public class ScanFragment extends Fragment {
                 if (!TextUtils.isEmpty(query)) {
                     Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                     ref.keepSynced(true);
-                    ref.addValueEventListener(new ValueEventListener() {
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
                             queryIngredientSearch(snapshot, query);

@@ -956,19 +956,22 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        if (Utilities.isPortraitMode(getContext())) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if ((Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext()))
+                || !Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext())
+                || Utilities.isPortraitMode(getContext()) && Utilities.isLargeDevice(getContext())) {
             inflater.inflate(R.menu.menu, menu);
-            super.onCreateOptionsMenu(menu, inflater);
         }
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if (Utilities.isPortraitMode(getContext())) {
-            Log.d("onPrepareOptionsMenu", "In portrait mode, so hiding search on places fragment");
+        if ((Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext()))
+                || !Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext())
+                || Utilities.isPortraitMode(getContext()) && Utilities.isLargeDevice(getContext())) {
             menu.findItem(R.id.action_search).setVisible(false);
-            super.onPrepareOptionsMenu(menu);
         }
+        super.onPrepareOptionsMenu(menu);
     }
 
     private void shouldShowMapItems(boolean visibility) {
