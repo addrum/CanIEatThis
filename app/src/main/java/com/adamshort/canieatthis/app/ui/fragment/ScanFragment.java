@@ -335,7 +335,7 @@ public class ScanFragment extends Fragment {
                     mIsSearching = false;
                 }
             });
-            rh.execute(getString(R.string.offBaseUrl) + barcode + EXTENSION);
+            rh.execute(getString(R.string.offBaseAPIUrl) + barcode + EXTENSION);
         } else {
             Log.d("getBarcodeInformation", "going to try and query csv file");
             File products = getCSVIFExists();

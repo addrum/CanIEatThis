@@ -28,13 +28,19 @@ public class AboutActivity extends AppCompatActivity {
             Log.e("onCreate", "Couldn't get package info: " + e.toString());
         }
 
-        Element gitHubElement = new Element();
-        String issuesUrl = "https://github.com/addrum/CanIEatThis-Public-/issues";
         Intent ghIntent = new Intent(Intent.ACTION_VIEW);
-        ghIntent.setData(Uri.parse(issuesUrl));
+        ghIntent.setData(Uri.parse(getString(R.string.issuesUrl)));
+        Element gitHubElement = new Element();
         gitHubElement.setTitle("Report an Issue")
                 .setIntent(ghIntent)
                 .setIcon(R.drawable.about_icon_github);
+
+        Intent offIntent = new Intent(Intent.ACTION_VIEW);
+        offIntent.setData(Uri.parse(getString(R.string.offUrl)));
+        Element offElement = new Element();
+        offElement.setTitle("Open Food Facts")
+                .setIntent(offIntent)
+                .setIcon(R.drawable.ic_off);
 
         View aboutPage = new AboutPage(this)
                 .isRTL(false)
@@ -43,7 +49,9 @@ public class AboutActivity extends AppCompatActivity {
                 .addGroup("Connect with us")
                 .addEmail(getString(R.string.aboutEmail))
                 .addPlayStore(getString(R.string.packageName))
+                .addTwitter(getString(R.string.twitter))
                 .addItem(gitHubElement)
+                .addItem(offElement)
                 .create();
 
         setContentView(aboutPage);
