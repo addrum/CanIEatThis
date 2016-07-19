@@ -808,7 +808,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                                         long gluten_false = getKeyValue(gluten, "false");
                                         if (shouldShowInfo(gluten_true, gluten_false)) {
                                             snippet = addToSnippet(glutenPattern, snippet,
-                                                    gluten_true, gluten_false, "Celiac");
+                                                    gluten_true, gluten_false, "Gluten Free");
                                         }
                                         bools[3] = gluten_true > gluten_false;
                                     } catch (Exception e) {
@@ -820,7 +820,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         if (!snippet.contains("Lactose Free")
                                 && !snippet.contains("Vegetarian")
                                 && !snippet.contains("Vegan")
-                                && !snippet.contains("Celiac")) {
+                                && !snippet.contains("Gluten Free")) {
                             if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
                                 snippet += ",";
                             }
@@ -940,18 +940,18 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
         }
 
-        Pattern glutenPattern = Pattern.compile("Celiac: ([a-zA-z]*)");
+        Pattern glutenPattern = Pattern.compile("Gluten Free: ([a-zA-z]*)");
         m = glutenPattern.matcher(snippet);
-        Boolean celiac = null;
+        Boolean gluten = null;
         if (m.find()) {
             if (m.group(1).equals("Yes")) {
-                celiac = true;
+                gluten = true;
             } else if (m.group(1).equals("No")) {
-                celiac = false;
+                gluten = false;
             }
         }
 
-        addMarker(marker, new Boolean[]{lactose, vegetarian, vegan, celiac});
+        addMarker(marker, new Boolean[]{lactose, vegetarian, vegan, gluten});
     }
 
     @Override
