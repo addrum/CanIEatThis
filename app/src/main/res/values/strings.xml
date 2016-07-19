@@ -54,7 +54,7 @@
     <string name="placesSubmittingError">There was an issue submitting info</string>
     <string name="placesUrl">https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="</string>
     <string name="portionError">You must enter a portion size when selecting energy per serving</string>
-    <string name="portionSize">Portion Size (e.g. 30g)</string>
+    <string name="portionSize">Portion Size (e.g. 30g or 1 biscuit)</string>
     <string name="product">"Product: %1$s"</string>
     <string name="productImageButtonText">PRODUCT IMAGE</string>
     <string name="productNameHint">Product Name</string>
