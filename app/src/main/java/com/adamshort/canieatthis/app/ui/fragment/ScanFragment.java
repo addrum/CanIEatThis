@@ -476,7 +476,7 @@ public class ScanFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        mActionMenu = menu;
+        menu.clear();
         inflater.inflate(R.menu.menu, menu);
 
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
@@ -497,7 +497,7 @@ public class ScanFragment extends Fragment {
                 if (!TextUtils.isEmpty(query)) {
                     Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                     ref.keepSynced(true);
-                    ref.addValueEventListener(new ValueEventListener() {
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
                             queryIngredientSearch(snapshot, query);
@@ -526,6 +526,7 @@ public class ScanFragment extends Fragment {
             searchView.setOnQueryTextListener(queryTextListener);
         }
 
+        mActionMenu = menu;
         super.onCreateOptionsMenu(menu, inflater);
     }
 

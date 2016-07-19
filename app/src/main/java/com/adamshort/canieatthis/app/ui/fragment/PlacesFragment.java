@@ -100,6 +100,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         // inflate and return the layout
         View v = inflater.inflate(R.layout.fragment_places, container, false);
         setHasOptionsMenu(true);
+
         mApiKey = getResources().getString(R.string.server_key);
 
         mCoordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.places_coordinator_layout);
@@ -153,6 +154,15 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
         mOfflineTextView = (TextView) v.findViewById(R.id.offlineTextView);
 
+        if (!Utilities.isPortraitMode(getContext())) {
+            mIsVisible = true;
+        }
+
+        LatLng dPLatLng = DataPasser.getLatLng();
+        if (dPLatLng != null) {
+            setLatLng(dPLatLng);
+        }
+
         try {
             MapsInitializer.initialize(getContext());
         } catch (Exception e) {
@@ -194,7 +204,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * @param latLng    The position to move the camera too.
      */
     private void moveCamera(GoogleMap googleMap, LatLng latLng, float zoom) {
-        if ((mIsVisible || !Utilities.isPortraitMode(getContext())) && googleMap != null && latLng != null) {
+        if (mIsVisible && googleMap != null && latLng != null) {
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(latLng).zoom(zoom).build();
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -211,7 +221,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setUpMap() {
         createGoogleAPIClient();
         if (mMap != null) {
-            if (mIsVisible || !Utilities.isPortraitMode(getContext())) {
+            if (mIsVisible) {
                 checkLocationPermission();
                 LatLng latLng = getLatLng();
                 if (latLng.latitude != 0 && latLng.longitude != 0) {
@@ -431,40 +441,41 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * After the first ask, shows a snackbar indefinitely which shows the permissions dialog again.
      */
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("checkLocationPref", "permission already granted");
-            mMyLocationButton.setVisibility(View.VISIBLE);
-            setUserLocationSettings();
-        } else {
-            // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.d("checkLocationPer", "should show request permission rationale");
-                // Need to show permission rationale, display a snackbar and then request
-                // the permission again when the snackbar is dismissed.
-                Snackbar.make(mCoordinatorLayout,
-                        R.string.fineLocationRationale,
-                        Snackbar.LENGTH_INDEFINITE)
-                        .setAction(android.R.string.ok, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Log.d("checkLocationPer", "request permission");
-                                // Request the permission again.
-                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSION_ACCESS_FINE_LOCATION);
-                            }
-                        }).show();
+        if (PreferencesHelper.getIntroShownPref(getContext())) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d("checkLocationPref", "permission already granted");
+                setUserLocationSettings();
             } else {
-                int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
-                if (timesAsked < 2) {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            MY_PERMISSION_ACCESS_FINE_LOCATION);
-                    timesAsked += 1;
-                    PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
+                // Should we show an explanation?
+                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Log.d("checkLocationPer", "should show request permission rationale");
+                    // Need to show permission rationale, display a snackbar and then request
+                    // the permission again when the snackbar is dismissed.
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.fineLocationRationale,
+                            Snackbar.LENGTH_INDEFINITE)
+                            .setAction(android.R.string.ok, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Log.d("checkLocationPer", "request permission");
+                                    // Request the permission again.
+                                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                            MY_PERMISSION_ACCESS_FINE_LOCATION);
+                                }
+                            }).show();
                 } else {
-                    Log.d("checkLocationPer", "don't show permission again");
+                    int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
+                    if (timesAsked < 2) {
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSION_ACCESS_FINE_LOCATION);
+                        timesAsked += 1;
+                        PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
+                    } else {
+                        Log.d("checkLocationPer", "don't show permission again");
+                    }
                 }
+                mMyLocationButton.setVisibility(View.INVISIBLE);
             }
-            mMyLocationButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -473,6 +484,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      */
     @SuppressWarnings("MissingPermission")
     private void setUserLocationSettings() {
+        mMyLocationButton.setVisibility(View.VISIBLE);
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         if (!PreferencesHelper.getFromSearchPref(getContext())) {
@@ -625,7 +637,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         mIsGoogleConnected = false;
         mMyLocationButton.setVisibility(View.INVISIBLE);
-        PreferencesHelper.setFromSearchPref(getContext(), false);
 
         if (mBroadcastReceiver != null) {
             getContext().unregisterReceiver(mBroadcastReceiver);
@@ -945,18 +956,22 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
-        if (Utilities.isPortraitMode(getContext())) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if ((Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext()))
+                || !Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext())
+                || Utilities.isPortraitMode(getContext()) && Utilities.isLargeDevice(getContext())) {
             inflater.inflate(R.menu.menu, menu);
-            super.onCreateOptionsMenu(menu, inflater);
         }
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        if (Utilities.isPortraitMode(getContext())) {
+        if ((Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext()))
+                || !Utilities.isPortraitMode(getContext()) && !Utilities.isLargeDevice(getContext())
+                || Utilities.isPortraitMode(getContext()) && Utilities.isLargeDevice(getContext())) {
             menu.findItem(R.id.action_search).setVisible(false);
-            super.onPrepareOptionsMenu(menu);
         }
+        super.onPrepareOptionsMenu(menu);
     }
 
     private void shouldShowMapItems(boolean visibility) {
@@ -964,7 +979,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (visibility) {
             shouldShow = View.VISIBLE;
             shouldShowOfflineTextView(View.INVISIBLE);
-            createMarkers();
         } else {
             shouldShow = View.INVISIBLE;
             shouldShowOfflineTextView(View.VISIBLE);
@@ -985,6 +999,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private void setLatLng(LatLng latLng) {
         mLat = latLng.latitude;
         mLng = latLng.longitude;
+        DataPasser.setLatLng(latLng);
     }
 
     private void registerBroadcastReceiver() {

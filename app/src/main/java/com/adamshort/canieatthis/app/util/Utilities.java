@@ -6,6 +6,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
@@ -109,9 +110,21 @@ public class Utilities {
     }
 
     public static boolean isPortraitMode(Context context) {
-        boolean portrait = context.getResources().getBoolean(R.bool.portrait_only);
-        Log.d("isPortraitMode", "portrait only: " + portrait);
-        return portrait;
+        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.i("isPortraitMode", "portrait");
+            return true;
+        }
+        Log.i("isPortraitMode", "landscape");
+        return false;
+    }
+
+    public static boolean isLargeDevice(Context context) {
+        if(context.getResources().getBoolean(R.bool.large_device)){
+            Log.i("isLargeDevice", "large device");
+            return true;
+        }
+        Log.i("isLargeDevice", "non large device");
+        return false;
     }
 
     public static boolean isInDebugMode() {

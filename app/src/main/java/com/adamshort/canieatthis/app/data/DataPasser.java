@@ -8,17 +8,19 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DataPasser {
+    private static List<MarkerOptions> mMarkersList;
     private static List<String> mFirebaseIngredientsList;
     private static List<String> mFirebaseTracesList;
-    private static List<MarkerOptions> mMarkersList;
 
     private static DataPasser mInstance = null;
+    private static LatLng mLatLng;
 
     private DataPasser(Context context) {
         mFirebaseIngredientsList = new ArrayList<>();
@@ -94,5 +96,14 @@ public class DataPasser {
         if (!mMarkersList.contains(marker)) {
             mMarkersList.add(marker);
         }
+    }
+
+    public static void setLatLng(LatLng latLng) {
+        mLatLng = latLng;
+        Log.d("setLatLng", "LatLng is: " + latLng);
+    }
+
+    public static LatLng getLatLng() {
+        return mLatLng;
     }
 }
