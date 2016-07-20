@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Wear</string>
-    <string name="hello_round">Hello Round World!</string>
-    <string name="hello_square">Hello Square World!</string>
+    <string name="app_name">CanIEatThis Wear</string>
+    <string name="intro_text">Long press to quit</string>
 </resources>

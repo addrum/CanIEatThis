@@ -36,4 +36,5 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.google.zxing:core:3.2.1'
     compile 'com.google.android.gms:play-services-wearable:9.2.1'
+    wearApp project(':wear')
 }
