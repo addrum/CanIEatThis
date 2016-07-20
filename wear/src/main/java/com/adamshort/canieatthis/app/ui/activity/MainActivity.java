@@ -31,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.wearable.Wearable;
 
@@ -45,6 +46,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
+    private int mMarkersAdded;
     private double mLat;
     private double mLng;
 
@@ -162,6 +164,23 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
         // Set the long click listener as a way to exit the map.
         mMap.setOnMapLongClickListener(this);
+
+//        googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Log.d("onInfoWindowClick", "Info window clicked");
+            }
+        });
+
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Log.d("onMarkerClick", "Marker: " + marker.getTitle() + "LatLng: " + marker.getPosition());
+                return marker.getTitle().equals("custom");
+            }
+        });
     }
 
     @Override
@@ -199,6 +218,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         setUserLocation();
+        moveCamera(mMap, new LatLng(mLat, mLng), 15);
     }
 
     /**
@@ -358,6 +378,12 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             } catch (JSONException e) {
                 Log.e("onReceive", "Couldn't create JSON from message");
             }
+            if (mMarkersAdded > 19) {
+                Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
+                mMap.clear();
+                mMarkersAdded = 0;
+            }
+            mMarkersAdded++;
         }
     }
 }
