@@ -164,10 +164,10 @@ public class ScanFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            Log.d("setUserVisibleHint", "ScanFragment is visible.");
+            Log.i("setUserVisibleHint", "ScanFragment is visible.");
             Log.d("setUserVisibleHint", Boolean.toString(mFragmentCreated));
         } else {
-            Log.d("setUserVisibleHint", "ScanFragment is not visible.");
+            Log.i("setUserVisibleHint", "ScanFragment is not visible.");
             setCheckBoxesVisibility(View.INVISIBLE);
             setResponseItemsVisibility(View.INVISIBLE);
             if (mProductNameTextView != null) {
@@ -337,7 +337,7 @@ public class ScanFragment extends Fragment {
             });
             rh.execute(getString(R.string.offBaseAPIUrl) + barcode + EXTENSION);
         } else {
-            Log.d("getBarcodeInformation", "going to try and query csv file");
+            Log.i("getBarcodeInformation", "going to try and query csv file");
             File products = getCSVIFExists();
             if (products != null) {
                 CSVReaderAsync csvReaderAsync = new CSVReaderAsync(barcode, mProgressBar, getContext(), getActivity(), new CSVReaderAsync.AsyncResponse() {
@@ -423,11 +423,6 @@ public class ScanFragment extends Fragment {
                 }
                 if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
                     setTracesResponseTextBox(getString(R.string.noTracesFound));
-                }
-                if (Utilities.hasInternetConnection(getContext())) {
-                    mFab.show();
-                } else {
-                    Log.d("onActivityResult", "No internet connection, not showing fab");
                 }
             } else {
                 showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();

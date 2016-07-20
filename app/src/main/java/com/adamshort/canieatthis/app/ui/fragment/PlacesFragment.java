@@ -237,7 +237,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         DataPasser.getInstance(getContext());
         List<MarkerOptions> markersList = DataPasser.getMarkersList();
         if (markersList != null && markersList.size() != 0) {
-            Log.d("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
+            Log.i("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
             for (MarkerOptions marker : markersList) {
                 createMarker(null, marker);
             }
@@ -249,14 +249,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (!PreferencesHelper.getFromSearchPref(getContext())) {
             moveCamera(mMap, getLatLng(), mMapZoom);
         } else {
-            Log.d("setUpMap", "fromSearch pref was true so only creating custom marker");
+            Log.i("setUpMap", "fromSearch pref was true so only creating custom marker");
             createCustomMarker(getLatLng());
         }
     }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        Log.d("onMapReady", "Map is ready");
+        Log.i("onMapReady", "Map is ready");
 
         googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
@@ -325,7 +325,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 Log.d("createNearbyMarkers", "mLat mLng were 0");
             }
         } else {
-            Log.d("createNearbyMarkers", "Not connected so can't make places request");
+            Log.i("createNearbyMarkers", "Not connected so can't make places request");
         }
     }
 
@@ -352,7 +352,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     String rating = location.getString("rating");
                     snippetText += "Rating: " + rating;
                 } catch (JSONException e) {
-                    Log.e("processFinish", "No value for rating");
+                    Log.w("processFinish", "No value for rating");
                 }
 
                 try {
@@ -363,7 +363,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         snippetText += ",Open Now: No";
                     }
                 } catch (JSONException e) {
-                    Log.e("processFinish", "No value for opening_hours or open_now");
+                    Log.w("processFinish", "No value for opening_hours or open_now");
                 }
 
                 marker.snippet(snippetText);
@@ -372,7 +372,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 FirebaseAsyncRequest fb = new FirebaseAsyncRequest(false);
                 fb.execute(marker);
 
-                Log.d("DEBUG", "Name: " + name + " lat " + lat + " lng " + lng);
+                Log.d("createMarker", "Name: " + name + " lat " + lat + " lng " + lng);
             } catch (JSONException e) {
                 Log.e("createMarker", e.toString());
             }
@@ -428,7 +428,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         e.printStackTrace();
                     }
                 } else {
-                    Log.d("processFinish", "Output was null! Might be offline");
+                    Log.i("processFinish", "Output was null! Might be offline");
                     shouldShowMapItems(Utilities.hasInternetConnection(getContext()));
                 }
             }
@@ -502,7 +502,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mLat = mLastLocation.getLatitude();
             mLng = mLastLocation.getLongitude();
         } catch (NullPointerException e) {
-            Log.e("getUserLatLng", "Couldn't get mLat or long from last location: " + e.toString());
+            Log.w("getUserLatLng", "Couldn't get mLat or long from last location: " + e.toString());
         }
     }
 
@@ -592,7 +592,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d("onConnected", "APIClient mIsGoogleConnected");
+        Log.i("onConnected", "APIClient mIsGoogleConnected");
         mIsGoogleConnected = true;
         if (!mIsMapSetup) {
             setUpMap();
@@ -889,7 +889,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 || (mGlutenPref && (glu == null || glu))) {
             mMap.addMarker(marker);
         } else {
-            Log.d("onDataChange", "Not adding marker. Name: " + marker.getTitle()
+            Log.i("onDataChange", "Not adding marker. Name: " + marker.getTitle()
                     + " mLactosePref: " + mLactosePref
                     + " mVegetarianPref: " + mVegetarianPref
                     + " mVeganPref: " + mVeganPref
@@ -1003,14 +1003,14 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void registerBroadcastReceiver() {
-        Log.d("regrBroadcastReceiver", "Registring broadcast receiver on PlacesFragment");
+        Log.i("registerBroadcastRec", "Registering broadcast receiver on PlacesFragment");
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         if (mBroadcastReceiver == null) {
             mBroadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    Log.d("onReceive", "Received a change in the broadcast receiver");
+                    Log.i("onReceive", "Received a change in the broadcast receiver");
                     shouldShowMapItems(Utilities.hasInternetConnection(context));
                 }
             };
