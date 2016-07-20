@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">CanIEatThis Wear</string>
     <string name="intro_text">Long press to quit</string>
+    <string name="infoWindowProvideInfoText">Have you been here?\nClick here to provide information!</string>
 </resources>
