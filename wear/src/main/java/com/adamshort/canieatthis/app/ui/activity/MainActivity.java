@@ -21,6 +21,7 @@ import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
 import com.adamshort.canieatthis.app.R;
+import com.adamshort.canieatthis.app.ui.PopupAdapter;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -165,7 +166,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         // Set the long click listener as a way to exit the map.
         mMap.setOnMapLongClickListener(this);
 
-//        googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
+        googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
 
         googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override

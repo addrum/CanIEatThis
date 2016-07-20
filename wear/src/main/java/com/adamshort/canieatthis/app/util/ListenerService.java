@@ -13,7 +13,7 @@ public class ListenerService extends WearableListenerService {
     public void onMessageReceived(MessageEvent messageEvent) {
         if (messageEvent.getPath().equals("/watch_path")) {
             final String message = new String(messageEvent.getData());
-            Log.i("onMessageReceived", "Message path received on watch is: " + messageEvent.getPath());
+            Log.d("onMessageReceived", "Message path received on watch is: " + messageEvent.getPath());
 
             // Broadcast message to wearable activity for display
             Intent messageIntent = new Intent();
