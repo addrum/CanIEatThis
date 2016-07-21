@@ -17,6 +17,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -388,7 +389,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * @param nextPageToken The token needed to get the next set of markers.
      */
     private void showMore(String nextPageToken) {
-        if (!nextPageToken.equals("")) {
+        if (!TextUtils.isEmpty(nextPageToken)) {
             String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&mRadius=" + mRadius + "&type=restaurant&key=" + mApiKey
                     + "&pagetoken=" + nextPageToken;
             queryPlacesURL(url);
