@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.adamshort.canieatthis.app.R;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
@@ -34,6 +35,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONException;
@@ -172,6 +176,18 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             @Override
             public void onInfoWindowClick(Marker marker) {
                 Log.d("onInfoWindowClick", "Info window clicked");
+
+                try {
+                    JSONObject message = new JSONObject();
+                    message.put("name", marker.getTitle());
+                    message.put("location", marker.getPosition().toString());
+
+                    submitInfoOnPhone(message.toString());
+
+                    Toast.makeText(getBaseContext(), "Submit info on your phone", Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    Log.e("onInfoWindowClick", "Issue creating json to send to phone");
+                }
             }
         });
 
@@ -365,6 +381,37 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             }
         } else {
             Log.w("createMarker", "marker was null");
+        }
+    }
+
+    private void submitInfoOnPhone(String message) {
+        Log.i("submitInfoOnPhone", "Sending message to phone");
+        new SendToDataLayerThread("/phone_path", message).start();
+    }
+
+    class SendToDataLayerThread extends Thread {
+        String path;
+        String message;
+
+        // Constructor to send a message to the data layer
+        SendToDataLayerThread(String p, String msg) {
+            path = p;
+            message = msg;
+        }
+
+        public void run() {
+            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+            for (Node node : nodes.getNodes()) {
+                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
+                        mGoogleApiClient, node.getId(), path, message.getBytes()).await();
+                if (result.getStatus().isSuccess()) {
+                    Log.i("run", "Message sent to: " + node.getDisplayName());
+                    Log.d("run", "Message: " + message);
+                } else {
+                    // Log an error
+                    Log.e("run", "ERROR: failed to send Message");
+                }
+            }
         }
     }
 

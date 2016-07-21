@@ -21,7 +21,7 @@
         android:layout_marginTop="5dp"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="10sp"/>
+        android:textSize="12sp"/>
 
     <TextView
         android:id="@+id/open_now"
@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="10sp"/>
+        android:textSize="12sp"/>
 
     <TextView
         android:id="@+id/view1"
@@ -38,7 +38,7 @@
         android:layout_marginTop="10dp"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:maxWidth="150dp"
         android:textColor="#000"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="10sp"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
@@ -76,6 +76,6 @@
         android:maxWidth="125dp"
         android:text="@string/infoWindowProvideInfoText"
         android:textColor="#000"
-        android:textSize="10sp"/>
+        android:textSize="12sp"/>
 
 </LinearLayout>
