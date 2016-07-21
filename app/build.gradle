@@ -8,8 +8,23 @@ android {
         applicationId "com.adamshort.canieatthis.app"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 190
-        versionName "1.9.0"
+
+        // Fetch the version according to git latest tag and "how far are we from last tag"
+        def longVersionName = "git -C ${rootDir} describe --tags".execute().text.trim()
+        def (fullVersionTag, gitSha) = longVersionName.tokenize('-')
+        def(versionMajor, versionMinor, versionPatch) = fullVersionTag.tokenize('.')
+
+        // Set the version name
+        versionName "$versionMajor.$versionMinor.$versionPatch"
+
+        // Turn the version name into a version code
+        versionCode versionMajor.toInteger() * 100 +
+                versionMinor.toInteger() * 10 +
+                versionPatch.toInteger()
+
+        // Friendly print the version output to the Gradle console
+        printf("\n--------" + "VERSION DATA--------" + "\n" + "- CODE: " + versionCode + "\n" +
+                "- NAME: " + versionName + "\n----------------------------\n")
     }
     buildTypes {
         release {
