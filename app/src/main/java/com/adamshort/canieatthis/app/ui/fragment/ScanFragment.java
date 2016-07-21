@@ -93,7 +93,7 @@ public class ScanFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
         setHasOptionsMenu(true);
 
-        mCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
+        mCoordinatorLayout = (CoordinatorLayout) getActivity().findViewById(R.id.mainActivityCoordinatorLayout);
         mSwitchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
         mIntroTextView = (TextView) view.findViewById(R.id.introTextView);
