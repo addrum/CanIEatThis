@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private int mPosition;
 
     private BroadcastReceiver mDownloadCompleteReceiver;
-    private LinearLayout mTabLayoutLinearLayout;
+    private LinearLayout mTabLinearLayout;
     private PlacesFragment mPlacesFragment;
 
     @Override
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         mPlacesFragment = new PlacesFragment();
         fragments.add(mPlacesFragment);
 
-        mTabLayoutLinearLayout = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
+        mTabLinearLayout = (LinearLayout) findViewById(R.id.tabLinearLayout);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -103,6 +104,12 @@ public class MainActivity extends AppCompatActivity {
             if (tabLayout != null) {
                 tabLayout.setupWithViewPager(viewPager);
             }
+
+            boolean fromWatch = getIntent().getBooleanExtra("from_watch", false);
+            if (fromWatch) {
+                CoordinatorLayout mMainActivityCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.mainActivityCoordinatorLayout);
+                Snackbar.make(mMainActivityCoordinatorLayout, R.string.placesDataSubmitted, Snackbar.LENGTH_LONG).show();
+            }
         }
 
         DataPasser.getInstance(getBaseContext());
@@ -133,13 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
                         switch (status) {
                             case DownloadManager.STATUS_SUCCESSFUL:
-                                Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(mTabLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
                                 editor.putString("download_status", "downloaded");
                                 editor.apply();
                                 break;
                             case DownloadManager.STATUS_FAILED:
                                 Log.d("onReceive", "Download failed: " + reason);
-                                Snackbar.make(mTabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(mTabLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
                                 editor.putString("download_status", "failed");
                                 break;
                             case DownloadManager.STATUS_PAUSED:

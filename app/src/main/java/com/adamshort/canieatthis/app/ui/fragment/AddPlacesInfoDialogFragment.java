@@ -25,12 +25,14 @@ import com.google.android.gms.maps.model.LatLng;
 import java.io.File;
 
 public class AddPlacesInfoDialogFragment extends DialogFragment {
-    private LatLng mLatLng;
 
+    private boolean mSubmitted;
+
+    private LatLng mLatLng;
     private OnCompleteListener mListener;
 
     public interface OnCompleteListener {
-        void onComplete();
+        void onComplete(boolean successful);
     }
 
     @NonNull
@@ -75,7 +77,8 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
                                 File file = new File(getContext().getFilesDir(), Installation.getInstallation());
                                 Installation.writeInstallationFile(file, "\n" + mLatLng.toString(), true);
 
-                                mListener.onComplete();
+                                mListener.onComplete(true);
+                                mSubmitted = true;
                             }
                         } catch (Exception e) {
                             Log.e("onClick", e.toString());
@@ -83,6 +86,13 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
                     }
                 });
         return builder.create();
+    }
+
+    @Override
+    public void onDismiss(final DialogInterface arg0) {
+        if (!mSubmitted) {
+            mListener.onComplete(false);
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.Installation;
@@ -43,7 +44,14 @@ public class AddInfoFromWearActivity extends AppCompatActivity implements AddPla
                     dialog.show(getSupportFragmentManager(), "AddPlacesInfoDialog");
                 } else {
                     Snackbar.make(coordinatorLayout, "You have already submitted information about this place"
-                            , Snackbar.LENGTH_LONG)
+                            , Snackbar.LENGTH_INDEFINITE)
+                            .setAction("Return", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                                    startActivity(intent);
+                                }
+                            })
                             .show();
                 }
             } catch (IOException e) {
@@ -55,9 +63,10 @@ public class AddInfoFromWearActivity extends AppCompatActivity implements AddPla
     }
 
     @Override
-    public void onComplete() {
+    public void onComplete(boolean successful) {
         Log.i("onComplete", "Finished adding places so returning to main activity");
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("from_watch", successful);
         startActivity(intent);
     }
 }
