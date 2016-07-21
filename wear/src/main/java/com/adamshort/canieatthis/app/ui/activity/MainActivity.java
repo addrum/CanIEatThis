@@ -182,7 +182,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                     message.put("name", marker.getTitle());
                     message.put("location", marker.getPosition().toString());
 
-                    submitInfoOnPhone(message.toString());
+                    sendMessageToPhone("/add_places_info_phone_path", message.toString());
 
                     Toast.makeText(getBaseContext(), "Submit info on your phone", Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
@@ -198,6 +198,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                 return marker.getTitle().equals("custom");
             }
         });
+
+        sendMessageToPhone("/request_markers", "get_markers");
     }
 
     @Override
@@ -384,9 +386,9 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         }
     }
 
-    private void submitInfoOnPhone(String message) {
-        Log.i("submitInfoOnPhone", "Sending message to phone");
-        new SendToDataLayerThread("/phone_path", message).start();
+    private void sendMessageToPhone(String path, String message) {
+        Log.i("sendMessageToPhone", "Sending message to phone");
+        new SendToDataLayerThread(path, message).start();
     }
 
     class SendToDataLayerThread extends Thread {
