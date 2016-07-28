@@ -986,7 +986,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         mSearchButton.setVisibility(shouldShow);
         mShowMoreButton.setVisibility(shouldShow);
-        mMyLocationButton.setVisibility(shouldShow);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMyLocationButton.setVisibility(shouldShow);
+        }
     }
 
     private void shouldShowOfflineTextView(int visibility) {
