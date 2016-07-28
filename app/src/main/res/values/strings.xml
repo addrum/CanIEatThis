@@ -97,4 +97,5 @@
     <string name="vegetarianQuestion">Does this place have a vegetarian option?</string>
     <string name="vegetarianSwitchText">Vegetarian</string>
     <string name="yes">yes</string>
+    <string name="ingredientNotFound">Ingredient not found</string>
 </resources>

@@ -77,6 +77,7 @@ public class ScanFragment extends Fragment {
     private CoordinatorLayout mCoordinatorLayout;
     private FloatingActionButton mFab;
     private ProgressBar mProgressBar;
+    private Snackbar mIngredientNotFoundSnackbar;
     private TableLayout mSwitchesTableLayout;
     private TextView mIngredientResponseView;
     private TextView mIngredientsTitleText;
@@ -93,7 +94,11 @@ public class ScanFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_scan, container, false);
         setHasOptionsMenu(true);
 
-        mCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
+        if (Utilities.isLargeDevice(getContext())) {
+            mCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.scan_coordinator_layout);
+        } else {
+            mCoordinatorLayout = (CoordinatorLayout) getActivity().findViewById(R.id.mainActivityCoordinatorLayout);
+        }
         mSwitchesTableLayout = (TableLayout) view.findViewById(R.id.switchesTableLayout);
 
         mIntroTextView = (TextView) view.findViewById(R.id.introTextView);
@@ -122,10 +127,7 @@ public class ScanFragment extends Fragment {
         mFab.hide();
         mFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto", getString(R.string.aboutEmail), null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.issueEmailSubject));
-                emailIntent.putExtra(Intent.EXTRA_TEXT,
+                startEmailIntent(getString(R.string.issueEmailSubject),
                         "Barcode: " + mBarcode + "\n" +
                                 "\nProduct Name: " + mProductNameTextView.getText() + "\n" +
                                 "\nLactose Free: " + mLactoseFreeSwitch.isChecked() + "\n" +
@@ -135,7 +137,6 @@ public class ScanFragment extends Fragment {
                                 "\nIngredients: " + mIngredientResponseView.getText() + "\n" +
                                 "\nTraces: " + mTracesResponseView.getText() + "\n" +
                                 "\nDescribe any issues you are having here:");
-                startActivity(Intent.createChooser(emailIntent, "Send information..."));
             }
         });
 
@@ -147,6 +148,10 @@ public class ScanFragment extends Fragment {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mIngredientNotFoundSnackbar != null) {
+                    mIngredientNotFoundSnackbar.dismiss();
+                }
+
                 if (!mIsSearching) {
                     scanBar();
                     mIsSearching = true;
@@ -164,10 +169,10 @@ public class ScanFragment extends Fragment {
         super.setUserVisibleHint(isVisibleToUser);
 
         if (isVisibleToUser) {
-            Log.d("setUserVisibleHint", "ScanFragment is visible.");
+            Log.i("setUserVisibleHint", "ScanFragment is visible.");
             Log.d("setUserVisibleHint", Boolean.toString(mFragmentCreated));
         } else {
-            Log.d("setUserVisibleHint", "ScanFragment is not visible.");
+            Log.i("setUserVisibleHint", "ScanFragment is not visible.");
             setCheckBoxesVisibility(View.INVISIBLE);
             setResponseItemsVisibility(View.INVISIBLE);
             if (mProductNameTextView != null) {
@@ -178,6 +183,9 @@ public class ScanFragment extends Fragment {
             }
             if (mFab != null) {
                 mFab.hide();
+            }
+            if (mIngredientNotFoundSnackbar != null) {
+                mIngredientNotFoundSnackbar.dismiss();
             }
         }
     }
@@ -337,7 +345,7 @@ public class ScanFragment extends Fragment {
             });
             rh.execute(getString(R.string.offBaseAPIUrl) + barcode + EXTENSION);
         } else {
-            Log.d("getBarcodeInformation", "going to try and query csv file");
+            Log.i("getBarcodeInformation", "going to try and query csv file");
             File products = getCSVIFExists();
             if (products != null) {
                 CSVReaderAsync csvReaderAsync = new CSVReaderAsync(barcode, mProgressBar, getContext(), getActivity(), new CSVReaderAsync.AsyncResponse() {
@@ -424,11 +432,6 @@ public class ScanFragment extends Fragment {
                 if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
                     setTracesResponseTextBox(getString(R.string.noTracesFound));
                 }
-                if (Utilities.hasInternetConnection(getContext())) {
-                    mFab.show();
-                } else {
-                    Log.d("onActivityResult", "No internet connection, not showing fab");
-                }
             } else {
                 showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
             }
@@ -500,11 +503,17 @@ public class ScanFragment extends Fragment {
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
+                            if (mIngredientNotFoundSnackbar != null) {
+                                mIngredientNotFoundSnackbar.dismiss();
+                            }
                             queryIngredientSearch(snapshot, query);
                         }
 
                         @Override
                         public void onCancelled(FirebaseError error) {
+                            if (mIngredientNotFoundSnackbar != null) {
+                                mIngredientNotFoundSnackbar.dismiss();
+                            }
                         }
                     });
                 }
@@ -536,18 +545,33 @@ public class ScanFragment extends Fragment {
      * @param snapshot   A firebase snapshot which is also looped over for comparison to @values.
      * @param ingredient The singular ingredient to query.
      */
-    private void queryIngredientSearch(DataSnapshot snapshot, String ingredient) {
+    private void queryIngredientSearch(DataSnapshot snapshot, final String ingredient) {
         boolean[] bools = processIngredientFirebase(ingredient, snapshot);
 
-        setProductName(ingredient);
-
-        setDietaryCheckBoxes(bools[0], bools[1], bools[2], bools[3]);
-        setCheckBoxesVisibility(View.VISIBLE);
         setResponseItemsVisibility(View.INVISIBLE);
         mIntroTextView.setVisibility(View.INVISIBLE);
 
         mActionMenu.findItem(R.id.action_search).collapseActionView();
-        mFab.show();
+
+        if (bools.length > 1) {
+            setCheckBoxesVisibility(View.VISIBLE);
+
+            setProductName(ingredient);
+            setDietaryCheckBoxes(bools[0], bools[1], bools[2], bools[3]);
+
+            mFab.show();
+        } else {
+            setCheckBoxesVisibility(View.INVISIBLE);
+            setProductName(ingredient);
+            mIngredientNotFoundSnackbar = Snackbar.make(mCoordinatorLayout, "Ingredient not found", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("Email", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            startEmailIntent("Ingredient not Found", "Ingredient: " + ingredient + "\n\n");
+                        }
+                    });
+            mIngredientNotFoundSnackbar.show();
+        }
     }
 
     private File getCSVIFExists() {
@@ -577,9 +601,20 @@ public class ScanFragment extends Fragment {
                 .show();
     }
 
+    private void startEmailIntent(String subject, String text) {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto", getString(R.string.aboutEmail), null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, text);
+        startActivity(Intent.createChooser(emailIntent, "Send information..."));
+    }
+
     @Override
     public void onPause() {
         mIsSearching = false;
+        if (mIngredientNotFoundSnackbar != null) {
+            mIngredientNotFoundSnackbar.dismiss();
+        }
         super.onPause();
     }
 
