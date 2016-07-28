@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.Installation;
+import com.adamshort.canieatthis.app.ui.fragment.AddPlacesInfoDialogFragment;
 import com.adamshort.canieatthis.app.ui.fragment.PlacesFragment;
 import com.adamshort.canieatthis.app.ui.fragment.ScanFragment;
 import com.adamshort.canieatthis.app.util.FragmentHandler;
@@ -35,7 +36,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AddPlacesInfoDialogFragment.OnCompleteListener {
     private static final int APP_INTRO_REQUEST_CODE = 3;
 
     private int mPosition;
@@ -270,4 +271,8 @@ public class MainActivity extends AppCompatActivity {
         this.mPosition = mPosition;
     }
 
+    @Override
+    public void onComplete(boolean successful) {
+        Log.d("onComplete", "Successful places info: " + successful);
+    }
 }
