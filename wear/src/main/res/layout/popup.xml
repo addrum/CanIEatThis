@@ -9,8 +9,9 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="200dp"
-        android:textSize="16sp"
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"
         android:textStyle="bold"/>
 
     <TextView
@@ -18,41 +19,53 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:maxWidth="200dp"/>
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"/>
 
     <TextView
         android:id="@+id/open_now"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="200dp"/>
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"/>
 
     <TextView
         android:id="@+id/view1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:maxWidth="200dp"
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
         android:id="@+id/view2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="200dp"
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
         android:id="@+id/view3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="200dp"
+        android:maxWidth="150dp"
+        android:textColor="#000"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
         android:id="@+id/view4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="200dp"
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"
         android:visibility="gone"/>
 
     <TextView
@@ -60,7 +73,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:maxWidth="200dp"
-        android:text="@string/infoWindowProvideInfoText"/>
+        android:maxWidth="125dp"
+        android:text="@string/infoWindowProvideInfoText"
+        android:textColor="#000"
+        android:textSize="12sp"/>
 
 </LinearLayout>

@@ -56,6 +56,10 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +73,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
+    
     private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 4;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -191,6 +196,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                     .addApi(LocationServices.API)
+                    .addApiIfAvailable(Wearable.API)
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
@@ -202,7 +208,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * Moves the camera to a specified location.
      *
      * @param googleMap The map to move the camera of.
-     * @param latLng    The position to move the camera too.
+     * @param latLng    The position to move the camera to.
+     * @param zoom      Zoom level to move the camera to.
      */
     private void moveCamera(GoogleMap googleMap, LatLng latLng, float zoom) {
         if (mIsVisible && googleMap != null && latLng != null) {
@@ -413,7 +420,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                         JSONArray results = response.getJSONArray("results");
                         try {
                             PlacesFragment.mNextPageToken = response.getString("next_page_token");
-                            if (!mNextPageToken.equals("")) {
+                            if (!TextUtils.isEmpty(mNextPageToken)) {
                                 mShowMoreButton.setVisibility(View.VISIBLE);
                             }
                         } catch (JSONException e) {
@@ -724,7 +731,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         try {
             value = (long) dietary.get(key);
         } catch (Exception e) {
-            Log.e("getKeyValue", "Issue getting " + key + " from dietary requirement");
+            Log.d("getKeyValue", "Issue getting " + key + " from dietary requirement");
         }
         return value;
     }
@@ -902,6 +909,24 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         DataPasser.getInstance(getContext());
         DataPasser.addToMarkersList(marker);
+
+        try {
+
+            JSONObject newMarker = new JSONObject();
+            newMarker.put("name", marker.getTitle());
+
+            JSONObject location = new JSONObject();
+            LatLng latLng = marker.getPosition();
+            location.put("lat", latLng.latitude);
+            location.put("lng", latLng.longitude);
+            newMarker.put("location", location);
+
+            newMarker.put("snippet", marker.getSnippet());
+
+            sendMarkersToWear(newMarker.toString());
+        } catch (JSONException e) {
+            Log.e("addMarker", "Couldn't create json for marker to send to wear");
+        }
     }
 
     private void addMarkerFromCache(MarkerOptions marker) {
@@ -1019,5 +1044,36 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             };
         }
         getContext().registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    private void sendMarkersToWear(String markers) {
+        Log.i("sendMarkersToWear", "Sending message to wear");
+        new SendToDataLayerThread("/watch_path", markers).start();
+    }
+
+    class SendToDataLayerThread extends Thread {
+        String path;
+        String message;
+
+        // Constructor to send a message to the data layer
+        SendToDataLayerThread(String p, String msg) {
+            path = p;
+            message = msg;
+        }
+
+        public void run() {
+            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+            for (Node node : nodes.getNodes()) {
+                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
+                        mGoogleApiClient, node.getId(), path, message.getBytes()).await();
+                if (result.getStatus().isSuccess()) {
+                    Log.i("run", "Message sent to: " + node.getDisplayName());
+                    Log.d("run", "Message: " + message);
+                } else {
+                    // Log an error
+                    Log.e("run", "ERROR: failed to send Message");
+                }
+            }
+        }
     }
 }

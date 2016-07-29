@@ -2,6 +2,7 @@ package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,7 +25,15 @@ import com.google.android.gms.maps.model.LatLng;
 import java.io.File;
 
 public class AddPlacesInfoDialogFragment extends DialogFragment {
+
+    private boolean mSubmitted;
+
     private LatLng mLatLng;
+    private OnCompleteListener mListener;
+
+    public interface OnCompleteListener {
+        void onComplete(boolean successful);
+    }
 
     @NonNull
     @Override
@@ -67,7 +76,9 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
                                 // has submitted info for
                                 File file = new File(getContext().getFilesDir(), Installation.getInstallation());
                                 Installation.writeInstallationFile(file, "\n" + mLatLng.toString(), true);
-                                getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, getActivity().getIntent());
+
+                                mListener.onComplete(true);
+                                mSubmitted = true;
                             }
                         } catch (Exception e) {
                             Log.e("onClick", e.toString());
@@ -75,6 +86,13 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
                     }
                 });
         return builder.create();
+    }
+
+    @Override
+    public void onDismiss(final DialogInterface arg0) {
+        if (!mSubmitted) {
+            mListener.onComplete(false);
+        }
     }
 
     /**
@@ -104,6 +122,24 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
                     }
                 }
             });
+        }
+    }
+
+    // make sure the Activity implemented it
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity activity;
+
+        if (context instanceof Activity) {
+            activity = (Activity) context;
+
+            try {
+                this.mListener = (OnCompleteListener) activity;
+            } catch (final ClassCastException e) {
+                throw new ClassCastException(activity.toString() + " must implement OnCompleteListener");
+            }
         }
     }
 
