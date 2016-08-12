@@ -700,23 +700,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             } else {
                 ratio = false_value / true_value;
             }
-        } else if (!(true_value == 0 && false_value == 0)) {
-            if (true_value == 0) {
-                if (ratio < false_value) {
-                    ratio /= false_value;
-                } else {
-                    false_value /= ratio;
-                }
-            } else {
-                if (ratio < true_value) {
-                    ratio /= true_value;
-                } else {
-                    true_value /= ratio;
-                }
-            }
         }
         Log.d("shouldShowInfo", "ratio: " + ratio);
-        return ratio < 0.2 && (true_value > 5 || false_value > 5);
+        return ratio > 0.6;
     }
 
     /**
