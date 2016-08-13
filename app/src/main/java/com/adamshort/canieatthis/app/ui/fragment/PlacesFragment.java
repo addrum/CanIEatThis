@@ -266,12 +266,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     public void onMapReady(final GoogleMap googleMap) {
         Log.i("onMapReady", "Map is ready");
 
-        googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-            @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
-                mMapZoom = cameraPosition.zoom;
-            }
-        });
+        googleMap.setMinZoomPreference(10);
 
         googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater(getArguments())));
 
