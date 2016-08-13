@@ -396,7 +396,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      * @param nextPageToken The token needed to get the next set of markers.
      */
     private void showMore(String nextPageToken) {
-        if (!nextPageToken.equals("")) {
+        if (!TextUtils.isEmpty(nextPageToken)) {
             String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&mRadius=" + mRadius + "&type=restaurant&key=" + mApiKey
                     + "&pagetoken=" + nextPageToken;
             queryPlacesURL(url);
@@ -700,23 +700,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             } else {
                 ratio = false_value / true_value;
             }
-        } else if (!(true_value == 0 && false_value == 0)) {
-            if (true_value == 0) {
-                if (ratio < false_value) {
-                    ratio /= false_value;
-                } else {
-                    false_value /= ratio;
-                }
-            } else {
-                if (ratio < true_value) {
-                    ratio /= true_value;
-                } else {
-                    true_value /= ratio;
-                }
-            }
         }
         Log.d("shouldShowInfo", "ratio: " + ratio);
-        return ratio < 0.2 && (true_value > 5 || false_value > 5);
+        return ratio > 0.6;
     }
 
     /**
@@ -1011,7 +997,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
         mSearchButton.setVisibility(shouldShow);
         mShowMoreButton.setVisibility(shouldShow);
-        mMyLocationButton.setVisibility(shouldShow);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMyLocationButton.setVisibility(shouldShow);
+        }
     }
 
     private void shouldShowOfflineTextView(int visibility) {

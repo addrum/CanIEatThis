@@ -113,38 +113,25 @@ public class DataQuerier {
      */
     public static boolean[] processIngredientFirebase(String ingredient, DataSnapshot snapshot) {
         Log.d("processDataFirebase", "Processing ingredient with firebase");
-        Boolean lactose = null;
-        Boolean vegetarian = null;
-        Boolean vegan = null;
-        Boolean gluten = null;
 
         for (DataSnapshot ingredientSnapshot : snapshot.getChildren()) {
             @SuppressWarnings("unchecked")
             Map<String, Object> ing = (Map<String, Object>) ingredientSnapshot.getValue();
             String name = ingredientSnapshot.getKey().toLowerCase();
             if (name.equals(ingredient)) {
-                if (lactose == null || lactose) {
-                    lactose = (Boolean) ing.get("lactose_free");
-                }
-                if (vegetarian == null || vegetarian) {
-                    vegetarian = (Boolean) ing.get("vegetarian");
-                }
-                if (vegan == null || vegan) {
-                    vegan = (Boolean) ing.get("vegan");
-                }
-                if (gluten == null || gluten) {
-                    gluten = (Boolean) ing.get("gluten_free");
-                }
-                Log.d("processIngFirebase", name + " " + lactose + " " + vegetarian +
+                boolean lactose = (Boolean) ing.get("lactose_free");
+                boolean vegetarian = (Boolean) ing.get("vegetarian");
+                boolean vegan = (Boolean) ing.get("vegan");
+                boolean gluten = (Boolean) ing.get("gluten_free");
+
+                Log.d("processIngFirebase", ingredient + " " + lactose + " " + vegetarian +
                         " " + vegan + " " + gluten);
+
+                return new boolean[]{lactose, vegetarian, vegan, gluten};
             }
         }
 
-        Log.d("processIngFirebase", ingredient + " " + lactose + " " + vegetarian +
-                " " + vegan + " " + gluten);
-
-        return new boolean[]{lactose != null && lactose, vegetarian != null && vegetarian,
-                vegan != null && vegan, gluten != null && gluten};
+        return new boolean[]{false};
     }
 
     /**
