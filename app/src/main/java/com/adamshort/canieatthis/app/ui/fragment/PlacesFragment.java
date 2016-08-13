@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.Installation;
+import com.adamshort.canieatthis.app.data.PlacesHelper;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
@@ -246,8 +247,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         List<MarkerOptions> markersList = DataPasser.getMarkersList();
         if (markersList != null && markersList.size() != 0) {
             Log.i("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
+            PlacesHelper placesHelper = new PlacesHelper(getContext(), new LatLng(mLat, mLng), mMap, false, null);
             for (MarkerOptions marker : markersList) {
-                createMarker(null, marker);
+                placesHelper.createMarker(null, marker);
             }
         } else {
             if (!PreferencesHelper.getFromSearchPref(getContext())) {
@@ -323,65 +325,12 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
             if (mLat != 0 && mLng != 0) {
                 String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&radius=" + mRadius + "&type=restaurant&key=" + mApiKey;
-                queryPlacesURL(url);
+                new PlacesHelper(getContext(), new LatLng(mLat, mLng), mMap, false, url);
             } else {
                 Log.d("createNearbyMarkers", "mLat mLng were 0");
             }
         } else {
             Log.i("createNearbyMarkers", "Not connected so can't make places request");
-        }
-    }
-
-    /**
-     * Creates a singular marker at a specified location taken from the place's JSONObject.
-     *
-     * @param location JSONObject of information of a location.
-     */
-    private void createMarker(JSONObject location, MarkerOptions m) {
-        if (location != null) {
-            try {
-                String name = location.getString("name");
-
-                JSONObject geometry = location.getJSONObject("geometry").getJSONObject("location");
-                double lat = geometry.getDouble("lat");
-                double lng = geometry.getDouble("lng");
-
-                LatLng latlng = new LatLng(lat, lng);
-                MarkerOptions marker = new MarkerOptions().position(latlng)
-                        .title(name);
-
-                String snippetText = "";
-                try {
-                    String rating = location.getString("rating");
-                    snippetText += "Rating: " + rating;
-                } catch (JSONException e) {
-                    Log.w("processFinish", "No value for rating");
-                }
-
-                try {
-                    boolean openNow = location.getJSONObject("opening_hours").getBoolean("open_now");
-                    if (openNow) {
-                        snippetText += ",Open Now: Yes";
-                    } else {
-                        snippetText += ",Open Now: No";
-                    }
-                } catch (JSONException e) {
-                    Log.w("processFinish", "No value for opening_hours or open_now");
-                }
-
-                marker.snippet(snippetText);
-                marker.icon(BitmapDescriptorFactory.defaultMarker());
-
-                FirebaseAsyncRequest fb = new FirebaseAsyncRequest(false);
-                fb.execute(marker);
-
-                Log.d("createMarker", "Name: " + name + " lat " + lat + " lng " + lng);
-            } catch (JSONException e) {
-                Log.e("createMarker", e.toString());
-            }
-        } else {
-            FirebaseAsyncRequest fb = new FirebaseAsyncRequest(true);
-            fb.execute(m);
         }
     }
 
@@ -394,49 +343,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (!TextUtils.isEmpty(nextPageToken)) {
             String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&mRadius=" + mRadius + "&type=restaurant&key=" + mApiKey
                     + "&pagetoken=" + nextPageToken;
-            queryPlacesURL(url);
+            new PlacesHelper(getContext(), new LatLng(mLat, mLng), mMap, false, url);
         }
         Log.d("showMore", "Next page token was null, won't show more");
-    }
-
-    /**
-     * Asynchronously sends a Places API request, setting the mNextPageToken and creating a marker at
-     * each location returned in the JSONObject.
-     *
-     * @param placesUrl The URL to send an HTTP request to.
-     */
-    private void queryPlacesURL(String placesUrl) {
-        QueryURLAsync rh = new QueryURLAsync(null, 0, new QueryURLAsync.AsyncResponse() {
-            @Override
-            public void processFinish(String output) {
-                if (output != null) {
-                    try {
-                        JSONObject response = new JSONObject(output);
-                        JSONArray results = response.getJSONArray("results");
-                        try {
-                            PlacesFragment.mNextPageToken = response.getString("next_page_token");
-                            if (!TextUtils.isEmpty(mNextPageToken)) {
-                                mShowMoreButton.setVisibility(View.VISIBLE);
-                            }
-                        } catch (JSONException e) {
-                            mNextPageToken = "";
-                            mShowMoreButton.setVisibility(View.INVISIBLE);
-                        }
-
-                        for (int i = 0; i < results.length(); i++) {
-                            JSONObject location = results.getJSONObject(i);
-                            createMarker(location, null);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Log.i("processFinish", "Output was null! Might be offline");
-                    shouldShowMapItems(Utilities.hasInternetConnection(getContext()));
-                }
-            }
-        });
-        rh.execute(placesUrl);
     }
 
     /**
@@ -677,290 +586,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         }
     }
 
-    /**
-     * Calculates a ratio that is used to determine if the info about a place should be displayed.
-     * If the number of values already submitted for both true and false is greater than a threshold (5)
-     * and if the ratio of the true to false values is less than 20% then we can assume that the information
-     * provided by users is corrected, and therefore should show info.
-     *
-     * @param true_value  The true values submitted by users stored in firebase.
-     * @param false_value The false values submitted by users stored in firbase.
-     * @return True or False based on the ratio and the threshold of the true and false values.
-     */
-    private boolean shouldShowInfo(double true_value, double false_value) {
-        double ratio = 1;
-        if (true_value > 0 && false_value > 0) {
-            if (true_value < false_value) {
-                ratio = true_value / false_value;
-            } else {
-                ratio = false_value / true_value;
-            }
-        }
-        Log.d("shouldShowInfo", "ratio: " + ratio);
-        return ratio > 0.6;
-    }
-
-    /**
-     * Gets the value of a specified key.
-     *
-     * @param dietary The object of a place which is stored in firebase.
-     * @param key     The key to return the value of.
-     * @return The value of the specified key.
-     */
-    private long getKeyValue(Map<String, Object> dietary, String key) {
-        long value = 0;
-        try {
-            value = (long) dietary.get(key);
-        } catch (Exception e) {
-            Log.d("getKeyValue", "Issue getting " + key + " from dietary requirement");
-        }
-        return value;
-    }
-
-    /**
-     * Queries firebase asynchronously and adds information about the place to the custom info marker.
-     */
-    private class FirebaseAsyncRequest extends AsyncTask<MarkerOptions, Void, String> {
-
-        private boolean mIsFromCache;
-
-        public FirebaseAsyncRequest(boolean isFromCache) {
-            mIsFromCache = isFromCache;
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected String doInBackground(MarkerOptions... params) {
-            final MarkerOptions marker = params[0];
-            Firebase ref = new Firebase(getString(R.string.firebase_url) + "/places");
-            ref.keepSynced(true);
-            ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                @SuppressWarnings("unchecked")
-                @Override
-                public void onDataChange(DataSnapshot snapshot) {
-                    if (!mIsFromCache) {
-                        Boolean[] bools = new Boolean[]{null, null, null, null};
-                        LatLng markerLatLng = marker.getPosition();
-                        String snippet = marker.getSnippet();
-                        Pattern lactosePattern = Pattern.compile("Lactose Free:\\s(\\w*)");
-                        Pattern vegetarianPattern = Pattern.compile("Vegetarian:\\s(\\w*)");
-                        Pattern veganPattern = Pattern.compile("Vegan:\\s(\\w*)");
-                        Pattern glutenPattern = Pattern.compile("Gluten Free:\\s(\\w*)");
-                        for (DataSnapshot location : snapshot.getChildren()) {
-                            // Firebase doesn't allow . in key's so had to submit as ,
-                            // so now we need to replace it so we can get it back to latlng
-                            String[] key = location.getKey().replace(",", ".").split(" ");
-                            LatLng locLatLng = null;
-                            try {
-                                locLatLng = new LatLng(Double.parseDouble(key[0]), Double.parseDouble(key[1]));
-                            } catch (NumberFormatException e) {
-                                Log.e("onDataChange", e.toString());
-                            }
-
-                            if (locLatLng != null) {
-                                if (markerLatLng.equals(locLatLng)) {
-                                    Map<String, Map<String, Object>> loc = (Map<String, Map<String, Object>>) location.getValue();
-                                    Log.d("onDataChange", loc.toString());
-                                    try {
-                                        Map<String, Object> lactose = loc.get("lactose_free");
-                                        long lactose_true = getKeyValue(lactose, "true");
-                                        long lactose_false = getKeyValue(lactose, "false");
-                                        if (shouldShowInfo(lactose_true, lactose_false)) {
-                                            snippet = addToSnippet(lactosePattern, snippet,
-                                                    lactose_true, lactose_false, "Lactose Free");
-                                        }
-                                        bools[0] = lactose_true > lactose_false;
-
-                                        Map<String, Object> vegetarian = loc.get("vegetarian");
-                                        long vegetarian_true = getKeyValue(vegetarian, "true");
-                                        long vegetarian_false = getKeyValue(vegetarian, "false");
-                                        if (shouldShowInfo(vegetarian_true, vegetarian_false)) {
-                                            snippet = addToSnippet(vegetarianPattern, snippet,
-                                                    vegetarian_true, vegetarian_false, "Vegetarian");
-                                        }
-                                        bools[1] = vegetarian_true > vegetarian_false;
-
-                                        Map<String, Object> vegan = loc.get("vegan");
-                                        long vegan_true = getKeyValue(vegan, "true");
-                                        long vegan_false = getKeyValue(vegan, "false");
-                                        if (shouldShowInfo(vegan_true, vegan_false)) {
-                                            snippet = addToSnippet(veganPattern, snippet,
-                                                    vegan_true, vegan_false, "Vegan");
-                                        }
-                                        bools[2] = vegan_true > vegan_false;
-
-                                        Map<String, Object> gluten = loc.get("gluten_free");
-                                        long gluten_true = getKeyValue(gluten, "true");
-                                        long gluten_false = getKeyValue(gluten, "false");
-                                        if (shouldShowInfo(gluten_true, gluten_false)) {
-                                            snippet = addToSnippet(glutenPattern, snippet,
-                                                    gluten_true, gluten_false, "Gluten Free");
-                                        }
-                                        bools[3] = gluten_true > gluten_false;
-                                    } catch (Exception e) {
-                                        Log.e("onDataChange", "Couldn't get key from Map: " + e.toString());
-                                    }
-                                }
-                            }
-                        }
-                        if (!snippet.contains("Lactose Free")
-                                && !snippet.contains("Vegetarian")
-                                && !snippet.contains("Vegan")
-                                && !snippet.contains("Gluten Free")) {
-                            if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
-                                snippet += ",";
-                            }
-                            snippet += getString(R.string.noInfoOnPlace);
-                        }
-                        marker.snippet(snippet);
-                        addMarker(marker, bools);
-                    } else {
-                        addMarkerFromCache(marker);
-                    }
-                }
-
-                @Override
-                public void onCancelled(FirebaseError error) {
-                }
-            });
-            return "Successful firebase request";
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-        }
-
-    }
-
-    private String addToSnippet(Pattern pattern, String snippet, long trueValue, long falseValue, String dietary) {
-        Matcher m = pattern.matcher(snippet);
-        StringBuffer sb = new StringBuffer();
-        if (m.find()) {
-            if (trueValue > falseValue) {
-                m.appendReplacement(sb, snippet.replace(m.group(1), "Yes"));
-            } else {
-                m.appendReplacement(sb, snippet.replace(m.group(1), "No"));
-            }
-            snippet = sb.toString();
-        } else {
-            snippet += "," + dietary + ": ";
-            if (trueValue > falseValue) {
-                snippet += "Yes";
-            } else {
-                snippet += "No";
-            }
-        }
-        Log.d("addToSnippet", "Snippet: " + snippet);
-        return snippet;
-    }
-
-    private void addMarker(MarkerOptions marker, Boolean[] bools) {
-        Log.d("addMarker", "Adding marker: " + marker.getTitle());
-
-        Context context = getContext();
-        boolean mLactosePref = PreferencesHelper.getLactoseFreePref(context);
-        boolean mVegetarianPref = PreferencesHelper.getVegetarianPref(context);
-        boolean mVeganPref = PreferencesHelper.getVeganPref(context);
-        boolean mGlutenPref = PreferencesHelper.getGlutenFreePref(context);
-
-        Boolean lac = bools[0];
-        Boolean veg = bools[1];
-        Boolean vegan = bools[2];
-        Boolean glu = bools[3];
-
-        if ((!mLactosePref && !mVegetarianPref && !mVeganPref && !mGlutenPref)
-                || (mLactosePref && (lac == null || lac))
-                || (mVegetarianPref && (veg == null || veg))
-                || (mVeganPref && (vegan == null || vegan))
-                || (mGlutenPref && (glu == null || glu))) {
-            mMap.addMarker(marker);
-        } else {
-            Log.i("onDataChange", "Not adding marker. Name: " + marker.getTitle()
-                    + " mLactosePref: " + mLactosePref
-                    + " mVegetarianPref: " + mVegetarianPref
-                    + " mVeganPref: " + mVeganPref
-                    + " mGlutenPref: " + mGlutenPref
-                    + " lac: " + lac
-                    + " veg: " + veg
-                    + " vegan: " + vegan
-                    + " glu: " + glu);
-        }
-        DataPasser.getInstance(getContext());
-        DataPasser.addToMarkersList(marker);
-
-        try {
-
-            JSONObject newMarker = new JSONObject();
-            newMarker.put("name", marker.getTitle());
-
-            JSONObject location = new JSONObject();
-            LatLng latLng = marker.getPosition();
-            location.put("lat", latLng.latitude);
-            location.put("lng", latLng.longitude);
-            newMarker.put("location", location);
-
-            newMarker.put("snippet", marker.getSnippet());
-
-            sendMarkersToWear(newMarker.toString());
-        } catch (JSONException e) {
-            Log.e("addMarker", "Couldn't create json for marker to send to wear");
-        }
-    }
-
-    private void addMarkerFromCache(MarkerOptions marker) {
-        Log.d("addMarkerFromCache", "Adding marker from cache: " + marker.getTitle());
-        String snippet = marker.getSnippet();
-
-        Pattern lactosePattern = Pattern.compile("Lactose Free: ([a-zA-z]*)");
-        Matcher m = lactosePattern.matcher(snippet);
-        Boolean lactose = null;
-        if (m.find()) {
-            if (m.group(1).equals("Yes")) {
-                lactose = true;
-            } else if (m.group(1).equals("No")) {
-                lactose = false;
-            }
-        }
-
-        Pattern vegetarianPattern = Pattern.compile("Vegetarian: ([a-zA-z]*)");
-        m = vegetarianPattern.matcher(snippet);
-        Boolean vegetarian = null;
-        if (m.find()) {
-            if (m.group(1).equals("Yes")) {
-                vegetarian = true;
-            } else if (m.group(1).equals("No")) {
-                vegetarian = false;
-            }
-        }
-
-        Pattern veganPattern = Pattern.compile("Vegan: ([a-zA-z]*)");
-        m = veganPattern.matcher(snippet);
-        Boolean vegan = null;
-        if (m.find()) {
-            if (m.group(1).equals("Yes")) {
-                vegan = true;
-            } else if (m.group(1).equals("No")) {
-                vegan = false;
-            }
-        }
-
-        Pattern glutenPattern = Pattern.compile("Gluten Free: ([a-zA-z]*)");
-        m = glutenPattern.matcher(snippet);
-        Boolean gluten = null;
-        if (m.find()) {
-            if (m.group(1).equals("Yes")) {
-                gluten = true;
-            } else if (m.group(1).equals("No")) {
-                gluten = false;
-            }
-        }
-
-        addMarker(marker, new Boolean[]{lactose, vegetarian, vegan, gluten});
-    }
-
     @Override
     public void onCreateOptionsMenu(final Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -1027,34 +652,4 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         getContext().registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
-    private void sendMarkersToWear(String markers) {
-        Log.i("sendMarkersToWear", "Sending message to wear");
-        new SendToDataLayerThread("/watch_path", markers).start();
-    }
-
-    class SendToDataLayerThread extends Thread {
-        String path;
-        String message;
-
-        // Constructor to send a message to the data layer
-        SendToDataLayerThread(String p, String msg) {
-            path = p;
-            message = msg;
-        }
-
-        public void run() {
-            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-            for (Node node : nodes.getNodes()) {
-                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
-                        mGoogleApiClient, node.getId(), path, message.getBytes()).await();
-                if (result.getStatus().isSuccess()) {
-                    Log.i("run", "Message sent to: " + node.getDisplayName());
-                    Log.d("run", "Message: " + message);
-                } else {
-                    // Log an error
-                    Log.e("run", "ERROR: failed to send Message");
-                }
-            }
-        }
-    }
 }

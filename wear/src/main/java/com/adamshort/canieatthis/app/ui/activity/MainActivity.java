@@ -198,8 +198,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                 return marker.getTitle().equals("custom");
             }
         });
-
-        sendMessageToPhone("/request_markers", "get_markers");
     }
 
     @Override
@@ -247,10 +245,14 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     private void setUserLocation() {
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         try {
+            Log.i("setUserLocation", "Setting mLat and mLng");
             mLat = mLastLocation.getLatitude();
             mLng = mLastLocation.getLongitude();
+
+            Log.i("onMapReady", "Sending /request_markers to phone");
+            sendMessageToPhone("/request_markers", mLat + "," + mLng);
         } catch (NullPointerException e) {
-            Log.w("getUserLatLng", "Couldn't get mLat or long from last location: " + e.toString());
+            Log.w("setUserLocation", "Couldn't get mLat or long from last location: " + e.toString());
         }
     }
 
