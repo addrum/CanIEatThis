@@ -9,7 +9,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,13 +32,9 @@ import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.Installation;
 import com.adamshort.canieatthis.app.data.PlacesHelper;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
+import com.adamshort.canieatthis.app.util.NextPageListener;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
-import com.adamshort.canieatthis.app.util.QueryURLAsync;
 import com.adamshort.canieatthis.app.util.Utilities;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -57,23 +52,15 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback {
+public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+        OnMapReadyCallback,
+        NextPageListener {
     
     private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 4;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
@@ -81,7 +68,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private static final float MY_LOCATION_ZOOM = 15;
 
     private static String mRadius = "1000";
-    private static String mNextPageToken;
 
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
@@ -100,6 +86,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private GoogleMap mMap;
     private ImageView mMyLocationButton;
     private MapView mMapView;
+    private PlacesHelper mPlacesHelper;
     private TextView mOfflineTextView;
 
     @Override
@@ -139,7 +126,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showMore(mNextPageToken);
+                showMore(mPlacesHelper.getNextPageToken());
                 mShowMoreButton.setVisibility(View.INVISIBLE);
             }
         });
@@ -247,9 +234,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         List<MarkerOptions> markersList = DataPasser.getMarkersList();
         if (markersList != null && markersList.size() != 0) {
             Log.i("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
-            PlacesHelper placesHelper = new PlacesHelper(getContext(), new LatLng(mLat, mLng), mMap, false, null);
             for (MarkerOptions marker : markersList) {
-                placesHelper.createMarker(null, marker);
+                mPlacesHelper.createMarker(null, marker);
             }
         } else {
             if (!PreferencesHelper.getFromSearchPref(getContext())) {
@@ -306,6 +292,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
         });
 
+        mPlacesHelper = new PlacesHelper(getContext(), googleMap, false);
+        mPlacesHelper.addNextPageListener(this);
+
         mMap = googleMap;
     }
 
@@ -325,7 +314,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
             if (mLat != 0 && mLng != 0) {
                 String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&radius=" + mRadius + "&type=restaurant&key=" + mApiKey;
-                new PlacesHelper(getContext(), new LatLng(mLat, mLng), mMap, false, url);
+                mPlacesHelper.doPlacesAPIRequest(url, mLat, mLng);
             } else {
                 Log.d("createNearbyMarkers", "mLat mLng were 0");
             }
@@ -343,7 +332,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (!TextUtils.isEmpty(nextPageToken)) {
             String url = getString(R.string.placesUrl) + mLat + "," + mLng + "&mRadius=" + mRadius + "&type=restaurant&key=" + mApiKey
                     + "&pagetoken=" + nextPageToken;
-            new PlacesHelper(getContext(), new LatLng(mLat, mLng), mMap, false, url);
+            mPlacesHelper.doPlacesAPIRequest(url, mLat, mLng);
         }
         Log.d("showMore", "Next page token was null, won't show more");
     }
@@ -652,4 +641,8 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         getContext().registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
+    @Override
+    public void showMore(int visibility) {
+        mShowMoreButton.setVisibility(visibility);
+    }
 }

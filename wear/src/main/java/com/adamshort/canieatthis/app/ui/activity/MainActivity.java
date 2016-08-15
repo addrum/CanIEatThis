@@ -18,6 +18,7 @@ import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -51,10 +52,12 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
+    private boolean mIsMessageSentToPhone;
     private int mMarkersAdded;
     private double mLat;
     private double mLng;
 
+    private Button mShowMoreButton;
     private DismissOverlayView mDismissOverlay;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
@@ -113,6 +116,13 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.onCreate(mapViewSavedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
+
+        mShowMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               sendMessageToPhone("/show_more", mLat + "," + mLng);
+            }
+        });
     }
 
     /**
@@ -249,8 +259,11 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             mLat = mLastLocation.getLatitude();
             mLng = mLastLocation.getLongitude();
 
-            Log.i("onMapReady", "Sending /request_markers to phone");
-            sendMessageToPhone("/request_markers", mLat + "," + mLng);
+            if (!mIsMessageSentToPhone) {
+                Log.i("onMapReady", "Sending /request_markers to phone");
+                mIsMessageSentToPhone = true;
+                sendMessageToPhone("/request_markers", mLat + "," + mLng);
+            }
         } catch (NullPointerException e) {
             Log.w("setUserLocation", "Couldn't get mLat or long from last location: " + e.toString());
         }
@@ -424,18 +437,22 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             Log.d("onReceive", "Message received in watch activity: " + message);
-            // Display message in UI
-            try {
-                createMarker(new JSONObject(message));
-            } catch (JSONException e) {
-                Log.e("onReceive", "Couldn't create JSON from message");
+            if (message.length() == 1) {
+                Log.d("onReceive", "Show more button!");
+            } else {
+                // Display message in UI
+                try {
+                    createMarker(new JSONObject(message));
+                } catch (JSONException e) {
+                    Log.e("onReceive", "Couldn't create JSON from message");
+                }
+                if (mMarkersAdded > 19) {
+                    Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
+                    mMap.clear();
+                    mMarkersAdded = 0;
+                }
+                mMarkersAdded++;
             }
-            if (mMarkersAdded > 19) {
-                Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
-                mMap.clear();
-                mMarkersAdded = 0;
-            }
-            mMarkersAdded++;
         }
     }
 }

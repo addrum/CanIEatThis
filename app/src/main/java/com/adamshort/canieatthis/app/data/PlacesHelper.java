@@ -5,10 +5,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
 
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.app.util.NextPageListener;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
+import com.adamshort.canieatthis.app.util.SendToDataLayerThread;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -28,6 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,21 +42,20 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
     private static String mNextPageToken;
 
     private boolean mSendToWear;
-    private String mUrl;
+    private List<NextPageListener> mNextPageListeners;
 
     private Context mContext;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
-    private LatLng mLatLng;
 
-    public PlacesHelper(Context context, LatLng latLng, GoogleMap map, boolean sendToWear, String url) {
+    public PlacesHelper(Context context, GoogleMap map, boolean sendToWear) {
         mContext = context;
-        mLatLng = latLng;
         mMap = map;
         mSendToWear = sendToWear;
-        mUrl = url;
 
         createGoogleAPIClient(context);
+
+        mNextPageListeners = new ArrayList<>();
     }
 
     /**
@@ -68,7 +72,7 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
         }
     }
 
-    private void doPlacesAPIRequest(String url, double lat, double lng) {
+    public void doPlacesAPIRequest(String url, double lat, double lng) {
         if (lat != 0 && lng != 0) {
             queryPlacesURL(url);
         } else {
@@ -92,8 +96,10 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
                         JSONArray results = response.getJSONArray("results");
                         try {
                             mNextPageToken = response.getString("next_page_token");
+                            showNextPage(View.VISIBLE);
                         } catch (JSONException e) {
                             mNextPageToken = "";
+                            showNextPage(View.INVISIBLE);
                         }
 
                         for (int i = 0; i < results.length(); i++) {
@@ -115,6 +121,7 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
      * Creates a singular marker at a specified location taken from the place's JSONObject.
      *
      * @param location JSONObject of information of a location.
+     * @param m        The marker options to modify and create a marker on the map
      */
     public void createMarker(JSONObject location, MarkerOptions m) {
         if (location != null) {
@@ -202,6 +209,22 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
             Log.d("getKeyValue", "Issue getting " + key + " from dietary requirement");
         }
         return value;
+    }
+
+    public void showNextPage(int visibility) {
+        Log.d("showNextPage", "Notifying listeners to show 'show more' button");
+
+        for (NextPageListener listener : mNextPageListeners) {
+            listener.showMore(visibility);
+        }
+    }
+
+    public void addNextPageListener(NextPageListener listener) {
+        mNextPageListeners.add(listener);
+    }
+
+    public String getNextPageToken() {
+        return mNextPageToken;
     }
 
     /**
@@ -451,38 +474,15 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
 
     private void sendMarkersToWear(String markers) {
         Log.i("sendMarkersToWear", "Sending message to wear");
-        new SendToDataLayerThread("/watch_path", markers).start();
+        new SendToDataLayerThread("/watch_path", markers, mGoogleApiClient).start();
     }
 
-    class SendToDataLayerThread extends Thread {
-        String path;
-        String message;
-
-        // Constructor to send a message to the data layer
-        SendToDataLayerThread(String p, String msg) {
-            path = p;
-            message = msg;
-        }
-
-        public void run() {
-            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-            for (Node node : nodes.getNodes()) {
-                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
-                        mGoogleApiClient, node.getId(), path, message.getBytes()).await();
-                if (result.getStatus().isSuccess()) {
-                    Log.i("run", "Message sent to: " + node.getDisplayName());
-                    Log.d("run", "Message: " + message);
-                } else {
-                    // Log an error
-                    Log.e("run", "ERROR: failed to send Message");
-                }
-            }
-        }
+    public GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        doPlacesAPIRequest(mUrl, mLatLng.latitude, mLatLng.longitude);
     }
 
     @Override
