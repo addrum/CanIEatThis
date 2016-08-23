@@ -57,7 +57,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     private double mLat;
     private double mLng;
 
-    private Button mShowMoreButton;
     private DismissOverlayView mDismissOverlay;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
@@ -117,7 +116,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
 
-        mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
+        Button mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
 
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
