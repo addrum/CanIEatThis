@@ -226,6 +226,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             @Override
             public boolean onMyLocationButtonClick() {
                 Log.i("onMapReady", "Sending /request_markers to phone");
+                clearMap();
                 sendMessageToPhone("/request_markers", mLat + "," + mLng);
                 return false;
             }
@@ -281,6 +282,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             if (!mIsMessageSentToPhone) {
                 Log.i("onMapReady", "Sending /request_markers to phone");
                 mIsMessageSentToPhone = true;
+                clearMap();
                 sendMessageToPhone("/request_markers", mLat + "," + mLng);
             }
         } catch (NullPointerException e) {
@@ -420,6 +422,13 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         } else {
             Log.w("createMarker", "marker was null");
         }
+    }
+
+    private void clearMap() {
+        Log.d("clearMap", "Clearing the map, markers added and markers list");
+        mMap.clear();
+        mMarkersAdded = 0;
+        mMarkers = new ArrayList<>();
     }
 
     private void sendMessageToPhone(String path, String message) {
