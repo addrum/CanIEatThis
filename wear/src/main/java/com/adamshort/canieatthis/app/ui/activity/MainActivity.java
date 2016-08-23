@@ -122,7 +122,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               sendMessageToPhone("/show_more", mLat + "," + mLng);
+                sendMessageToPhone("/show_more", mLat + "," + mLng);
             }
         });
     }
@@ -439,22 +439,18 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             Log.d("onReceive", "Message received in watch activity: " + message);
-            if (message.length() == 1) {
-                Log.d("onReceive", "Show more button!");
-            } else {
-                // Display message in UI
-                try {
-                    createMarker(new JSONObject(message));
-                } catch (JSONException e) {
-                    Log.e("onReceive", "Couldn't create JSON from message");
-                }
-                if (mMarkersAdded > 19) {
-                    Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
-                    mMap.clear();
-                    mMarkersAdded = 0;
-                }
-                mMarkersAdded++;
+            // Display message in UI
+            try {
+                createMarker(new JSONObject(message));
+            } catch (JSONException e) {
+                Log.e("onReceive", "Couldn't create JSON from message");
             }
+            if (mMarkersAdded > 19) {
+                Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
+                mMap.clear();
+                mMarkersAdded = 0;
+            }
+            mMarkersAdded++;
         }
     }
 }
