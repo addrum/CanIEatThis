@@ -44,8 +44,10 @@ import com.google.android.gms.wearable.Wearable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends WearableActivity implements OnMapReadyCallback,
-        GoogleMap.OnMapLongClickListener,
         GoogleApiClient.ConnectionCallbacks {
 
     private final static int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
@@ -56,7 +58,9 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     private int mMarkersAdded;
     private double mLat;
     private double mLng;
+    private List<MarkerOptions> mMarkers;
 
+    private Button mShowMoreButton;
     private DismissOverlayView mDismissOverlay;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
@@ -116,7 +120,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
 
-        Button mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
+        mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
 
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,6 +128,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                 sendMessageToPhone("/show_more", mLat + "," + mLng);
             }
         });
+
+        mMarkers = new ArrayList<>();
     }
 
     /**
@@ -175,12 +181,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // Map is ready to be used.
-        mMap = googleMap;
-
-        // Set the long click listener as a way to exit the map.
-        mMap.setOnMapLongClickListener(this);
-
         googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
 
         googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -209,12 +209,21 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                 return marker.getTitle().equals("custom");
             }
         });
-    }
 
-    @Override
-    public void onMapLongClick(LatLng latLng) {
-        // Display the dismiss overlay with a button to exit this activity.
-        mDismissOverlay.show();
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                for (MarkerOptions marker : mMarkers) {
+                    if (Math.abs(marker.getPosition().latitude - latLng.latitude) < 0.05 && Math.abs(marker.getPosition().longitude - latLng.longitude) < 0.05) {
+                        Toast.makeText(getBaseContext(), marker.getTitle() + " got clicked", Toast.LENGTH_SHORT).show(); //do some stuff
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Map is ready to be used.
+        mMap = googleMap;
     }
 
     /**
@@ -393,6 +402,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
                 mMap.addMarker(newMarker);
 
+                mMarkers.add(newMarker);
+
                 Log.d("createMarker", "Name: " + name + " lat " + lat + " lng " + lng);
             } catch (JSONException e) {
                 Log.w("createMarker", "Couldn't get info from JSON so not adding marker to map");
@@ -438,18 +449,27 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             Log.d("onReceive", "Message received in watch activity: " + message);
-            // Display message in UI
-            try {
-                createMarker(new JSONObject(message));
-            } catch (JSONException e) {
-                Log.e("onReceive", "Couldn't create JSON from message");
+
+            if (message.length() == 1) {
+                Log.d("onReceive", "showMore visible: " + message);
+                //noinspection ResourceType
+                mShowMoreButton.setVisibility(Integer.parseInt(message));
+            } else {
+
+                // Display message in UI
+                try {
+                    createMarker(new JSONObject(message));
+                } catch (JSONException e) {
+                    Log.e("onReceive", "Couldn't create JSON from message");
+                }
+
+                if (mMarkersAdded > 19) {
+                    Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
+                    mMap.clear();
+                    mMarkersAdded = 0;
+                }
+                mMarkersAdded++;
             }
-            if (mMarkersAdded > 19) {
-                Log.d("onReceive", "markers added is greater than 19 so clearing map for performance");
-                mMap.clear();
-                mMarkersAdded = 0;
-            }
-            mMarkersAdded++;
         }
     }
 }

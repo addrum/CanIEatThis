@@ -3,6 +3,7 @@ package com.adamshort.canieatthis.app.util;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.PlacesHelper;
@@ -65,6 +66,6 @@ public class ListenerService extends WearableListenerService implements NextPage
 
     @Override
     public void showMore(int visibility) {
-        new SendToDataLayerThread("/watch_path", Integer.toString(visibility), mPlacesHelper.getGoogleApiClient()).start();
+        new SendToDataLayerThread("/watch_path", Integer.toString(visibility), getPlacesHelper().getGoogleApiClient()).start();
     }
 }
