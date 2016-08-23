@@ -117,6 +117,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
 
+        mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
+
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

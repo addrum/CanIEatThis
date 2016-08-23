@@ -7,11 +7,8 @@ import android.util.Log;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.PlacesHelper;
 import com.adamshort.canieatthis.app.ui.activity.AddInfoFromWearActivity;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
-
-import java.util.List;
 
 public class ListenerService extends WearableListenerService implements NextPageListener {
 
@@ -35,12 +32,20 @@ public class ListenerService extends WearableListenerService implements NextPage
                 doPlacesAPIRequest(message, null);
                 break;
             case "/show_more":
-                doPlacesAPIRequest(message, mPlacesHelper.getNextPageToken());
+                doPlacesAPIRequest(message, getPlacesHelper().getNextPageToken());
                 break;
             default:
                 super.onMessageReceived(messageEvent);
                 break;
         }
+    }
+
+    private PlacesHelper getPlacesHelper() {
+        if (mPlacesHelper == null) {
+            mPlacesHelper = new PlacesHelper(getApplicationContext(), null, true);
+            mPlacesHelper.addNextPageListener(this);
+        }
+        return mPlacesHelper;
     }
 
     private void doPlacesAPIRequest(String message, String nextPageToken) {
@@ -55,11 +60,7 @@ public class ListenerService extends WearableListenerService implements NextPage
             url += "&pagetoken=" + nextPageToken;
         }
 
-        if (mPlacesHelper == null) {
-            mPlacesHelper = new PlacesHelper(getApplicationContext(), null, true);
-            mPlacesHelper.addNextPageListener(this);
-        }
-        mPlacesHelper.doPlacesAPIRequest(url, latitude, longitude);
+        getPlacesHelper().doPlacesAPIRequest(url, latitude, longitude);
     }
 
     @Override
