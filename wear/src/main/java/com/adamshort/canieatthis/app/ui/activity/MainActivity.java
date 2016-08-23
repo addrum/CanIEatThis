@@ -222,6 +222,15 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             }
         });
 
+        googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                Log.i("onMapReady", "Sending /request_markers to phone");
+                sendMessageToPhone("/request_markers", mLat + "," + mLng);
+                return false;
+            }
+        });
+
         // Map is ready to be used.
         mMap = googleMap;
     }
