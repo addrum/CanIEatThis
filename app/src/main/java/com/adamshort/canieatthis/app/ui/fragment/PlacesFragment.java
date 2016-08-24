@@ -105,6 +105,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mMapView.onCreate(mapViewSavedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
+        MapsInitializer.initialize(getContext());
 
         mMyLocationButton = (ImageView) v.findViewById(R.id.myLocationButton);
         mMyLocationButton.setOnClickListener(new View.OnClickListener() {

@@ -30,6 +30,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -119,6 +120,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.onCreate(mapViewSavedInstanceState);
         mMapView.onResume(); // needed to get the map to display immediately
         mMapView.getMapAsync(this);
+        MapsInitializer.initialize(getApplicationContext());
 
         mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
 
