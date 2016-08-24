@@ -229,6 +229,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             public boolean onMyLocationButtonClick() {
                 Log.i("onMapReady", "Sending /request_markers to phone");
                 clearMap();
+                setUserLocation();
                 sendMessageToPhone("/request_markers", mLat + "," + mLng);
                 return false;
             }
