@@ -38,7 +38,10 @@ public class ListenerService extends WearableListenerService implements NextPage
                     String[] latLngStr = info.getString("latlng").split(",");
                     LatLng latLng = new LatLng(Double.parseDouble(latLngStr[0]), Double.parseDouble(latLngStr[1]));
 
-                    String[] boolsString = info.getString("bools").split(",");
+                    String[] boolsString = info.getString("bools")
+                            .replace("[", "")
+                            .replace("]", "")
+                            .split(",");
                     boolean[] bools = new boolean[boolsString.length];
                     for (int i = 0; i < boolsString.length; i++) {
                         bools[i] = Boolean.parseBoolean(boolsString[i]);
