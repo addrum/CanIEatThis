@@ -64,9 +64,6 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".app.ui.activity.AddInfoFromWearActivity"
-            android:noHistory="true"/>
     </application>
 
 </manifest>
