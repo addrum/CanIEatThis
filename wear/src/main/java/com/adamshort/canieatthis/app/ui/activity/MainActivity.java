@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,12 +15,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.activity.WearableActivity;
-import android.support.wearable.view.DismissOverlayView;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.adamshort.canieatthis.app.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
@@ -54,15 +55,16 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
-    private boolean mIsMessageSentToPhone;
     private int mMarkersAdded;
     private double mLat;
     private double mLng;
+    private double mMarkerLat;
+    private double mMarkerLng;
 
     private Button mShowMoreButton;
-    private DismissOverlayView mDismissOverlay;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
+    private ImageView mDirectionsButton;
     private MapView mMapView;
 
     @Override
@@ -115,13 +117,24 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.getMapAsync(this);
         MapsInitializer.initialize(getApplicationContext());
 
-        mShowMoreButton = (Button) findViewById(R.id.showMoreButton);
+        mShowMoreButton = (Button) findViewById(R.id.show_more_button);
+        mDirectionsButton = (ImageView) findViewById(R.id.directions_button);
 
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 clearMap();
                 sendMessageToPhone("/show_more", mLat + "," + mLng);
+            }
+        });
+
+        mDirectionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("onClick", "Starting new Google Map intent");
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(getString(R.string.google_maps_intent, mMarkerLat, mMarkerLng)));
+                startActivity(intent);
             }
         });
     }
@@ -197,7 +210,25 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                return marker.getTitle().equals("custom");
+                if (!marker.getTitle().equals("custom")) {
+                    mDirectionsButton.setVisibility(View.VISIBLE);
+
+                    LatLng latLng = marker.getPosition();
+                    mMarkerLat = latLng.latitude;
+                    mMarkerLng = latLng.longitude;
+
+                    return false;
+                }
+
+                // "swallows" default behaviour
+                return true;
+            }
+        });
+
+        googleMap.setOnInfoWindowCloseListener(new GoogleMap.OnInfoWindowCloseListener() {
+            @Override
+            public void onInfoWindowClose(Marker marker) {
+                mDirectionsButton.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -215,12 +246,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             }
         });
 
-        googleMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
-            @Override
-            public void onInfoWindowLongClick(Marker marker) {
-
-            }
-        });
 
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override

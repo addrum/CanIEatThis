@@ -17,7 +17,7 @@
     </FrameLayout>
 
     <Button
-        android:id="@+id/showMoreButton"
+        android:id="@+id/show_more_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
@@ -30,8 +30,18 @@
         android:textSize="12sp"
         android:visibility="invisible" />
 
-    <android.support.wearable.view.DismissOverlayView
-        android:id="@+id/dismiss_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <ImageView
+        android:id="@+id/directions_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center|end"
+        android:layout_marginEnd="12dp"
+        android:alpha="0.75"
+        android:background="#FFFFFF"
+        android:contentDescription="@string/directionsButtonContentDescription"
+        android:padding="5dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_directions_black_48dp"
+        android:visibility="invisible" />
+
 </FrameLayout>
