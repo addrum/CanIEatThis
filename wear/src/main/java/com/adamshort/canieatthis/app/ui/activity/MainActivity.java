@@ -107,11 +107,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             }
         });
 
-        // Obtain the DismissOverlayView and display the intro help text.
-        mDismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
-        mDismissOverlay.setIntroText(R.string.intro_text);
-        mDismissOverlay.showIntroIfNecessary();
-
         // https://code.google.com/p/gmaps-api-issues/issues/detail?id=6237#c9
         final Bundle mapViewSavedInstanceState = savedInstanceState != null ? savedInstanceState.getBundle("mapViewSaveState") : null;
         mMapView = (MapView) findViewById(R.id.mapView);
@@ -190,7 +185,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             }
         } else {
             Log.i("onMapReady", "Sending /request_markers to phone");
-            mIsMessageSentToPhone = true;
             clearMap();
             sendMessageToPhone("/request_markers", mLat + "," + mLng);
         }
@@ -288,22 +282,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         } catch (NullPointerException e) {
             Log.w("setUserLocation", "Couldn't get mLat or long from last location: " + e.toString());
         }
-    }
-
-    private boolean locationIsMoreThan2MetersAway(double lat, double lng) {
-        if (lat == 0 && lng == 0) {
-            return true;
-        }
-
-        Location loc = new Location("");
-        loc.setLatitude(lat);
-        loc.setLongitude(lng);
-
-        Location user = new Location("");
-        user.setLatitude(mLat);
-        user.setLongitude(mLng);
-        float distanceInMeters = loc.distanceTo(user);
-        return distanceInMeters > 2;
     }
 
     @SuppressWarnings("MissingPermission")
