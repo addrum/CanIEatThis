@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.adamshort.canieatthis.app.R;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
@@ -49,6 +50,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         GoogleApiClient.ConnectionCallbacks {
 
     private final static int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
+    private final static int SUBMIT_INFO_REQUEST_CODE = 2;
 
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
@@ -185,7 +187,13 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Log.d("onMarkerClick", "Marker: " + marker.getTitle() + " " + marker.getPosition());
+                return marker.getTitle().equals("custom");
+            }
+        });
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
                 if (!marker.getTitle().equals("custom")) {
                     Log.d("onInfoWindowClick", "Info window clicked");
 
@@ -194,8 +202,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                     intent.putExtra("latlng", marker.getPosition());
                     startActivity(intent);
                 }
-                // returning true "swallows" the default behaviour
-                return true;
             }
         });
 
@@ -362,10 +368,24 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mMapView.onExitAmbient();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        switch (requestCode) {
+            // Make sure the request was successful
+            case SUBMIT_INFO_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(getBaseContext(), "Info submitted", Toast.LENGTH_LONG).show();
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     private LatLng getLatLng() {
         return new LatLng(mLat, mLng);
     }
-
 
     /**
      * Creates a singular marker at a specified location taken from the place's JSONObject.

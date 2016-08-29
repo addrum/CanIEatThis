@@ -69,6 +69,8 @@ public class AddPlacesInfoActivity extends WearableActivity {
                     Log.d("onClick", info.toString());
 
                     new SendToDataLayerThread("/submit_info", info.toString(), mGoogleApiClient).start();
+
+                    finish();
                 } catch (JSONException e) {
                     Log.e("onClick", "Error creating json for submitting info: " + e);
                 }
