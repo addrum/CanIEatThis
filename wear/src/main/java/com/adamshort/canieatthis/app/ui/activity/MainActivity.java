@@ -20,9 +20,9 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.adamshort.canieatthis.app.R;
+import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.SendToDataLayerThread;
@@ -58,7 +58,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     private int mMarkersAdded;
     private double mLat;
     private double mLng;
-    private List<MarkerOptions> mMarkers;
 
     private Button mShowMoreButton;
     private DismissOverlayView mDismissOverlay;
@@ -126,11 +125,10 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         mShowMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                clearMap();
                 sendMessageToPhone("/show_more", mLat + "," + mLng);
             }
         });
-
-        mMarkers = new ArrayList<>();
     }
 
     /**
@@ -175,8 +173,26 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             checkLocationPermission();
             LatLng latLng = getLatLng();
             if (latLng.latitude != 0 && latLng.longitude != 0) {
+                createMarkers();
                 mIsMapSetup = true;
+                moveCamera(mMap, latLng, 15);
             }
+        }
+    }
+
+    public void createMarkers() {
+        DataPasser.getInstance();
+        List<MarkerOptions> markersList = DataPasser.getMarkersList();
+        if (markersList != null && markersList.size() != 0) {
+            Log.i("setUpMap", "Creating markers from DataPasser, size is: " + markersList.size());
+            for (MarkerOptions marker : markersList) {
+                mMap.addMarker(marker);
+            }
+        } else {
+            Log.i("onMapReady", "Sending /request_markers to phone");
+            mIsMessageSentToPhone = true;
+            clearMap();
+            sendMessageToPhone("/request_markers", mLat + "," + mLng);
         }
     }
 
@@ -200,8 +216,15 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                     Intent intent = new Intent(getBaseContext(), AddPlacesInfoActivity.class);
                     intent.putExtra("name", marker.getTitle());
                     intent.putExtra("latlng", marker.getPosition());
-                    startActivity(intent);
+                    startActivityForResult(intent, SUBMIT_INFO_REQUEST_CODE);
                 }
+            }
+        });
+
+        googleMap.setOnInfoWindowLongClickListener(new GoogleMap.OnInfoWindowLongClickListener() {
+            @Override
+            public void onInfoWindowLongClick(Marker marker) {
+
             }
         });
 
@@ -262,16 +285,25 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             Log.i("setUserLocation", "Setting mLat and mLng");
             mLat = mLastLocation.getLatitude();
             mLng = mLastLocation.getLongitude();
-
-            if (!mIsMessageSentToPhone) {
-                Log.i("onMapReady", "Sending /request_markers to phone");
-                mIsMessageSentToPhone = true;
-                clearMap();
-                sendMessageToPhone("/request_markers", mLat + "," + mLng);
-            }
         } catch (NullPointerException e) {
             Log.w("setUserLocation", "Couldn't get mLat or long from last location: " + e.toString());
         }
+    }
+
+    private boolean locationIsMoreThan2MetersAway(double lat, double lng) {
+        if (lat == 0 && lng == 0) {
+            return true;
+        }
+
+        Location loc = new Location("");
+        loc.setLatitude(lat);
+        loc.setLongitude(lng);
+
+        Location user = new Location("");
+        user.setLatitude(mLat);
+        user.setLongitude(mLng);
+        float distanceInMeters = loc.distanceTo(user);
+        return distanceInMeters > 2;
     }
 
     @SuppressWarnings("MissingPermission")
@@ -375,7 +407,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             // Make sure the request was successful
             case SUBMIT_INFO_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
-                    Toast.makeText(getBaseContext(), "Info submitted", Toast.LENGTH_LONG).show();
+                    Log.d("onActivityResult", "RESULT OK");
+                    setUpMap();
                 }
                 break;
             default:
@@ -411,7 +444,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
                 mMap.addMarker(newMarker);
 
-                mMarkers.add(newMarker);
+                DataPasser.getInstance();
+                DataPasser.addToMarkersList(newMarker);
 
                 Log.d("createMarker", "Name: " + name + " lat " + lat + " lng " + lng);
             } catch (JSONException e) {
@@ -426,7 +460,8 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         Log.d("clearMap", "Clearing the map, markers added and markers list");
         mMap.clear();
         mMarkersAdded = 0;
-        mMarkers = new ArrayList<>();
+        DataPasser.getInstance();
+        DataPasser.setMarkersList(new ArrayList<MarkerOptions>());
     }
 
     private void sendMessageToPhone(String path, String message) {

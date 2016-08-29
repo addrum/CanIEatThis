@@ -1,5 +1,6 @@
 package com.adamshort.canieatthis.app.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
@@ -70,6 +71,7 @@ public class AddPlacesInfoActivity extends WearableActivity {
 
                     new SendToDataLayerThread("/submit_info", info.toString(), mGoogleApiClient).start();
 
+                    setResult(RESULT_OK);
                     finish();
                 } catch (JSONException e) {
                     Log.e("onClick", "Error creating json for submitting info: " + e);
