@@ -9,14 +9,15 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 public class SendToDataLayerThread extends Thread {
-    private String mMessage;
+
     private String mPath;
+    private String mMessage;
 
     private GoogleApiClient mGoogleApiClient;
 
     // Constructor to send a message to the data layer
-    public SendToDataLayerThread(String p, String msg, GoogleApiClient googleApiClient) {
-        mPath = p;
+    public SendToDataLayerThread(String path, String msg, GoogleApiClient googleApiClient) {
+        mPath = path;
         mMessage = msg;
         mGoogleApiClient = googleApiClient;
     }

@@ -20,11 +20,11 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.adamshort.canieatthis.app.R;
 import com.adamshort.canieatthis.app.ui.PopupAdapter;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
+import com.adamshort.canieatthis.app.util.SendToDataLayerThread;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,9 +37,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONException;
@@ -185,42 +182,20 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         googleMap.setInfoWindowAdapter(new PopupAdapter(getLayoutInflater()));
 
-        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Log.d("onInfoWindowClick", "Info window clicked");
-
-                try {
-                    JSONObject message = new JSONObject();
-                    message.put("name", marker.getTitle());
-                    message.put("location", marker.getPosition().toString());
-
-                    sendMessageToPhone("/add_places_info_phone_path", message.toString());
-
-                    Toast.makeText(getBaseContext(), "Submit info on your phone", Toast.LENGTH_LONG).show();
-                } catch (JSONException e) {
-                    Log.e("onInfoWindowClick", "Issue creating json to send to phone");
-                }
-            }
-        });
-
         googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Log.d("onMarkerClick", "Marker: " + marker.getTitle() + "LatLng: " + marker.getPosition());
-                return marker.getTitle().equals("custom");
-            }
-        });
+                Log.d("onMarkerClick", "Marker: " + marker.getTitle() + " " + marker.getPosition());
+                if (!marker.getTitle().equals("custom")) {
+                    Log.d("onInfoWindowClick", "Info window clicked");
 
-        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                for (MarkerOptions marker : mMarkers) {
-                    if (Math.abs(marker.getPosition().latitude - latLng.latitude) < 0.05 && Math.abs(marker.getPosition().longitude - latLng.longitude) < 0.05) {
-                        Toast.makeText(getBaseContext(), marker.getTitle() + " got clicked", Toast.LENGTH_SHORT).show(); //do some stuff
-                        break;
-                    }
+                    Intent intent = new Intent(getBaseContext(), AddPlacesInfoActivity.class);
+                    intent.putExtra("name", marker.getTitle());
+                    intent.putExtra("latlng", marker.getPosition());
+                    startActivity(intent);
                 }
+                // returning true "swallows" the default behaviour
+                return true;
             }
         });
 
@@ -436,33 +411,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
     private void sendMessageToPhone(String path, String message) {
         Log.i("sendMessageToPhone", "Sending message to phone");
-        new SendToDataLayerThread(path, message).start();
-    }
-
-    class SendToDataLayerThread extends Thread {
-        String path;
-        String message;
-
-        // Constructor to send a message to the data layer
-        SendToDataLayerThread(String p, String msg) {
-            path = p;
-            message = msg;
-        }
-
-        public void run() {
-            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-            for (Node node : nodes.getNodes()) {
-                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(
-                        mGoogleApiClient, node.getId(), path, message.getBytes()).await();
-                if (result.getStatus().isSuccess()) {
-                    Log.i("run", "Message sent to: " + node.getDisplayName());
-                    Log.d("run", "Message: " + message);
-                } else {
-                    // Log an error
-                    Log.e("run", "ERROR: failed to send Message");
-                }
-            }
-        }
+        new SendToDataLayerThread(path, message, mGoogleApiClient).start();
     }
 
     class MessageReceiver extends BroadcastReceiver {

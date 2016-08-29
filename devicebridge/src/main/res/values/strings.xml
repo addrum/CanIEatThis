@@ -98,5 +98,5 @@
     <string name="vegetarianSwitchText">Vegetarian</string>
     <string name="yes">yes</string>
     <string name="ingredientNotFound">Ingredient not found</string>
-    <string name="intro_text">Long press to quit</string>
+    <string name="intro_text">Press crown to quit</string>
 </resources>
