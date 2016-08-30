@@ -16,6 +16,11 @@
         android:summary="%s"
         android:title="@string/updateCheckFrequency" />
 
+    <Preference
+        android:key="@string/downloadCSVKey"
+        android:summary="@string/startCSVDownloadSummary"
+        android:title="@string/startCSVDownloadTitle" />
+
     <PreferenceCategory android:title="@string/dietaryPreferencesTitle">
 
         <CheckBoxPreference

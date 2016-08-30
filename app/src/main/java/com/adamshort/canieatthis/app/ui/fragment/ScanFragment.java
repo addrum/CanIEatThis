@@ -596,7 +596,7 @@ public class ScanFragment extends Fragment {
                 .setAction("Download", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utilities.downloadDatabase(getActivity(), getContext());
+                        Utilities.downloadDatabase(getActivity());
                         Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
                     }
                 })

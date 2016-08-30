@@ -8,6 +8,7 @@ import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.app.util.Utilities;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     @Override
@@ -20,6 +21,15 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         SwitchPreference sp = (SwitchPreference) findPreference(getString(R.string.download_switch_pref_key));
         ListPreference frequencyListPref = (ListPreference) findPreference("frequency_list_pref");
         frequencyListPref.setEnabled(sp.isChecked());
+
+        Preference downloadCSVButton = findPreference(getString(R.string.downloadCSVKey));
+        downloadCSVButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Utilities.downloadDatabase(getActivity());
+                return true;
+            }
+        });
     }
 
     @Override
