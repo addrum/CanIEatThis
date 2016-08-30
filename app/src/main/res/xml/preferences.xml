@@ -21,6 +21,10 @@
         android:summary="@string/startCSVDownloadSummary"
         android:title="@string/startCSVDownloadTitle" />
 
+    <Preference
+        android:key="@string/show_intro_key"
+        android:title="@string/show_intro" />
+
     <PreferenceCategory android:title="@string/dietaryPreferencesTitle">
 
         <CheckBoxPreference

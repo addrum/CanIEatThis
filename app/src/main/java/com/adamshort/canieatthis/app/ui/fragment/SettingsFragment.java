@@ -1,13 +1,16 @@
 package com.adamshort.canieatthis.app.ui.fragment;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.util.Log;
 
 import com.adamshort.canieatthis.R;
+import com.adamshort.canieatthis.app.ui.activity.AppIntroActivity;
 import com.adamshort.canieatthis.app.util.Utilities;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -27,6 +30,17 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 Utilities.downloadDatabase(getActivity());
+                return true;
+            }
+        });
+
+        Preference showIntroButton = findPreference(getString(R.string.show_intro_key));
+        showIntroButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Log.d("onCreate", "Showing intro activity");
+                Intent intent = new Intent(getActivity(), AppIntroActivity.class);
+                startActivity(intent);
                 return true;
             }
         });

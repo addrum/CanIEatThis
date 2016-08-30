@@ -10,4 +10,6 @@
     <string name="glutenFreePrefTitle">Gluten Free</string>
     <string name="download_switch_pref_key">download_switch_pref</string>
     <string name="frequency_list_pref_key">frequency_list_pref</string>
+    <string name="show_intro">Show Intro</string>
+    <string name="show_intro_key">show_intro</string>
 </resources>
