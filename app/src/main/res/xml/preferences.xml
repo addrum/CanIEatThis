@@ -17,7 +17,7 @@
         android:title="@string/updateCheckFrequency" />
 
     <Preference
-        android:key="@string/downloadCSVKey"
+        android:key="@string/download_CSV_key"
         android:summary="@string/startCSVDownloadSummary"
         android:title="@string/startCSVDownloadTitle" />
 

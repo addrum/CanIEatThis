@@ -22,7 +22,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         ListPreference frequencyListPref = (ListPreference) findPreference("frequency_list_pref");
         frequencyListPref.setEnabled(sp.isChecked());
 
-        Preference downloadCSVButton = findPreference(getString(R.string.downloadCSVKey));
+        Preference downloadCSVButton = findPreference(getString(R.string.download_CSV_key));
         downloadCSVButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {

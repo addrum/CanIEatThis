@@ -2,7 +2,7 @@
 <resources>
     <string name="startCSVDownloadSummary">Start the latest database download</string>
     <string name="startCSVDownloadTitle">Download Offline Database</string>
-    <string name="downloadCSVKey">download_csv_pref</string>
+    <string name="download_CSV_key">download_csv_pref</string>
     <string name="lactose_free_pref_key">lactose_free_pref</string>
     <string name="vegetarian_pref_key">vegetarian_pref</string>
     <string name="vegan_pref_key">vegan_pref</string>
