@@ -232,7 +232,7 @@ public class ScanFragment extends Fragment {
             if (products != null) {
                 IntentIntegrator.forSupportFragment(this).initiateScan();
             } else {
-                showNoDatabaseFileScackBar();
+                showNoDatabaseFileSnackBar();
             }
         }
     }
@@ -354,7 +354,7 @@ public class ScanFragment extends Fragment {
                     @Override
                     public void processFinish(final JSONObject output) {
                         if (output == null) {
-                            showNoDatabaseFileScackBar();
+                            showNoDatabaseFileSnackBar();
                         } else {
                             Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                             ref.keepSynced(true);
@@ -375,7 +375,7 @@ public class ScanFragment extends Fragment {
                 csvReaderAsync.execute(products);
             } else {
                 mIsSearching = false;
-                showNoDatabaseFileScackBar();
+                showNoDatabaseFileSnackBar();
             }
         }
     }
@@ -591,7 +591,7 @@ public class ScanFragment extends Fragment {
         return products;
     }
 
-    private void showNoDatabaseFileScackBar() {
+    private void showNoDatabaseFileSnackBar() {
         Log.e("getBarcodeInformation", "Couldn't find file");
         Snackbar.make(mCoordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Download", new View.OnClickListener() {
