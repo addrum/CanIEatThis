@@ -1,6 +1,5 @@
 package com.adamshort.canieatthis.app.util;
 
-import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
