@@ -13,8 +13,8 @@ buildscript {
 }
 
 subprojects {
-    ext.global_versionName = "1.9.3"
-    ext.global_versionCode = 193
+    ext.global_versionName = "1.9.4"
+    ext.global_versionCode = 194
 }
 
 allprojects {
