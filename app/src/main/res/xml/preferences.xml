@@ -1,44 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <SwitchPreference
         android:defaultValue="true"
-        android:key="download_switch_pref"
-        android:title="@string/checkForUpdates"/>
+        android:key="@string/download_switch_pref_key"
+        android:title="@string/checkForUpdates" />
 
     <ListPreference
         android:defaultValue="0"
         android:entries="@array/updateCheckFrequencyArray"
         android:entryValues="@array/updateCheckFrequencyValues"
-        android:key="frequency_list_pref"
+        android:key="@string/frequency_list_pref_key"
         android:summary="%s"
-        android:title="@string/updateCheckFrequency"/>
+        android:title="@string/updateCheckFrequency" />
 
-    <PreferenceCategory
-        android:title="@string/dietaryPreferencesTitle">
+    <PreferenceCategory android:title="@string/dietaryPreferencesTitle">
 
         <CheckBoxPreference
-            android:key="lactose_free_pref"
+            android:key="@string/lactose_free_pref_key"
             android:summary="@string/lactosePrefSummary"
-            android:title="@string/lactoseFreePrefTitle"/>
+            android:title="@string/lactoseFreePrefTitle" />
 
         <CheckBoxPreference
-            android:key="vegetarian_pref"
+            android:key="@string/vegetarian_pref_key"
             android:summary="@string/vegetarianPrefSummary"
-            android:title="@string/vegetarianPrefTitle"/>
+            android:title="@string/vegetarianPrefTitle" />
 
         <CheckBoxPreference
-            android:key="vegan_pref"
+            android:key="@string/vegan_pref_key"
             android:summary="@string/veganPrefSummary"
-            android:title="@string/veganPrefTitle"/>
+            android:title="@string/veganPrefTitle" />
 
         <CheckBoxPreference
-            android:key="gluten_free_pref"
+            android:key="@string/gluten_free_pref_key"
             android:summary="@string/glutenFreePrefSummary"
-            android:title="Gluten Free"/>
+            android:title="@string/glutenFreePrefTitle" />
 
     </PreferenceCategory>
 

@@ -6,7 +6,6 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
-import android.util.Log;
 
 import com.adamshort.canieatthis.R;
 
@@ -18,7 +17,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
-        SwitchPreference sp =(SwitchPreference) findPreference("download_switch_pref");
+        SwitchPreference sp = (SwitchPreference) findPreference(getString(R.string.download_switch_pref_key));
         ListPreference frequencyListPref = (ListPreference) findPreference("frequency_list_pref");
         frequencyListPref.setEnabled(sp.isChecked());
     }

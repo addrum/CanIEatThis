@@ -702,7 +702,7 @@ public class ScanFragment extends Fragment {
         if (!TextUtils.isEmpty(response) && !response.equals(getString(R.string.noIngredientsFoundText))) {
             Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
             Matcher matcher = pattern.matcher(response);
-            
+
             StringBuffer sb = new StringBuffer();
             while (matcher.find()) {
                 String matched = matcher.group(1).replace("_", "<b>") +
