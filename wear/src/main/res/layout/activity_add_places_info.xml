@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:id="@+id/title_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/lactose_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/title_text_view"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.16"
+                android:gravity="center_vertical"
+                android:text="@string/lactoseFreeQuestion" />
+
+            <CheckBox
+                android:id="@+id/lactoseFreeCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:checked="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/vegetarian_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lactose_layout"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.16"
+                android:gravity="center_vertical"
+                android:text="@string/vegetarianQuestion" />
+
+            <CheckBox
+                android:id="@+id/vegetarianCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:checked="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/vegan_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vegetarian_layout"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.16"
+                android:gravity="center_vertical"
+                android:text="@string/veganQuestion" />
+
+            <CheckBox
+                android:id="@+id/veganCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:checked="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/gluten_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/vegan_layout"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="40dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.16"
+                android:gravity="center_vertical"
+                android:text="@string/glutenFreeQuestion" />
+
+            <CheckBox
+                android:id="@+id/glutenFreeCheckBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:checked="false" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/gluten_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="60dp"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/colorButton"
+                android:text="@string/productSubmitButtonText"
+                android:textColor="#ffffff" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</ScrollView>

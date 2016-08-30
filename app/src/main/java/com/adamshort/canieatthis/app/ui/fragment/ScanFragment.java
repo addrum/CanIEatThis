@@ -432,6 +432,7 @@ public class ScanFragment extends Fragment {
                 if (tracesToDisplay.size() < 1 || tracesToDisplay.get(0).equals("")) {
                     setTracesResponseTextBox(getString(R.string.noTracesFound));
                 }
+                mFab.show();
             } else {
                 showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
             }

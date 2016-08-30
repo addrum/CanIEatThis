@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
 import com.adamshort.canieatthis.app.data.Installation;
+import com.adamshort.canieatthis.app.ui.fragment.AddPlacesInfoDialogFragment;
 import com.adamshort.canieatthis.app.ui.fragment.PlacesFragment;
 import com.adamshort.canieatthis.app.ui.fragment.ScanFragment;
 import com.adamshort.canieatthis.app.util.FragmentHandler;
@@ -34,13 +36,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AddPlacesInfoDialogFragment.OnCompleteListener {
+
     private static final int APP_INTRO_REQUEST_CODE = 3;
 
     private int mPosition;
 
     private BroadcastReceiver mDownloadCompleteReceiver;
-    private LinearLayout mTabLayoutLinearLayout;
+    private LinearLayout mTabLinearLayout;
     private PlacesFragment mPlacesFragment;
 
     @Override
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         mPlacesFragment = new PlacesFragment();
         fragments.add(mPlacesFragment);
 
-        mTabLayoutLinearLayout = (LinearLayout) findViewById(R.id.tabLayoutLinearLayout);
+        mTabLinearLayout = (LinearLayout) findViewById(R.id.tabLinearLayout);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -103,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
             if (tabLayout != null) {
                 tabLayout.setupWithViewPager(viewPager);
             }
+
+            boolean fromWatch = getIntent().getBooleanExtra("from_watch", false);
+            if (fromWatch) {
+                CoordinatorLayout mMainActivityCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.mainActivityCoordinatorLayout);
+                Snackbar.make(mMainActivityCoordinatorLayout, R.string.placesDataSubmitted, Snackbar.LENGTH_LONG).show();
+            }
         }
 
         DataPasser.getInstance(getBaseContext());
@@ -133,13 +142,13 @@ public class MainActivity extends AppCompatActivity {
 
                         switch (status) {
                             case DownloadManager.STATUS_SUCCESSFUL:
-                                Snackbar.make(mTabLayoutLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(mTabLinearLayout, "Successfully downloaded database update", Snackbar.LENGTH_LONG).show();
                                 editor.putString("download_status", "downloaded");
                                 editor.apply();
                                 break;
                             case DownloadManager.STATUS_FAILED:
                                 Log.d("onReceive", "Download failed: " + reason);
-                                Snackbar.make(mTabLayoutLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(mTabLinearLayout, "Database update failed", Snackbar.LENGTH_LONG).show();
                                 editor.putString("download_status", "failed");
                                 break;
                             case DownloadManager.STATUS_PAUSED:
@@ -263,4 +272,8 @@ public class MainActivity extends AppCompatActivity {
         this.mPosition = mPosition;
     }
 
+    @Override
+    public void onComplete(boolean successful) {
+        Log.d("onComplete", "Successful places info: " + successful);
+    }
 }
