@@ -283,6 +283,7 @@ public class ScanFragment extends Fragment {
                 if (result != null) {
                     if (result.getContents() == null) {
                         Snackbar.make(mCoordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
+                        mProgressBar.setVisibility(View.INVISIBLE);
                     } else {
                         Snackbar.make(mCoordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
                         getBarcodeInformation(result.getContents());
