@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
@@ -314,15 +315,19 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
                                 }
                             }
                         }
+
                         if (!snippet.contains("Lactose Free")
                                 && !snippet.contains("Vegetarian")
                                 && !snippet.contains("Vegan")
                                 && !snippet.contains("Gluten Free")) {
-                            if (snippet.endsWith("Yes") || snippet.endsWith("No")) {
-                                snippet += ",";
+                            String noInfo = mContext.getString(R.string.noInfoOnPlace);
+                            if (TextUtils.isEmpty(snippet)) {
+                                snippet = noInfo;
+                            } else {
+                                snippet += "," + noInfo;
                             }
-                            snippet += mContext.getString(R.string.noInfoOnPlace);
                         }
+
                         marker.snippet(snippet);
                         addMarker(marker, bools);
                     } else {
