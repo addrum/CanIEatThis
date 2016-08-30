@@ -165,6 +165,21 @@ public class PreferencesHelper {
         Log.d("setTimesAskedForPerm", "times_asked: " + value);
     }
 
+    public static int getTimesAskedForCameraPref(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        int times_asked = preferences.getInt("times_asked_camera", 0);
+        Log.d("getTimesAskedForCamera", "times_asked_camera: " + times_asked);
+        return preferences.getInt("times_asked_camera", 0);
+    }
+
+    public static void setTimesAskedForCameraPref(Context context, int value) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("times_asked_camera", value);
+        editor.apply();
+        Log.d("setTimesAskedForCamera", "times_asked_camera: " + value);
+    }
+
     public static long getTimestampPref(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         long timestamp = preferences.getLong("timestamp", 0);
