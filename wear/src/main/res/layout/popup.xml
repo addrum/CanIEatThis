@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:padding="5dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="5dp">
 
     <TextView
         android:id="@+id/title"
@@ -12,7 +12,7 @@
         android:maxWidth="125dp"
         android:textColor="#000"
         android:textSize="12sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/rating"
@@ -21,7 +21,8 @@
         android:layout_marginTop="5dp"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/open_now"
@@ -29,7 +30,8 @@
         android:layout_height="wrap_content"
         android:maxWidth="125dp"
         android:textColor="#000"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/view1"
@@ -39,7 +41,7 @@
         android:maxWidth="125dp"
         android:textColor="#000"
         android:textSize="12sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/view2"
@@ -48,7 +50,7 @@
         android:maxWidth="125dp"
         android:textColor="#000"
         android:textSize="12sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/view3"
@@ -57,7 +59,7 @@
         android:maxWidth="150dp"
         android:textColor="#000"
         android:textSize="12sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/view4"
@@ -66,7 +68,17 @@
         android:maxWidth="125dp"
         android:textColor="#000"
         android:textSize="12sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/no_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxWidth="125dp"
+        android:textColor="#000"
+        android:textSize="12sp"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/provide_info"
@@ -76,6 +88,6 @@
         android:maxWidth="125dp"
         android:text="@string/infoWindowProvideInfoText"
         android:textColor="#000"
-        android:textSize="12sp"/>
+        android:textSize="12sp" />
 
 </LinearLayout>

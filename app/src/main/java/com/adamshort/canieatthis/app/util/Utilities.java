@@ -42,12 +42,12 @@ public class Utilities {
         return activeNetwork != null && activeNetwork.isConnected();
     }
 
-    public static void downloadDatabase(Activity activity, Context context) {
-        if (activity != null && context != null) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                mDownloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+    public static void downloadDatabase(Activity activity) {
+        if (activity != null) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                mDownloadManager = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
                 mFileDownloader = FileDownloader.getInstance(activity, mDownloadManager,
-                        context.getString(R.string.csvURL), "products.csv");
+                        activity.getString(R.string.csvURL), "products.csv");
 
                 // Update timestamp since we've downloaded a new one
                 SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
@@ -119,7 +119,7 @@ public class Utilities {
     }
 
     public static boolean isLargeDevice(Context context) {
-        if(context.getResources().getBoolean(R.bool.large_device)){
+        if (context.getResources().getBoolean(R.bool.large_device)) {
             Log.i("isLargeDevice", "large device");
             return true;
         }

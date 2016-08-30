@@ -91,6 +91,8 @@ public class AddPlacesInfoDialogFragment extends DialogFragment {
 
     @Override
     public void onDismiss(final DialogInterface arg0) {
+        // call super otherwise dialog fragment will reappear after returning to activity
+        super.onDismiss(arg0);
         if (!mSubmitted) {
             mListener.onComplete(false);
         }

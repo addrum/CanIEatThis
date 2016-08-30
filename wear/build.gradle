@@ -9,11 +9,8 @@ android {
         minSdkVersion 20
         targetSdkVersion 24
 
-        // Set the version name
-        versionName "1.9.3"
-
-        // Turn the version name into a version code
-        versionCode 193
+        versionName global_versionName
+        versionCode global_versionCode
 
         // Friendly print the version output to the Gradle console
         printf("\n--------" + "VERSION DATA--------" + "\n" + "- CODE: " + versionCode + "\n" +

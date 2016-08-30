@@ -1,5 +1,6 @@
 package com.adamshort.canieatthis.app.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -7,14 +8,17 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.text.TextUtils;
@@ -36,6 +40,7 @@ import com.adamshort.canieatthis.app.data.DataQuerier;
 import com.adamshort.canieatthis.app.ui.activity.AddProductActivity;
 import com.adamshort.canieatthis.app.util.CSVReaderAsync;
 import com.adamshort.canieatthis.app.util.ListHelper;
+import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
 import com.adamshort.canieatthis.app.util.Utilities;
 import com.firebase.client.DataSnapshot;
@@ -60,6 +65,7 @@ import static com.adamshort.canieatthis.app.data.DataQuerier.processIngredientFi
 public class ScanFragment extends Fragment {
 
     private static final int FORM_REQUEST_CODE = 11;
+    private static final int MY_PERMISSION_ACCESS_CAMERA = 20;
     private static final int SCAN_REQUEST_CODE = 49374;
     private static final String EXTENSION = ".json";
 
@@ -219,19 +225,66 @@ public class ScanFragment extends Fragment {
 //        getBarcodeInformation("0000000056434");
 //        maryland cookies
 //        getBarcodeInformation("072417136160");
-//        mFab.show();
+//        fudge brownie milkshake
+//        getBarcodeInformation("5000295144088");
 //        go straight to add product
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
 //
         if (Utilities.hasInternetConnection(getContext())) {
-            IntentIntegrator.forSupportFragment(this).initiateScan();
+            if (isCameraPermissionEnabled()) {
+                IntentIntegrator.forSupportFragment(this).initiateScan();
+            } else {
+                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                    // Need to show permission rationale, display a snackbar and then request
+                    // the permission again when the snackbar is dismissed.
+                    Snackbar.make(mCoordinatorLayout,
+                            R.string.cameraPermissionDenied,
+                            Snackbar.LENGTH_INDEFINITE)
+                            .setAction(android.R.string.ok, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Log.d("onClick", "request permission");
+                                    // Request the permission again.
+                                    requestPermissions(new String[]{Manifest.permission.CAMERA},
+                                            MY_PERMISSION_ACCESS_CAMERA);
+                                }
+                            }).show();
+                } else {
+                    int timesAsked = PreferencesHelper.getTimesAskedForCameraPref(getContext());
+                    if (timesAsked < 2) {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA},
+                                MY_PERMISSION_ACCESS_CAMERA);
+                        timesAsked += 1;
+                        PreferencesHelper.setTimesAskedForCameraPref(getContext(), timesAsked);
+                    } else {
+                        Log.d("checkLocationPer", "don't show permission again");
+                        Snackbar.make(mCoordinatorLayout,
+                                R.string.cameraRationale,
+                                Snackbar.LENGTH_INDEFINITE)
+                                .setAction("Go to Settings", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent i = new Intent();
+                                        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        i.addCategory(Intent.CATEGORY_DEFAULT);
+                                        i.setData(Uri.parse("package:" + getContext().getPackageName()));
+                                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                        getContext().startActivity(i);
+                                    }
+                                })
+                                .show();
+                    }
+                }
+            }
         } else {
             File products = getCSVIFExists();
             if (products != null) {
                 IntentIntegrator.forSupportFragment(this).initiateScan();
             } else {
-                showNoDatabaseFileScackBar();
+                showNoDatabaseFileSnackBar();
             }
         }
     }
@@ -282,6 +335,7 @@ public class ScanFragment extends Fragment {
                 if (result != null) {
                     if (result.getContents() == null) {
                         Snackbar.make(mCoordinatorLayout, "Scanning cancelled", Snackbar.LENGTH_LONG).show();
+                        mProgressBar.setVisibility(View.INVISIBLE);
                     } else {
                         Snackbar.make(mCoordinatorLayout, "Barcode scanned: " + result.getContents(), Snackbar.LENGTH_LONG).show();
                         getBarcodeInformation(result.getContents());
@@ -352,7 +406,7 @@ public class ScanFragment extends Fragment {
                     @Override
                     public void processFinish(final JSONObject output) {
                         if (output == null) {
-                            showNoDatabaseFileScackBar();
+                            showNoDatabaseFileSnackBar();
                         } else {
                             Firebase ref = new Firebase(getString(R.string.firebase_url) + "/ingredients");
                             ref.keepSynced(true);
@@ -373,7 +427,7 @@ public class ScanFragment extends Fragment {
                 csvReaderAsync.execute(products);
             } else {
                 mIsSearching = false;
-                showNoDatabaseFileScackBar();
+                showNoDatabaseFileSnackBar();
             }
         }
     }
@@ -589,13 +643,13 @@ public class ScanFragment extends Fragment {
         return products;
     }
 
-    private void showNoDatabaseFileScackBar() {
+    private void showNoDatabaseFileSnackBar() {
         Log.e("getBarcodeInformation", "Couldn't find file");
         Snackbar.make(mCoordinatorLayout, "No offline database found", Snackbar.LENGTH_INDEFINITE)
                 .setAction("Download", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utilities.downloadDatabase(getActivity(), getContext());
+                        Utilities.downloadDatabase(getActivity());
                         Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
                     }
                 })
@@ -617,6 +671,14 @@ public class ScanFragment extends Fragment {
             mIngredientNotFoundSnackbar.dismiss();
         }
         super.onPause();
+    }
+
+    /**
+     * Checks if the user has provided permission to use their camera. Limits to asking twice.
+     * After the first ask, shows a snackbar indefinitely which shows the permissions dialog again.
+     */
+    private boolean isCameraPermissionEnabled() {
+        return ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
@@ -701,6 +763,7 @@ public class ScanFragment extends Fragment {
         if (!TextUtils.isEmpty(response) && !response.equals(getString(R.string.noIngredientsFoundText))) {
             Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
             Matcher matcher = pattern.matcher(response);
+
             StringBuffer sb = new StringBuffer();
             while (matcher.find()) {
                 String matched = matcher.group(1).replace("_", "<b>") +
@@ -709,9 +772,13 @@ public class ScanFragment extends Fragment {
                 matcher.appendReplacement(sb, matched);
             }
             matcher.appendTail(sb);
+
+            String htmlString = sb.toString().replace("_", "")
+                    .toLowerCase();
             Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                mIngredientResponseView.setText(Html.fromHtml(htmlString, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
             } else {
                 //noinspection deprecation
                 mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase()));

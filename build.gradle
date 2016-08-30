@@ -12,6 +12,11 @@ buildscript {
     }
 }
 
+subprojects {
+    ext.global_versionName = "1.9.5"
+    ext.global_versionCode = 195
+}
+
 allprojects {
     repositories {
         jcenter()

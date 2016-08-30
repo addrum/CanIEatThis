@@ -100,4 +100,6 @@
     <string name="ingredientNotFound">Ingredient not found</string>
     <string name="intro_text">Press crown to quit</string>
     <string name="google_maps_intent">google.navigation:///?q=%1$s,%2$s&amp;mode=w</string>
+    <string name="cameraRationale">Access to your camera is required to scan barcodes!</string>
+    <string name="cameraPermissionDenied">Grant Camera permission to scan barcodes!</string>
 </resources>

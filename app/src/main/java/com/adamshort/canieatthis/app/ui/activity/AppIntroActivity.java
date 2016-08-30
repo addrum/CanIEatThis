@@ -40,7 +40,7 @@ public class AppIntroActivity extends IntroActivity {
                 .buttonCtaClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utilities.downloadDatabase(AppIntroActivity.this, getBaseContext());
+                        Utilities.downloadDatabase(AppIntroActivity.this);
                     }
                 })
                 .image(R.mipmap.ic_launcher)
@@ -96,7 +96,7 @@ public class AppIntroActivity extends IntroActivity {
             case WRITE_EXTERNAL_STORAGE_PERMISSION_CODE:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Utilities.downloadDatabase(this, getBaseContext());
+                    Utilities.downloadDatabase(this);
                 }
         }
     }

@@ -8,11 +8,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 24
 
-        // Set the version name
-        versionName "1.9.3"
-
-        // Turn the version name into a version code
-        versionCode 193
+        versionName global_versionName
+        versionCode global_versionCode
 
         // Friendly print the version output to the Gradle console
         printf("\n--------" + "VERSION DATA--------" + "\n" + "- CODE: " + versionCode + "\n" +
@@ -29,7 +26,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:appcompat-v7:24.2.0'
     compile 'com.google.android.gms:play-services-maps:9.4.0'
     compile 'com.google.android.gms:play-services-location:9.4.0'
     compile 'com.google.android.gms:play-services-wearable:9.4.0'

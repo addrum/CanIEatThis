@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements AddPlacesInfoDial
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.d("showDownloadPrompt", "Downloading CSV");
-                            Utilities.downloadDatabase(MainActivity.this, getBaseContext());
+                            Utilities.downloadDatabase(MainActivity.this);
                         }
                     });
                     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
