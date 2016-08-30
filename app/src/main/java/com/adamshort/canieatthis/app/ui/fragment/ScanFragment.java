@@ -220,7 +220,7 @@ public class ScanFragment extends Fragment {
 //        maryland cookies
 //        getBarcodeInformation("072417136160");
 //        fudge brownie milkshake
-        getBarcodeInformation("5000295144088");
+//        getBarcodeInformation("5000295144088");
 //        go straight to add product
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
