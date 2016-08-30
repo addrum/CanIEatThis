@@ -219,7 +219,8 @@ public class ScanFragment extends Fragment {
 //        getBarcodeInformation("0000000056434");
 //        maryland cookies
 //        getBarcodeInformation("072417136160");
-//        mFab.show();
+//        fudge brownie milkshake
+        getBarcodeInformation("5000295144088");
 //        go straight to add product
 //        Intent intentDebug = new Intent(getContext(), AddProductActivity.class);
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
@@ -701,6 +702,7 @@ public class ScanFragment extends Fragment {
         if (!TextUtils.isEmpty(response) && !response.equals(getString(R.string.noIngredientsFoundText))) {
             Pattern pattern = Pattern.compile("(_)(\\w*)(_)");
             Matcher matcher = pattern.matcher(response);
+            
             StringBuffer sb = new StringBuffer();
             while (matcher.find()) {
                 String matched = matcher.group(1).replace("_", "<b>") +
@@ -709,9 +711,13 @@ public class ScanFragment extends Fragment {
                 matcher.appendReplacement(sb, matched);
             }
             matcher.appendTail(sb);
+
+            String htmlString = sb.toString().replace("_", "")
+                    .toLowerCase();
             Log.d("setItemsFromDataPasser", "Regex replaced string is: " + sb);
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
+                mIngredientResponseView.setText(Html.fromHtml(htmlString, Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE));
             } else {
                 //noinspection deprecation
                 mIngredientResponseView.setText(Html.fromHtml(sb.toString().toLowerCase()));
