@@ -154,7 +154,9 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
                 }
 
                 marker.snippet(snippetText);
-                marker.icon(BitmapDescriptorFactory.defaultMarker());
+                if (!mSendToWear) {
+                    marker.icon(BitmapDescriptorFactory.defaultMarker());
+                }
 
                 FirebaseAsyncRequest fb = new FirebaseAsyncRequest(false);
                 fb.execute(marker);
