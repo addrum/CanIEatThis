@@ -50,8 +50,8 @@ import java.util.List;
 public class MainActivity extends WearableActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks {
 
-    private final static int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
-    private final static int SUBMIT_INFO_REQUEST_CODE = 2;
+    private final static int MY_PERMISSION_ACCESS_FINE_LOCATION = 0;
+    private final static int SUBMIT_INFO_REQUEST_CODE = 1;
 
     private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;

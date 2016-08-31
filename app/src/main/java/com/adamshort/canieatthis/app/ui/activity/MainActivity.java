@@ -38,7 +38,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AddPlacesInfoDialogFragment.OnCompleteListener {
 
-    private static final int APP_INTRO_REQUEST_CODE = 3;
+    private static final int APP_INTRO_REQUEST_CODE = 0;
 
     private int mPosition;
 

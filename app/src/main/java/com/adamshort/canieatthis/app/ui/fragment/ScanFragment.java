@@ -64,9 +64,9 @@ import static com.adamshort.canieatthis.app.data.DataQuerier.processIngredientFi
 
 public class ScanFragment extends Fragment {
 
-    private static final int FORM_REQUEST_CODE = 11;
-    private static final int MY_PERMISSION_ACCESS_CAMERA = 20;
-    private static final int SCAN_REQUEST_CODE = 49374;
+    private static final int FORM_REQUEST_CODE = 0;
+    private static final int MY_PERMISSION_ACCESS_CAMERA = 1;
+    private static final int SCAN_REQUEST_CODE = 2;
     private static final String EXTENSION = ".json";
 
     private static boolean mFragmentCreated = false;

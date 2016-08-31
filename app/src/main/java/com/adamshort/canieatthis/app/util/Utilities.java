@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Utilities {
 
-    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 5;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 0;
 
     private static DownloadManager mDownloadManager;
     private static FileDownloader mFileDownloader;
