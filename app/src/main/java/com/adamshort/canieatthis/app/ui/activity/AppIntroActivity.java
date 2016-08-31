@@ -18,8 +18,8 @@ import com.heinrichreimersoftware.materialintro.slide.SimpleSlide;
 
 public class AppIntroActivity extends IntroActivity {
 
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
-    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 5;
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 0;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -62,9 +62,9 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         OnMapReadyCallback,
         NextPageListener {
     
-    private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 4;
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 10;
-    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 0;
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
+    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 2;
     private static final float MY_LOCATION_ZOOM = 15;
 
     private static String mRadius = "1000";
