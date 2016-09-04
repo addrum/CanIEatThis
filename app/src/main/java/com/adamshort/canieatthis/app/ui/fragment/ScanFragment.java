@@ -282,7 +282,9 @@ public class ScanFragment extends Fragment {
         } else {
             File products = getCSVIFExists();
             if (products != null) {
-                IntentIntegrator.forSupportFragment(this).initiateScan();
+                if (isCameraPermissionEnabled()) {
+                    IntentIntegrator.forSupportFragment(this).initiateScan();
+                }
             } else {
                 showNoDatabaseFileSnackBar();
             }
@@ -376,6 +378,10 @@ public class ScanFragment extends Fragment {
                 super.onActivityResult(requestCode, requestCode, intent);
         }
     }
+
+    // TODO both flows end up calling queryData which in turn handles firebase stuff which both flows do
+    // both flows could send a message to a listener to query data instead of implementing firebase
+    // and queryData in two different ways
 
     /**
      * Queries the mBarcode with either a GET request to Open Food Facts or uses the Open Food Facts
@@ -511,11 +517,7 @@ public class ScanFragment extends Fragment {
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-                    if (response != null) {
-                        queryData(snapshot, response);
-                    } else {
-                        showDialog("Product Not Found", "Add the product to the database?", "Yes", "No").show();
-                    }
+                    queryData(snapshot, response);
                 }
 
                 @Override
