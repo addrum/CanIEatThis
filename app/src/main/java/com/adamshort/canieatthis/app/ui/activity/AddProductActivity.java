@@ -130,6 +130,7 @@ public class AddProductActivity extends AppCompatActivity {
             submitProductButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // TODO tidy up / refactor into separate methods
                     mBarcodeText = mBarcodeNumberTextView.getText().toString();
                     mProductNameText = mProductNameTextView.getText().toString();
                     mQuantityText = mQuantityTextView.getText().toString();
