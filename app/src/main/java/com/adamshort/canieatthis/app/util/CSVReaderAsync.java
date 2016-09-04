@@ -54,7 +54,7 @@ public class CSVReaderAsync extends AsyncTask<File, Void, JSONObject> {
 
     @Override
     protected JSONObject doInBackground(File... files) {
-        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             File products = files[0];
             try {
                 CsvParserSettings settings = new CsvParserSettings();
@@ -114,7 +114,7 @@ public class CSVReaderAsync extends AsyncTask<File, Void, JSONObject> {
             }
             return new JSONObject();
         } else {
-            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+            ActivityCompat.requestPermissions(mActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     5);
             return null;
         }
