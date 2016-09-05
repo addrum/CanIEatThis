@@ -1,10 +1,10 @@
 <?xml version="2.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                tools:context=".app.ui.activity.AddProductActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".app.ui.activity.AddProductActivity">
 
     <RelativeLayout
         android:id="@+id/progressBarLayout"
@@ -24,7 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:gravity="center"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
 
     </RelativeLayout>
 
@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/barcodeNumberHint"
                     android:inputType="number"
-                    android:maxLength="13"/>
+                    android:maxLength="13" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -66,7 +66,7 @@
                     android:id="@+id/input_product_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/productNameHint"/>
+                    android:hint="@string/productNameHint" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -90,7 +90,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/quantityHint"
-                        android:inputType="number"/>
+                        android:inputType="number" />
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -104,8 +104,7 @@
                         android:id="@+id/input_unit"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:prompt="@string/unitSpinnerPrompt">
-                    </Spinner>
+                        android:prompt="@string/unitSpinnerPrompt" />
 
                 </android.support.design.widget.TextInputLayout>
 
@@ -122,7 +121,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/energyPerHint"
-                    android:inputType="number"/>
+                    android:inputType="number" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -141,14 +140,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/energyPerServingHint"/>
+                    android:hint="@string/energyPerServingHint" />
 
                 <CheckBox
                     android:id="@+id/input_energy_per_100g"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/energyPer100gHint"/>
+                    android:hint="@string/energyPer100gHint" />
 
             </LinearLayout>
 
@@ -163,7 +162,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:enabled="false"
-                    android:hint="@string/portionSize"/>
+                    android:hint="@string/portionSize" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -212,7 +211,7 @@
                     android:layout_height="wrap_content"
                     android:background="@color/colorButton"
                     android:text="@string/productSubmitButtonText"
-                    android:textColor="#ffffff"/>
+                    android:textColor="#ffffff" />
             </LinearLayout>
 
         </RelativeLayout>
