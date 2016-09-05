@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -159,7 +160,7 @@ public class ScanFragment extends Fragment {
                 }
 
                 if (!mIsSearching) {
-                    scanBar();
+                    scanBarcode();
                     mIsSearching = true;
                 }
             }
@@ -204,7 +205,7 @@ public class ScanFragment extends Fragment {
     /**
      * This method is called when we press the Scan Barcode button.
      */
-    public void scanBar() {
+    public void scanBarcode() {
 //        empty product
 //        getBarcodeInformation("7622210307668");
 //        McVities Digestives
@@ -232,62 +233,22 @@ public class ScanFragment extends Fragment {
 //        startActivityForResult(intentDebug, FORM_REQUEST_CODE);
 //
         if (Utilities.hasInternetConnection(getContext())) {
-            if (isCameraPermissionEnabled()) {
-                IntentIntegrator.forSupportFragment(this).initiateScan();
-            } else {
-                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-                    // Need to show permission rationale, display a snackbar and then request
-                    // the permission again when the snackbar is dismissed.
-                    Snackbar.make(mCoordinatorLayout,
-                            R.string.cameraPermissionDenied,
-                            Snackbar.LENGTH_INDEFINITE)
-                            .setAction(android.R.string.ok, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Log.d("onClick", "request permission");
-                                    // Request the permission again.
-                                    requestPermissions(new String[]{Manifest.permission.CAMERA},
-                                            MY_PERMISSION_ACCESS_CAMERA);
-                                }
-                            }).show();
-                } else {
-                    int timesAsked = PreferencesHelper.getTimesAskedForCameraPref(getContext());
-                    if (timesAsked < 2) {
-                        requestPermissions(new String[]{Manifest.permission.CAMERA},
-                                MY_PERMISSION_ACCESS_CAMERA);
-                        timesAsked += 1;
-                        PreferencesHelper.setTimesAskedForCameraPref(getContext(), timesAsked);
-                    } else {
-                        Log.d("checkLocationPer", "don't show permission again");
-                        Snackbar.make(mCoordinatorLayout,
-                                R.string.cameraRationale,
-                                Snackbar.LENGTH_INDEFINITE)
-                                .setAction("Go to Settings", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent i = new Intent();
-                                        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                        i.addCategory(Intent.CATEGORY_DEFAULT);
-                                        i.setData(Uri.parse("package:" + getContext().getPackageName()));
-                                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                                        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                                        getContext().startActivity(i);
-                                    }
-                                })
-                                .show();
-                    }
-                }
-            }
+            openCamera();
         } else {
             File products = getCSVIFExists();
             if (products != null) {
-                if (isCameraPermissionEnabled()) {
-                    IntentIntegrator.forSupportFragment(this).initiateScan();
-                }
+                openCamera();
             } else {
                 showNoDatabaseFileSnackBar();
             }
+        }
+    }
+
+    private void openCamera() {
+        if (isCameraPermissionEnabled()) {
+            IntentIntegrator.forSupportFragment(this).initiateScan();
+        } else {
+            requestCameraPermission();
         }
     }
 
@@ -376,6 +337,23 @@ public class ScanFragment extends Fragment {
                 break;
             default:
                 super.onActivityResult(requestCode, requestCode, intent);
+        }
+    }
+
+    @SuppressWarnings("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.d("onRequestPermissions", "Permissions have been requested");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSION_ACCESS_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    IntentIntegrator.forSupportFragment(this).initiateScan();
+                }
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
         }
     }
 
@@ -681,6 +659,60 @@ public class ScanFragment extends Fragment {
      */
     private boolean isCameraPermissionEnabled() {
         return ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * Requests the camera permission or shows a snackbar to go to the settings if user has pressed
+     * never ask again
+     */
+    private void requestCameraPermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            // Need to show permission rationale, display a snackbar and then request
+            // the permission again when the snackbar is dismissed.
+            Snackbar.make(mCoordinatorLayout,
+                    R.string.cameraPermissionDenied,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Log.d("onClick", "request permission");
+                            // Request the permission again.
+                            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                                    MY_PERMISSION_ACCESS_CAMERA);
+                        }
+                    }).show();
+        } else {
+            int timesAsked = PreferencesHelper.getTimesAskedForCameraPref(getContext());
+            if (timesAsked < 2) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA},
+                        MY_PERMISSION_ACCESS_CAMERA);
+                timesAsked += 1;
+                PreferencesHelper.setTimesAskedForCameraPref(getContext(), timesAsked);
+            } else {
+                Log.d("checkLocationPer", "don't show permission again");
+                showCameraPermissionSnackbar();
+            }
+        }
+    }
+
+    private void showCameraPermissionSnackbar() {
+        Snackbar.make(mCoordinatorLayout,
+                R.string.cameraRationale,
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction("Go to Settings", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent();
+                        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        i.addCategory(Intent.CATEGORY_DEFAULT);
+                        i.setData(Uri.parse("package:" + getContext().getPackageName()));
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                        getContext().startActivity(i);
+                    }
+                })
+                .show();
     }
 
     /**

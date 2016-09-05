@@ -338,6 +338,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         Log.d("showMore", "Next page token was null, won't show more");
     }
 
+    // TODO refactor to same as camera permission request
     /**
      * Checks if the user has provided permission to use their location. Limits to asking twice.
      * After the first ask, shows a snackbar indefinitely which shows the permissions dialog again.
