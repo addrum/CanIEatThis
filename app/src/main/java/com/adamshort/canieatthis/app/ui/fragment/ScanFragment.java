@@ -614,9 +614,7 @@ public class ScanFragment extends Fragment {
         try {
             // noinspection ConstantConditions
             products = new File(getContext().getExternalFilesDir(null).getPath(), "products.csv");
-        } catch (
-                NullPointerException e
-                ) {
+        } catch (NullPointerException e) {
             Log.e("getBarcodeInformation", "Couldn't open csv file: " + e.toString());
         }
 
