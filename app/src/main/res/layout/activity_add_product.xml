@@ -177,7 +177,8 @@
                     android:id="@+id/input_ingredients"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/ingredientsHint"/>
+                    android:hint="@string/ingredientsHint"
+                    android:inputType="text" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -191,7 +192,8 @@
                     android:id="@+id/input_traces"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/tracesHint"/>
+                    android:hint="@string/tracesHint"
+                    android:inputType="text" />
 
             </android.support.design.widget.TextInputLayout>
 
