@@ -9,7 +9,9 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -61,7 +63,7 @@ import java.util.List;
 public class PlacesFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
         OnMapReadyCallback,
         NextPageListener {
-    
+
     private static final int ADD_PLACES_INFO_DIALOG_FRAGMENT = 0;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 1;
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 2;
@@ -69,7 +71,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     private static String mRadius = "1000";
 
-    private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
     private boolean mIsVisible;
     private boolean mPlacesRequestSubmitted;
@@ -189,7 +190,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
-            mIsGoogleConnected = true;
         }
     }
 
@@ -219,11 +219,16 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         createGoogleAPIClient();
         if (mMap != null) {
             if (mIsVisible) {
-                checkLocationPermission();
-                LatLng latLng = getLatLng();
-                if (latLng.latitude != 0 && latLng.longitude != 0) {
-                    createMarkers();
-                    mIsMapSetup = true;
+                if (isAccessFineLocationPermissionGranted()) {
+                    Log.d("locationPermGranted", "location permission already granted");
+                    setUserLocationSettings();
+                    LatLng latLng = getLatLng();
+                    if (latLng.latitude != 0 && latLng.longitude != 0) {
+                        createMarkers();
+                        mIsMapSetup = true;
+                    }
+                } else {
+                    requestFineLocationPermission();
                 }
             }
             mPlacesRequestSubmitted = false;
@@ -306,7 +311,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
      */
 
     private void createNearbyMarkers(GoogleMap googleMap) {
-        if (mIsGoogleConnected) {
+        if (mGoogleApiClient.isConnected()) {
             if (googleMap != null) {
                 googleMap.clear();
                 Log.d("onClick", "Setting markers list to empty");
@@ -338,48 +343,68 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         Log.d("showMore", "Next page token was null, won't show more");
     }
 
-    // TODO refactor to same as camera permission request
+    private boolean isAccessFineLocationPermissionGranted() {
+        return PreferencesHelper.getIntroShownPref(getContext()) && ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
     /**
      * Checks if the user has provided permission to use their location. Limits to asking twice.
      * After the first ask, shows a snackbar indefinitely which shows the permissions dialog again.
      */
-    private void checkLocationPermission() {
+    private void requestFineLocationPermission() {
         if (PreferencesHelper.getIntroShownPref(getContext())) {
-            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                Log.d("checkLocationPref", "permission already granted");
-                setUserLocationSettings();
+            // Should we show an explanation?
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                Log.d("checkLocationPer", "should show request permission rationale");
+                // Need to show permission rationale, display a snackbar and then request
+                // the permission again when the snackbar is dismissed.
+                Snackbar.make(mCoordinatorLayout,
+                        R.string.fineLocationRationale,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(android.R.string.ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Log.d("checkLocationPer", "request permission");
+                                // Request the permission again.
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSION_ACCESS_FINE_LOCATION);
+                            }
+                        }).show();
             } else {
-                // Should we show an explanation?
-                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    Log.d("checkLocationPer", "should show request permission rationale");
-                    // Need to show permission rationale, display a snackbar and then request
-                    // the permission again when the snackbar is dismissed.
-                    Snackbar.make(mCoordinatorLayout,
-                            R.string.fineLocationRationale,
-                            Snackbar.LENGTH_INDEFINITE)
-                            .setAction(android.R.string.ok, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Log.d("checkLocationPer", "request permission");
-                                    // Request the permission again.
-                                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                            MY_PERMISSION_ACCESS_FINE_LOCATION);
-                                }
-                            }).show();
+                int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
+                if (timesAsked < 2) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSION_ACCESS_FINE_LOCATION);
+                    timesAsked += 1;
+                    PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
                 } else {
-                    int timesAsked = PreferencesHelper.getTimesAskedForPermPref(getContext());
-                    if (timesAsked < 2) {
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                MY_PERMISSION_ACCESS_FINE_LOCATION);
-                        timesAsked += 1;
-                        PreferencesHelper.setTimesAskedForPermPref(getContext(), timesAsked);
-                    } else {
-                        Log.d("checkLocationPer", "don't show permission again");
-                    }
+                    Log.d("checkLocationPer", "don't show permission again");
+                    showLocationPermissionSnackbar();
                 }
-                mMyLocationButton.setVisibility(View.INVISIBLE);
             }
+            mMyLocationButton.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void showLocationPermissionSnackbar() {
+        Snackbar.make(mCoordinatorLayout,
+                R.string.fineLocationRationale,
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction("Go to Settings", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent();
+                        i.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        i.addCategory(Intent.CATEGORY_DEFAULT);
+                        i.setData(Uri.parse("package:" + getContext().getPackageName()));
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                        getContext().startActivity(i);
+                    }
+                })
+                .show();
     }
 
     /**
@@ -420,7 +445,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    if (mIsGoogleConnected) {
+                    if (mGoogleApiClient.isConnected()) {
                         setUserLocationSettings();
                     }
                 } else {
@@ -496,7 +521,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i("onConnected", "APIClient mIsGoogleConnected");
-        mIsGoogleConnected = true;
         if (!mIsMapSetup) {
             setUpMap();
         }
@@ -538,7 +562,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mMap.clear();
             mMapZoom = mMap.getCameraPosition().zoom;
         }
-        mIsGoogleConnected = false;
         mMyLocationButton.setVisibility(View.INVISIBLE);
 
         if (mBroadcastReceiver != null) {
@@ -556,7 +579,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnectionSuspended(int i) {
-        mIsGoogleConnected = false;
     }
 
     @Override
