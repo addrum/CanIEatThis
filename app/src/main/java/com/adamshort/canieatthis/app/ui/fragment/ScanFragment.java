@@ -67,6 +67,7 @@ public class ScanFragment extends Fragment {
 
     private static final int FORM_REQUEST_CODE = 0;
     private static final int MY_PERMISSION_ACCESS_CAMERA = 1;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 2;
     private static final int SCAN_REQUEST_CODE = 49374;
     private static final String EXTENSION = ".json";
 
@@ -346,14 +347,18 @@ public class ScanFragment extends Fragment {
         Log.d("onRequestPermissions", "Permissions have been requested");
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case MY_PERMISSION_ACCESS_CAMERA: {
+            case MY_PERMISSION_ACCESS_CAMERA:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     IntentIntegrator.forSupportFragment(this).initiateScan();
                 }
-            }
-            // other 'case' lines to check for other
-            // permissions this app might request
+                break;
+            case WRITE_EXTERNAL_STORAGE_PERMISSION_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Utilities.downloadDatabase(getActivity(), WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
+                }
+                break;
         }
     }
 
@@ -627,7 +632,7 @@ public class ScanFragment extends Fragment {
                 .setAction("Download", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utilities.downloadDatabase(getActivity());
+                        Utilities.downloadDatabase(getActivity(), WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
                         Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
                     }
                 })

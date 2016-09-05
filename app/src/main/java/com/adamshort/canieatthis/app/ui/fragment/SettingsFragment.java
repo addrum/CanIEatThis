@@ -2,11 +2,13 @@ package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.adamshort.canieatthis.R;
@@ -14,6 +16,9 @@ import com.adamshort.canieatthis.app.ui.activity.AppIntroActivity;
 import com.adamshort.canieatthis.app.util.Utilities;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +34,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         downloadCSVButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Utilities.downloadDatabase(getActivity());
+                Utilities.downloadDatabase(getActivity(), WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
                 return true;
             }
         });
