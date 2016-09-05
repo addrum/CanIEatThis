@@ -225,13 +225,9 @@ public class MainActivity extends AppCompatActivity implements AddPlacesInfoDial
         }
     }
 
-    // TODO do we really need the places fragment super call?
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (mPlacesFragment != null) {
-            mPlacesFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
         switch (requestCode) {
             case WRITE_EXTERNAL_STORAGE_PERMISSION_CODE:
                 if (grantResults.length > 0
