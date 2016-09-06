@@ -172,17 +172,17 @@ public class AddProductActivity extends AppCompatActivity {
                         wereErrors = true;
                     }
 
-                    if (wereErrors & !Utilities.isInDebugMode()) return;
+                    if (wereErrors /*&& !Utilities.isInDebugMode()*/) return;
 
-                    if (Utilities.isInDebugMode()) {
-                        mBarcodeText = "072417136160";
-                        mProductNameText = "Maryland Choc Chip";
-                        mQuantityText = "230g";
-                        mEnergyPerText = "450";
-                        mIngredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
-                        mTracesText = "Milk, Soya, Nuts, Wheat";
-                        mWrittenTraces = ListHelper.stringToList(mTracesText);
-                    }
+//                    if (Utilities.isInDebugMode()) {
+//                        mBarcodeText = "072417136160";
+//                        mProductNameText = "Maryland Choc Chip";
+//                        mQuantityText = "230g";
+//                        mEnergyPerText = "450";
+//                        mIngredientsText = "Fortified wheat flour, Chocolate chips (25%), Sugar, Palm oil, Golden syrup, Whey and whey derivatives (Milk), Raising agents, Salt, Flavouring";
+//                        mTracesText = "Milk, Soya, Nuts, Wheat";
+//                        mWrittenTraces = ListHelper.stringToList(mTracesText);
+//                    }
 
                     List<String> ingredientsToDisplay = ListHelper.stringToList(mIngredientsText);
 

@@ -53,7 +53,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     private final static int MY_PERMISSION_ACCESS_FINE_LOCATION = 0;
     private final static int SUBMIT_INFO_REQUEST_CODE = 1;
 
-    private boolean mIsGoogleConnected;
     private boolean mIsMapSetup;
     private int mMarkersAdded;
     private double mLat;
@@ -246,7 +245,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
             }
         });
 
-
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
@@ -320,7 +318,7 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    if (mIsGoogleConnected) {
+                    if (mGoogleApiClient.isConnected()) {
                         setUserLocationSettings();
                     }
                 } else {
@@ -337,7 +335,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i("onConnected", "APIClient mIsGoogleConnected");
-        mIsGoogleConnected = true;
         if (!mIsMapSetup) {
             setUpMap();
         }
@@ -345,7 +342,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
 
     @Override
     public void onConnectionSuspended(int i) {
-        mIsGoogleConnected = false;
     }
 
     @Override
@@ -379,7 +375,6 @@ public class MainActivity extends WearableActivity implements OnMapReadyCallback
         if (mMap != null) {
             mMap.clear();
         }
-        mIsGoogleConnected = false;
     }
 
     /**

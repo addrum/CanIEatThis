@@ -122,18 +122,20 @@ public class CSVReaderAsync extends AsyncTask<File, Void, JSONObject> {
 
     @Override
     protected void onPostExecute(JSONObject response) {
-        if (response == null) {
-            Log.d("onPostExecute", "Response was null");
+        if (mActivity != null) {
+            if (response == null) {
+                Log.d("onPostExecute", "Response was null");
+                if (mProgressBar != null) {
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                }
+                Log.d("onPostExecute", "Issue with response");
+            } else {
+                Log.i("onPostExecute", response.toString());
+            }
             if (mProgressBar != null) {
                 mProgressBar.setVisibility(View.INVISIBLE);
             }
-            Log.d("onPostExecute", "Issue with response");
-        } else {
-            Log.i("onPostExecute", response.toString());
+            mDelegate.processFinish(response);
         }
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-        }
-        mDelegate.processFinish(response);
     }
 }

@@ -20,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 public class Utilities {
 
-    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 0;
-
     private static DownloadManager mDownloadManager;
     private static FileDownloader mFileDownloader;
     private static Utilities mInstance = null;
@@ -42,7 +40,7 @@ public class Utilities {
         return activeNetwork != null && activeNetwork.isConnected();
     }
 
-    public static void downloadDatabase(Activity activity) {
+    public static void downloadDatabase(Activity activity, int requestCode) {
         if (activity != null) {
             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 mDownloadManager = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
@@ -56,7 +54,7 @@ public class Utilities {
                 editor.apply();
             } else {
                 ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
+                        requestCode);
             }
         }
     }

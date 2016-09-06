@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +40,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements AddPlacesInfoDialogFragment.OnCompleteListener {
 
     private static final int APP_INTRO_REQUEST_CODE = 0;
+    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 1;
 
     private int mPosition;
 
@@ -188,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements AddPlacesInfoDial
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.d("showDownloadPrompt", "Downloading CSV");
-                            Utilities.downloadDatabase(MainActivity.this);
+                            Utilities.downloadDatabase(MainActivity.this, WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
                         }
                     });
                     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -226,8 +228,12 @@ public class MainActivity extends AppCompatActivity implements AddPlacesInfoDial
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (mPlacesFragment != null) {
-            mPlacesFragment.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case WRITE_EXTERNAL_STORAGE_PERMISSION_CODE:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Utilities.downloadDatabase(this, WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
+                }
         }
     }
 
