@@ -3,6 +3,10 @@
     package="com.adamshort.canieatthis.app">
 
     <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <uses-feature
         android:name="android.hardware.type.watch"
         android:required="true" />
 
