@@ -633,7 +633,9 @@ public class ScanFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         Utilities.downloadDatabase(getActivity(), WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
-                        Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
+                        if (!Utilities.hasInternetConnection(getContext())) {
+                            Snackbar.make(mCoordinatorLayout, R.string.databaseDownloadOffline, Snackbar.LENGTH_LONG).show();
+                        }
                     }
                 })
                 .show();

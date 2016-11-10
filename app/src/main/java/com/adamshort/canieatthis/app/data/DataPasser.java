@@ -66,12 +66,10 @@ public class DataPasser {
     }
 
     public static List<String> getFirebaseTracesList() {
-        Log.d("fbTracesList", mFirebaseTracesList.toString());
         return mFirebaseTracesList;
     }
 
     public static List<String> getFirebaseIngredientsList() {
-        Log.d("fbIngredientsList", mFirebaseIngredientsList.toString());
         return mFirebaseIngredientsList;
     }
 
