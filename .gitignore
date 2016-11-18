@@ -39,5 +39,6 @@ captures/
 *.iml
 *.stackdump
 
+android/gradle.properties
 keys.xml
 .vscode
