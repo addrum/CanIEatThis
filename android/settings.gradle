@@ -1,1 +1,1 @@
-include ':app', ':wear', ':devicebridge'
+include ':app'

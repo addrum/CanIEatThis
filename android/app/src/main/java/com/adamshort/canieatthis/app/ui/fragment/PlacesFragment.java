@@ -2,13 +2,9 @@ package com.adamshort.canieatthis.app.ui.fragment;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -54,7 +50,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.wearable.Wearable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -79,7 +74,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
     private float mMapZoom = 15;
     private String mApiKey;
 
-    private BroadcastReceiver mBroadcastReceiver;
     private Button mSearchButton;
     private Button mShowMoreButton;
     private CoordinatorLayout mCoordinatorLayout;
@@ -186,7 +180,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                     .addApi(LocationServices.API)
-                    .addApiIfAvailable(Wearable.API)
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
@@ -298,7 +291,7 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             }
         });
 
-        mPlacesHelper = new PlacesHelper(getContext(), googleMap, false);
+        mPlacesHelper = new PlacesHelper(getContext(), googleMap);
         mPlacesHelper.addNextPageListener(this);
 
         mMap = googleMap;
@@ -536,7 +529,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
                 setUpMap();
             }
         }
-        registerBroadcastReceiver();
     }
 
     @Override
@@ -563,10 +555,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
             mMapZoom = mMap.getCameraPosition().zoom;
         }
         mMyLocationButton.setVisibility(View.INVISIBLE);
-
-        if (mBroadcastReceiver != null) {
-            getContext().unregisterReceiver(mBroadcastReceiver);
-        }
     }
 
     @Override
@@ -647,22 +635,6 @@ public class PlacesFragment extends Fragment implements GoogleApiClient.Connecti
         mLat = latLng.latitude;
         mLng = latLng.longitude;
         DataPasser.setLatLng(latLng);
-    }
-
-    private void registerBroadcastReceiver() {
-        Log.i("registerBroadcastRec", "Registering broadcast receiver on PlacesFragment");
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        if (mBroadcastReceiver == null) {
-            mBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    Log.i("onReceive", "Received a change in the broadcast receiver");
-                    shouldShowMapItems(Utilities.hasInternetConnection(context));
-                }
-            };
-        }
-        getContext().registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
     @Override
