@@ -12,7 +12,6 @@ import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.util.NextPageListener;
 import com.adamshort.canieatthis.app.util.PreferencesHelper;
 import com.adamshort.canieatthis.app.util.QueryURLAsync;
-import com.adamshort.canieatthis.app.util.SendToDataLayerThread;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -20,10 +19,8 @@ import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,17 +36,15 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
 
     private static String mNextPageToken;
 
-    private boolean mSendToWear;
     private List<NextPageListener> mNextPageListeners;
 
     private Context mContext;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
 
-    public PlacesHelper(Context context, GoogleMap map, boolean sendToWear) {
+    public PlacesHelper(Context context, GoogleMap map) {
         mContext = context;
         mMap = map;
-        mSendToWear = sendToWear;
 
         createGoogleAPIClient(context);
 
@@ -63,7 +58,6 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(context)
                     .addApi(LocationServices.API)
-                    .addApiIfAvailable(Wearable.API)
                     .addConnectionCallbacks(this)
                     .build();
             mGoogleApiClient.connect();
@@ -154,9 +148,6 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
                 }
 
                 marker.snippet(snippetText);
-                if (!mSendToWear) {
-                    marker.icon(BitmapDescriptorFactory.defaultMarker());
-                }
 
                 FirebaseAsyncRequest fb = new FirebaseAsyncRequest(false);
                 fb.execute(marker);
@@ -211,7 +202,7 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
         return value;
     }
 
-    public void showNextPage(int visibility) {
+    private void showNextPage(int visibility) {
         Log.d("showNextPage", "Notifying listeners to show 'show more' button");
 
         for (NextPageListener listener : mNextPageListeners) {
@@ -234,7 +225,7 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
 
         private boolean mIsFromCache;
 
-        public FirebaseAsyncRequest(boolean isFromCache) {
+        FirebaseAsyncRequest(boolean isFromCache) {
             mIsFromCache = isFromCache;
         }
 
@@ -390,26 +381,7 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
                 || (mVegetarianPref && (veg == null || veg))
                 || (mVeganPref && (vegan == null || vegan))
                 || (mGlutenPref && (glu == null || glu))) {
-            if (mSendToWear) {
-                try {
-                    JSONObject newMarker = new JSONObject();
-                    newMarker.put("name", marker.getTitle());
-
-                    JSONObject location = new JSONObject();
-                    LatLng latLng = marker.getPosition();
-                    location.put("lat", latLng.latitude);
-                    location.put("lng", latLng.longitude);
-                    newMarker.put("location", location);
-
-                    newMarker.put("snippet", marker.getSnippet());
-
-                    sendMarkersToWear(newMarker.toString());
-                } catch (JSONException e) {
-                    Log.e("addMarker", "Couldn't create json for marker to send to wear");
-                }
-            } else {
                 mMap.addMarker(marker);
-            }
         } else {
             Log.i("onDataChange", "Not adding marker. Name: " + marker.getTitle()
                     + " mLactosePref: " + mLactosePref
@@ -474,15 +446,6 @@ public class PlacesHelper implements GoogleApiClient.ConnectionCallbacks {
         }
 
         addMarker(marker, new Boolean[]{lactose, vegetarian, vegan, gluten});
-    }
-
-    private void sendMarkersToWear(String markers) {
-        Log.i("sendMarkersToWear", "Sending message to wear");
-        new SendToDataLayerThread("/watch_path", markers, mGoogleApiClient).start();
-    }
-
-    public GoogleApiClient getGoogleApiClient() {
-        return mGoogleApiClient;
     }
 
     @Override
