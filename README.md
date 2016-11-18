@@ -15,3 +15,15 @@ Branches "android" and "ios" are "master" branches for respective platforms. Dev
 e.g. 
 android -> feature x
 ios -> bug y
+
+## Setup
+You need two things in order to fully setup the project. The first being the keys.xml which contains all the private auth keys for various services.
+This needs to be placed at the path: ./android/devicebridge/src/main/res/values/keys.xml
+
+Secondly, you need to create a global *gradle.properties* file which points to the signing package. 
+- Create a *gradle.properties* at ~/.gradle/gradle.properties
+- Include the following four properties:
+	- RELEASE_STORE_FILE
+	- RELEASE_STORE_PASSWORD
+	- RELEASE_KEY_ALIAS
+	- RELEASE_KEY_PASSWORD
