@@ -71,14 +71,14 @@ public class ScanFragment extends Fragment {
     private static final int SCAN_REQUEST_CODE = 49374;
     private static final String EXTENSION = ".json";
 
-    private static boolean mFragmentCreated = false;
-    private static String mBarcode = "";
+    private boolean mFragmentCreated = false;
+    private String mBarcode = "";
 
-    private static CheckBox mGlutenFreeSwitch;
-    private static CheckBox mLactoseFreeSwitch;
-    private static CheckBox mVeganSwitch;
-    private static CheckBox mVegetarianSwitch;
-    private static Menu mActionMenu;
+    private CheckBox mGlutenFreeSwitch;
+    private CheckBox mLactoseFreeSwitch;
+    private CheckBox mVeganSwitch;
+    private CheckBox mVegetarianSwitch;
+    private Menu mActionMenu;
 
     private boolean mIsSearching;
 
@@ -375,7 +375,7 @@ public class ScanFragment extends Fragment {
     public void getBarcodeInformation(String barcode) {
         // 2nd param is output length, 3rd param is padding char
         barcode = StringUtils.leftPad(barcode, 13, "0");
-        ScanFragment.mBarcode = barcode;
+        mBarcode = barcode;
         if (Utilities.hasInternetConnection(getContext())) {
             QueryURLAsync rh = new QueryURLAsync(mProgressBar, 0, new QueryURLAsync.AsyncResponse() {
                 @Override
