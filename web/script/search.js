@@ -11,11 +11,18 @@
 				$scope.name = response.data.product.product_name == '' 
 					? 'No product name found' : response.data.product.product_name
 				$scope.ingredients = response.data.product.ingredients_text == ''
-					? 'No ingredients found' : response.data.product.ingredients_text
+					? 'No ingredients found' : prettifyList(response.data.product.ingredients_text)
 				$scope.traces = response.data.product.traces == ''
-					? 'No traces found' : response.data.product.traces
+					? 'No traces found' : prettifyList(response.data.product.traces)
 				$scope.results = response.data;
 			});
+		}
+
+		function prettifyList(list) {
+			return list.replace(/\[/g, "")
+				.replace(/\]/g, "")
+				.replace(/\_/g, "")
+				.toLowerCase();
 		}
 	});
 })();
