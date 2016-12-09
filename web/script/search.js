@@ -5,8 +5,6 @@
 			fetch();
 		});
 
-		$scope.search = 5051140367282;
-
 		function fetch() {
 			$http.get("http://world.openfoodfacts.org/api/v0/product/" + $scope.search)
 			.then(function(response) {
