@@ -24,9 +24,6 @@
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
 						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
 					</button>
 					<a class="navbar-left" href="#">
 						<img class="img-responsive" src="" alt="Brand">
@@ -55,10 +52,38 @@
 
 		<table class="table table-responsive table-bordered">
 			<tr>
-				<td>Lactose Free</td>
-				<td>Vegetarian</td>
-				<td>Vegan</td>
-				<td>Gluten Free</td>
+				<td class="col-md-2">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="lactoseCheckbox">
+							Lactose Free
+						</label>
+					</div>
+				</td>
+				<td class="col-md-2">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="vegetarianCheckbox">
+							Vegetarian
+						</label>
+					</div>
+				</td>
+				<td class="col-md-2">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="veganCheckbox">
+							Vegan
+						</label>
+					</div>
+				</td>
+				<td class="col-md-2">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" ng-model="glutenCheckbox">
+							Gluten Free
+						</label>
+					</div>
+				</td>
 			</tr>
 		</table>
 
@@ -82,6 +107,20 @@
 	</div>
 </div><!-- /.master-container -->
 
+<!-- firebase -->
+<script src="https://www.gstatic.com/firebasejs/3.6.3/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+  	apiKey: "AIzaSyCd2k9-sKveFH5MTyHY3dVr4mu2SYHFtDk",
+  	authDomain: "canieatthis.firebaseapp.com",
+  	databaseURL: "https://canieatthis.firebaseio.com",
+  	storageBucket: "firebase-canieatthis.appspot.com",
+  	messagingSenderId: "823859253212"
+  };
+  firebase.initializeApp(config);
+</script>
+
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
@@ -91,6 +130,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-route.js"></script>
 
+<script src="./script/helpers.js"></script>
 <script src="./script/search.js"></script>
 </body>
 </html>
