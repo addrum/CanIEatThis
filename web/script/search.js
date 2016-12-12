@@ -31,6 +31,7 @@
 
 				compareDataWithFirebase(ingredientsToTest, tracesToTest);
 			});
+
 		};
 
 		function compareDataWithFirebase(ingredients, traces) {
@@ -75,10 +76,12 @@
 
 		function updateDietaryCheckboxes(bools) {
 			console.log(bools);
-			$scope.lactoseCheckbox = bools[0];
-			$scope.vegetarianCheckbox = bools[1];
-			$scope.veganCheckbox = bools[2];
-			$scope.glutenCheckbox = bools[3];
+			$scope.$apply(function(){
+				$scope.lactoseCheckbox = bools[0];
+				$scope.vegetarianCheckbox = bools[1];
+				$scope.veganCheckbox = bools[2];
+				$scope.glutenCheckbox = bools[3];
+			});
 		}
 	});
 })();
