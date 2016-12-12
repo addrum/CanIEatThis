@@ -24,7 +24,6 @@ import android.widget.LinearLayout;
 
 import com.adamshort.canieatthis.R;
 import com.adamshort.canieatthis.app.data.DataPasser;
-import com.adamshort.canieatthis.app.data.Installation;
 import com.adamshort.canieatthis.app.ui.fragment.AddPlacesInfoDialogFragment;
 import com.adamshort.canieatthis.app.ui.fragment.PlacesFragment;
 import com.adamshort.canieatthis.app.ui.fragment.ScanFragment;
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements AddPlacesInfoDial
 
     private BroadcastReceiver mDownloadCompleteReceiver;
     private LinearLayout mTabLinearLayout;
-    private PlacesFragment mPlacesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +63,9 @@ public class MainActivity extends AppCompatActivity implements AddPlacesInfoDial
             startActivityForResult(intent, APP_INTRO_REQUEST_CODE);
         }
 
-        if (!PreferencesHelper.getInstallationFileDeletedPref(getBaseContext())) {
-            Installation.deleteInstallationFile(getBaseContext());
-            PreferencesHelper.setInstallationFileDeletedPref(getBaseContext(), true);
-        }
-
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new ScanFragment());
-        mPlacesFragment = new PlacesFragment();
+        PlacesFragment mPlacesFragment = new PlacesFragment();
         fragments.add(mPlacesFragment);
 
         mTabLinearLayout = (LinearLayout) findViewById(R.id.tabLinearLayout);

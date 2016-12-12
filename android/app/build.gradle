@@ -1,13 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
+
+    packagingOptions {
+        pickFirst  'META-INF/LICENSE'
+    }
 
     defaultConfig {
         applicationId "com.adamshort.canieatthis.app"
         minSdkVersion 19
-        targetSdkVersion 24
+        targetSdkVersion 25
 
         versionName global_versionName
         versionCode global_versionCode
@@ -42,20 +46,17 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/univocity-parsers-2.1.1.jar')
-    compile 'com.android.support:design:24.1.1'
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:support-v13:24.1.1'
-    compile 'com.google.android.gms:play-services-maps:9.4.0'
-    compile 'com.google.android.gms:play-services-location:9.4.0'
-    compile 'com.google.android.gms:play-services-places:9.4.0'
+    compile 'com.android.support:design:25.0.1'
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:support-v13:25.0.1'
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.google.android.gms:play-services-location:10.0.1'
+    compile 'com.google.android.gms:play-services-places:10.0.1'
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'com.github.medyo:android-about-page:1.0.7'
     compile 'com.firebase:firebase-client-android:2.5.2'
     compile 'com.heinrichreimersoftware:material-intro:1.5.7'
-    compile 'com.android.support:support-v4:24.1.1'
+    compile 'com.android.support:support-v4:25.0.1'
     compile 'com.journeyapps:zxing-android-embedded:3.3.0@aar'
     compile 'com.google.zxing:core:3.2.1'
-    compile 'com.google.android.gms:play-services-wearable:9.4.0'
-    wearApp project(':wear')
-    compile project(':devicebridge')
 }

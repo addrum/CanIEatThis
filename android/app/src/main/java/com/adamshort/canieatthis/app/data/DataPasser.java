@@ -87,7 +87,7 @@ public class DataPasser {
         Log.d("setMarkersList", "markersList size: " + mMarkersList.size());
     }
 
-    public static void addToMarkersList(MarkerOptions marker) {
+    static void addToMarkersList(MarkerOptions marker) {
         if (mMarkersList == null) {
             mMarkersList = new ArrayList<>();
         }
