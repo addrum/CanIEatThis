@@ -44,8 +44,8 @@
 		</nav>
 
 		<div id="search" class="center-block">
-			<input class="form-control" type="number" placeholder="Barcode" autofocus ng-model="search" 
-			ng-model-options="{ debounce: 800 }">
+			<input class="form-control" type="text" pattern="[0-9]*" placeholder="Barcode" autofocus ng-model="search" 
+			ng-model-options="{ debounce: 800 }" ng-trim="false">
 		</div><!-- /#search -->
 
 		<h3><strong>{{ name }}</strong></h3>
