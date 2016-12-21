@@ -19,7 +19,6 @@
 					? 'No ingredients found' : prettifyList(response.data.product.ingredients_text)
 				$scope.traces = response.data.product.traces == ''
 					? 'No traces found' : prettifyList(response.data.product.traces)
-				$scope.results = response.data;
 
 				var ingredientsToTest = prettifyList(response.data.product.ingredients_text);
 				ingredientsToTest = removeUnwantedCharactersForTesting(ingredientsToTest);
@@ -51,8 +50,8 @@
 		};
 
 		function checkIfValuesAreSuitable(values, snapshot, bools) {
-			for (var i = 0; i < values.length; i++) {
-				var lowerResValue = values[i].toLowerCase();
+			values.forEach(function(value) {
+				var lowerResValue = value.toLowerCase();
 				for (key in snapshot) {
 					var name = key.toLowerCase();
 					if (name === lowerResValue) {
@@ -70,12 +69,11 @@
 						}
 					}
 				}
-			}
+			});
 			return bools;
 		};
 
 		function updateDietaryCheckboxes(bools) {
-			console.log(bools);
 			$scope.$apply(function(){
 				$scope.lactoseCheckbox = bools[0];
 				$scope.vegetarianCheckbox = bools[1];
