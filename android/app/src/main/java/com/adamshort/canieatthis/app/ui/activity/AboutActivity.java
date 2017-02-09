@@ -28,6 +28,7 @@ public class AboutActivity extends AppCompatActivity {
             Log.e("onCreate", "Couldn't get package info: " + e.toString());
         }
 
+
         Intent ghIntent = new Intent(Intent.ACTION_VIEW);
         ghIntent.setData(Uri.parse(getString(R.string.issuesUrl)));
         Element gitHubElement = new Element();
@@ -42,6 +43,13 @@ public class AboutActivity extends AppCompatActivity {
                 .setIntent(offIntent)
                 .setIcon(R.drawable.ic_off);
 
+        Intent privacyIntent = new Intent(Intent.ACTION_VIEW);
+        privacyIntent.setData(Uri.parse("https://github.com/addrum/CanIEatThis-Public-/blob/master/privacy_policy.md"));
+        Element privacyElement = new Element();
+        privacyElement.setTitle("Privacy Policy")
+                .setIntent(privacyIntent)
+                .setIcon(R.drawable.about_icon_link);
+
         View aboutPage = new AboutPage(this)
                 .isRTL(false)
                 .setDescription(getString(R.string.aboutLegal))
@@ -52,6 +60,7 @@ public class AboutActivity extends AppCompatActivity {
                 .addTwitter(getString(R.string.twitter))
                 .addItem(gitHubElement)
                 .addItem(offElement)
+                .addItem(privacyElement)
                 .create();
 
         setContentView(aboutPage);
