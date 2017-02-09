@@ -13,8 +13,8 @@ buildscript {
 }
 
 subprojects {
-    ext.global_versionName = "3.0.1"
-    ext.global_versionCode = 301
+    ext.global_versionName = "3.0.2"
+    ext.global_versionCode = 302
 }
 
 allprojects {
