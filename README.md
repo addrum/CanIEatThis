@@ -23,9 +23,9 @@ Pushing to "android" and "ios" will kick off the relevant Jenkins release builds
 
 ## Setup - Android
 You need two things in order to fully setup the project. The first being the keys.xml which contains all the private auth keys for various services.
-This needs to be placed at the path: _./android/devicebridge/src/main/res/values/keys.xml_
+This needs to be placed at the path: _./android/app/src/main/res/values/keys.xml_
 
-Secondly, you need to add the following four properties to the _gradle.properties_ file that sits at _./android/gradle.properties_:
+Secondly, you need to add the following four properties to the _gradle.properties_ file that sits at _~./.gradle/gradle.properties_:
 - RELEASE_STORE_FILE
 - RELEASE_STORE_PASSWORD
 - RELEASE_KEY_ALIAS
